@@ -201,6 +201,65 @@ curl -H "Accept: application/json" http://localhost:8000/api/schema/
 curl http://localhost:8000/api/schema/
 ```
 
+## API Collection
+
+SafeNow includes ready-to-use API collections for Postman and VS Code/IntelliJ HTTP clients to streamline testing and development.
+
+### 📦 **Postman Collection**
+
+**File**: `postman/SafeNow.postman_collection.json`
+
+**Features:**
+- **Complete endpoint coverage**: All 8 core API endpoints
+- **Built-in test scripts**: Automatic validation of responses
+- **Environment variables**: Configurable base URL and coordinates
+- **Request chaining**: Store device IDs and alert IDs between requests
+- **Error scenarios**: Test validation and edge cases
+
+**Usage:**
+1. Import `postman/SafeNow.postman_collection.json` into Postman
+2. Set environment variables:
+   - `baseUrl`: `http://localhost:8000`
+   - `userLat`: `52.2297` (Warsaw coordinates)
+   - `userLon`: `21.0122`
+3. Run collection or individual requests
+
+### 🔥 **VS Code/IntelliJ HTTP Client**
+
+**File**: `requests.http`
+
+**Features:**
+- **22 predefined requests**: Core endpoints + error testing + performance scenarios
+- **Inline documentation**: Clear descriptions and usage examples
+- **Variable templates**: Easy customization of coordinates and IDs
+- **Error testing**: Invalid inputs and edge cases
+- **Performance testing**: Benchmarking scenarios
+
+**Usage:**
+1. Open `requests.http` in VS Code (with REST Client extension) or IntelliJ/PyCharm
+2. Modify variables at the top of the file if needed
+3. Click "Send Request" on any request line
+4. View responses inline
+
+### 🚀 **Quick Test Sequence**
+
+```bash
+# 1. Start server
+make run
+
+# 2. Load demo data
+python manage.py reset_demo --yes
+
+# 3. Test core workflow (using curl or HTTP clients):
+# Health → Simulate Alert → Get Active Alerts → Get Nearby Shelters → Register Device → Update Status
+```
+
+**Postman Test Results:**
+- ✅ All endpoints return expected status codes
+- ✅ Response schemas match OpenAPI specification
+- ✅ Authentication and validation work correctly
+- ✅ Error handling returns proper JSON error format
+
 ## API Endpoints
 
 ### Health Check

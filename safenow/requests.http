@@ -1,0 +1,151 @@
+### SafeNow API - VS Code/IntelliJ HTTP Client Collection
+### Complete API testing suite for SafeNow civilian safety platform
+###
+### Variables (modify as needed):
+### @baseUrl = http://localhost:8000
+### @userLat = 52.2297  # Warsaw Central Station coordinates
+### @userLon = 21.0122
+
+### 1. Health Check - System status and resource counts
+GET {{baseUrl}}/api/health/
+Accept: application/json
+
+### 2. Simulate Emergency Alert - Create CRITICAL MISSILE alert
+POST {{baseUrl}}/api/simulate-alert/
+Content-Type: application/json
+
+{
+  "hazard_type": "MISSILE",
+  "severity": "CRITICAL",
+  "center_lat": 52.2297,
+  "center_lon": 21.0122,
+  "radius_m": 5000,
+  "valid_minutes": 60
+}
+
+### 3. Simulate Fire Alert - Create MEDIUM severity fire alert
+POST {{baseUrl}}/api/simulate-alert/
+Content-Type: application/json
+
+{
+  "hazard_type": "FIRE",
+  "severity": "MEDIUM",
+  "center_lat": 52.2319,
+  "center_lon": 20.9957,
+  "radius_m": 2000,
+  "valid_minutes": 30
+}
+
+### 4. Get Active Alerts - Alerts affecting user location
+GET {{baseUrl}}/api/active-alerts/?lat={{userLat}}&lon={{userLon}}
+Accept: application/json
+
+### 5. Get Nearby Shelters - Find closest shelters with distance and ETA
+GET {{baseUrl}}/api/nearby-shelters/?lat={{userLat}}&lon={{userLon}}&limit=3
+Accept: application/json
+
+### 6. Get Nearby Shelters (Extended) - More shelters for comparison
+GET {{baseUrl}}/api/nearby-shelters/?lat={{userLat}}&lon={{userLon}}&limit=10
+Accept: application/json
+
+### 7. Register Device - Register mobile device for push notifications
+POST {{baseUrl}}/api/devices/register/
+Content-Type: application/json
+
+{
+  "device_id": "demo_device_http",
+  "push_token": "FCM_TOKEN_http_client_xyz789abc123",
+  "lat": 52.2297,
+  "lon": 21.0122
+}
+
+### 8. Update Safety Status - Mark user as OK
+POST {{baseUrl}}/api/status/
+Content-Type: application/json
+
+{
+  "device_id": "demo_device_http",
+  "status": "OK"
+}
+
+### 9. Update Safety Status - Mark user as in shelter
+POST {{baseUrl}}/api/status/
+Content-Type: application/json
+
+{
+  "device_id": "demo_device_http",
+  "status": "IN_SHELTER",
+  "shelter_id": 1
+}
+
+### 10. Update Safety Status - Mark user needs help
+POST {{baseUrl}}/api/status/
+Content-Type: application/json
+
+{
+  "device_id": "demo_device_http",
+  "status": "NEEDS_HELP"
+}
+
+### 11. Get Safety Instructions - MISSILE scenario with 2 minute ETA
+GET {{baseUrl}}/api/safety-instructions/?hazard_type=MISSILE&eta_seconds=120
+Accept: application/json
+
+### 12. Get Safety Instructions - FIRE scenario with immediate shelter access
+GET {{baseUrl}}/api/safety-instructions/?hazard_type=FIRE&eta_seconds=0
+Accept: application/json
+
+### 13. Get Safety Instructions - FLOOD scenario with 5 minute ETA
+GET {{baseUrl}}/api/safety-instructions/?hazard_type=FLOOD&eta_seconds=300
+Accept: application/json
+
+### Error Testing Scenarios ###
+
+### 14. Test Invalid Coordinates - Should return 400
+GET {{baseUrl}}/api/nearby-shelters/?lat=invalid&lon=21.0122
+Accept: application/json
+
+### 15. Test Missing Required Fields - Device registration without device_id
+POST {{baseUrl}}/api/devices/register/
+Content-Type: application/json
+
+{
+  "push_token": "FCM_TOKEN_missing_device_id"
+}
+
+### 16. Test Invalid Status - IN_SHELTER without shelter_id
+POST {{baseUrl}}/api/status/
+Content-Type: application/json
+
+{
+  "device_id": "demo_device_http",
+  "status": "IN_SHELTER"
+}
+
+### 17. Test Invalid Hazard Type - Should return 400
+GET {{baseUrl}}/api/safety-instructions/?hazard_type=INVALID_TYPE&eta_seconds=120
+Accept: application/json
+
+### 18. Test Non-existent Endpoint - Should return 404
+GET {{baseUrl}}/api/nonexistent/
+Accept: application/json
+
+### Performance Testing ###
+
+### 19. Benchmark Nearby Shelters - Same request for timing comparison
+GET {{baseUrl}}/api/nearby-shelters/?lat={{userLat}}&lon={{userLon}}&limit=20
+Accept: application/json
+
+### Administrative Access ###
+
+### 20. Access Django Admin (will redirect to login)
+GET {{baseUrl}}/admin/
+Accept: text/html
+
+### 21. API Documentation - Swagger UI
+GET {{baseUrl}}/api/docs/
+Accept: text/html
+
+### 22. API Schema - OpenAPI specification
+GET {{baseUrl}}/api/schema/
+Accept: application/json

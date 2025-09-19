@@ -1,0 +1,470 @@
+{
+	"info": {
+		"_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+		"name": "SafeNow API",
+		"description": "Complete API collection for SafeNow civilian safety platform. Tests all core endpoints for emergency alerts, shelter location, device management, and safety status tracking.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "12345678"
+	},
+	"item": [
+		{
+			"name": "Health Check",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response has status 'ok'\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.status).to.eql('ok');",
+							"});",
+							"",
+							"pm.test(\"Response includes counts\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.counts).to.be.an('object');",
+							"    pm.expect(jsonData.counts.shelters).to.be.a('number');",
+							"    pm.expect(jsonData.counts.active_alerts).to.be.a('number');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/health/",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"health",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Simulate Emergency Alert",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Alert created successfully\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.id).to.be.a('number');",
+							"    pm.expect(jsonData.hazard_type).to.eql('MISSILE');",
+							"    pm.expect(jsonData.severity).to.eql('CRITICAL');",
+							"});",
+							"",
+							"// Store alert ID for cleanup or further testing",
+							"if (pm.response.code === 201) {",
+							"    var responseJson = pm.response.json();",
+							"    pm.environment.set('lastAlertId', responseJson.id);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"hazard_type\": \"MISSILE\",\n  \"severity\": \"CRITICAL\",\n  \"center_lat\": 52.2297,\n  \"center_lon\": 21.0122,\n  \"radius_m\": 5000,\n  \"valid_minutes\": 60\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/simulate-alert/",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"simulate-alert",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Active Alerts",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response is array\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.be.an('array');",
+							"});",
+							"",
+							"pm.test(\"Alert objects have required fields\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    if (jsonData.length > 0) {",
+							"        pm.expect(jsonData[0]).to.have.property('id');",
+							"        pm.expect(jsonData[0]).to.have.property('hazard_type');",
+							"        pm.expect(jsonData[0]).to.have.property('severity');",
+							"        pm.expect(jsonData[0]).to.have.property('distance_km');",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/active-alerts/?lat={{userLat}}&lon={{userLon}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"active-alerts",
+						""
+					],
+					"query": [
+						{
+							"key": "lat",
+							"value": "{{userLat}}"
+						},
+						{
+							"key": "lon",
+							"value": "{{userLon}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Nearby Shelters",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response is array\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.be.an('array');",
+							"});",
+							"",
+							"pm.test(\"Shelters have required fields\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    if (jsonData.length > 0) {",
+							"        pm.expect(jsonData[0]).to.have.property('id');",
+							"        pm.expect(jsonData[0]).to.have.property('name');",
+							"        pm.expect(jsonData[0]).to.have.property('distance_km');",
+							"        pm.expect(jsonData[0]).to.have.property('eta_seconds');",
+							"        pm.expect(jsonData[0]).to.have.property('is_open_now');",
+							"    }",
+							"});",
+							"",
+							"pm.test(\"Results are sorted by distance\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    if (jsonData.length > 1) {",
+							"        pm.expect(jsonData[0].distance_km).to.be.at.most(jsonData[1].distance_km);",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/nearby-shelters/?lat={{userLat}}&lon={{userLon}}&limit=3",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"nearby-shelters",
+						""
+					],
+					"query": [
+						{
+							"key": "lat",
+							"value": "{{userLat}}"
+						},
+						{
+							"key": "lon",
+							"value": "{{userLon}}"
+						},
+						{
+							"key": "limit",
+							"value": "3"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Register Device",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Device registered successfully\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.device_id).to.eql('demo_device_postman');",
+							"    pm.expect(jsonData.message).to.include('registered successfully');",
+							"});",
+							"",
+							"// Store device ID for subsequent requests",
+							"pm.environment.set('testDeviceId', 'demo_device_postman');"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"device_id\": \"demo_device_postman\",\n  \"push_token\": \"FCM_TOKEN_postman_demo_abc123xyz789\",\n  \"lat\": 52.2297,\n  \"lon\": 21.0122\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/devices/register/",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"devices",
+						"register",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Safety Status - OK",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Safety status updated\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.device_id).to.eql('demo_device_postman');",
+							"    pm.expect(jsonData.status).to.eql('OK');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"device_id\": \"{{testDeviceId}}\",\n  \"status\": \"OK\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/status/",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"status",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Safety Status - In Shelter",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Safety status updated to IN_SHELTER\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.device_id).to.eql('demo_device_postman');",
+							"    pm.expect(jsonData.status).to.eql('IN_SHELTER');",
+							"    pm.expect(jsonData.shelter_id).to.eql(1);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"device_id\": \"{{testDeviceId}}\",\n  \"status\": \"IN_SHELTER\",\n  \"shelter_id\": 1\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/status/",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"status",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Safety Instructions",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Instructions have required structure\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('title');",
+							"    pm.expect(jsonData).to.have.property('steps');",
+							"    pm.expect(jsonData).to.have.property('do_not');",
+							"    pm.expect(jsonData).to.have.property('eta_hint');",
+							"    pm.expect(jsonData.steps).to.be.an('array');",
+							"    pm.expect(jsonData.do_not).to.be.an('array');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/safety-instructions/?hazard_type=MISSILE&eta_seconds=120",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"safety-instructions",
+						""
+					],
+					"query": [
+						{
+							"key": "hazard_type",
+							"value": "MISSILE"
+						},
+						{
+							"key": "eta_seconds",
+							"value": "120"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8000",
+			"type": "string"
+		},
+		{
+			"key": "userLat",
+			"value": "52.2297",
+			"type": "string"
+		},
+		{
+			"key": "userLon",
+			"value": "21.0122",
+			"type": "string"
+		}
+	]
+}
