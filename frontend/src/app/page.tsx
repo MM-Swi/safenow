@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import { EmergencyModeToggle } from '@/components/EmergencyModeToggle';
-import { Shield, BookOpen, Phone } from 'lucide-react';
+import { EmergencyDashboard } from '@/components/EmergencyDashboard';
+import { Shield, BookOpen, Phone, Activity } from 'lucide-react';
 
 export default function Home() {
   const [isEmergencyMode, setIsEmergencyMode] = useState(false);
@@ -73,24 +74,48 @@ export default function Home() {
           </CardContent>
         </Card>
 
-        {/* Education Section */}
-        <div className="flex justify-center mb-16">
-          <div className="w-full max-w-md">
-            <Card className="group border-0 bg-gradient-to-br from-blue-500 to-purple-600 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 cursor-pointer"
-                  onClick={() => router.push('/education')}>
-              <CardHeader className="p-8">
-                <CardTitle className="flex items-center gap-4 text-2xl font-bold text-white mb-3">
-                  <div className="p-3 bg-white/20 backdrop-blur-sm rounded-2xl group-hover:bg-white/30 transition-colors duration-300">
-                    <BookOpen className="w-8 h-8" />
-                  </div>
-                  Sekcja edukacyjna
-                </CardTitle>
-                <CardDescription className="text-blue-100 text-lg font-medium leading-relaxed">
-                  Kompleksowe materiały edukacyjne o przygotowaniu na różne sytuacje kryzysowe
-                </CardDescription>
-              </CardHeader>
-            </Card>
+        {/* Main Features Grid */}
+        <div className="grid md:grid-cols-2 gap-8 mb-16">
+          {/* Education Section */}
+          <Card className="group border-0 bg-gradient-to-br from-blue-500 to-purple-600 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 cursor-pointer"
+                onClick={() => router.push('/education')}>
+            <CardHeader className="p-8">
+              <CardTitle className="flex items-center gap-4 text-2xl font-bold text-white mb-3">
+                <div className="p-3 bg-white/20 backdrop-blur-sm rounded-2xl group-hover:bg-white/30 transition-colors duration-300">
+                  <BookOpen className="w-8 h-8" />
+                </div>
+                Sekcja edukacyjna
+              </CardTitle>
+              <CardDescription className="text-blue-100 text-lg font-medium leading-relaxed">
+                Kompleksowe materiały edukacyjne o przygotowaniu na różne sytuacje kryzysowe
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          {/* Emergency Dashboard */}
+          <Card className="group border-0 bg-gradient-to-br from-orange-500 to-red-600 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 cursor-pointer"
+                onClick={() => router.push('/emergency')}>
+            <CardHeader className="p-8">
+              <CardTitle className="flex items-center gap-4 text-2xl font-bold text-white mb-3">
+                <div className="p-3 bg-white/20 backdrop-blur-sm rounded-2xl group-hover:bg-white/30 transition-colors duration-300">
+                  <Activity className="w-8 h-8" />
+                </div>
+                Panel sytuacji kryzysowych
+              </CardTitle>
+              <CardDescription className="text-orange-100 text-lg font-medium leading-relaxed">
+                Monitorowanie aktywnych alertów i najbliższych schronów w czasie rzeczywistym
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </div>
+
+        {/* Live Emergency Dashboard */}
+        <div className="mb-16">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Aktualny status bezpieczeństwa</h2>
+            <p className="text-gray-600 text-lg">Dane w czasie rzeczywistym z systemu SafeNow</p>
           </div>
+          <EmergencyDashboard />
         </div>
 
 

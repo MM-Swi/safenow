@@ -5,41 +5,48 @@ import { useRouter } from 'next/navigation';
 import { EmergencyCard } from '@/components/EmergencyCard';
 import { MapPlaceholder } from '@/components/MapPlaceholder';
 import { EmergencyModeToggle } from '@/components/EmergencyModeToggle';
+import { EmergencyDashboard } from '@/components/EmergencyDashboard';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { emergencyData } from '@/data/emergencies';
 import { EmergencyType, ActiveEmergency } from '@/types/emergency';
-import { AlertTriangle, ArrowLeft, Phone } from 'lucide-react';
+import { useEmergencyData, useUpdateSafetyStatus } from '@/hooks/useApi';
+import { mapHazardTypeToEmergencyType, generateDeviceId } from '@/lib/utils/api';
+import { AlertTriangle, ArrowLeft, Phone, Shield } from 'lucide-react';
 
 export default function EmergencyPage() {
-  const [activeEmergency, setActiveEmergency] = useState<ActiveEmergency | null>(null);
-  const [showMap, setShowMap] = useState(false);
+  const [location, setLocation] = useState<{ lat: number; lon: number } | null>(null);
+  const [selectedShelterId, setSelectedShelterId] = useState<number | null>(null);
   const router = useRouter();
 
-  // Simulate receiving emergency data from backend
-  useEffect(() => {
-    // This would normally come from your backend API
-    const simulateEmergencyData = () => {
-      const emergencyTypes: EmergencyType[] = ['missile_attack', 'flood', 'wildfire'];
-      const randomType = emergencyTypes[Math.floor(Math.random() * emergencyTypes.length)];
-      
-      setActiveEmergency({
-        type: randomType,
-        location: {
-          lat: 52.2297,
-          lng: 21.0122,
-          name: 'Schronienie Centrum',
-          type: 'shelter',
-          distance: 0.8
-        },
-        isActive: true,
-        timestamp: new Date()
-      });
-    };
+  const { alerts, shelters, isLoading, isError } = useEmergencyData(
+    location?.lat || 0,
+    location?.lon || 0,
+    !!location
+  );
 
-    // Simulate delay for loading emergency data
-    const timer = setTimeout(simulateEmergencyData, 1000);
-    return () => clearTimeout(timer);
+  const updateSafetyStatusMutation = useUpdateSafetyStatus();
+
+  // Get user location
+  useEffect(() => {
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLocation({
+            lat: position.coords.latitude,
+            lon: position.coords.longitude,
+          });
+        },
+        (error) => {
+          console.error('Error getting location:', error);
+          // Fallback to Warsaw coordinates for demo
+          setLocation({ lat: 52.2297, lon: 21.0122 });
+        }
+      );
+    } else {
+      // Fallback to Warsaw coordinates
+      setLocation({ lat: 52.2297, lon: 21.0122 });
+    }
   }, []);
 
   const handleEmergencyToggle = (isEmergency: boolean) => {
@@ -48,15 +55,41 @@ export default function EmergencyPage() {
     }
   };
 
-  const handleFindShelter = () => {
-    setShowMap(true);
+  const handleShelterCheckIn = (shelterId: number) => {
+    const deviceId = generateDeviceId();
+    updateSafetyStatusMutation.mutate({
+      device_id: deviceId,
+      status: 'IN_SHELTER',
+      shelter_id: shelterId,
+    }, {
+      onSuccess: () => {
+        setSelectedShelterId(shelterId);
+        alert('Zgłoszono pobyt w schronie. Służby ratunkowe zostały poinformowane.');
+      },
+      onError: (error) => {
+        console.error('Failed to update safety status:', error);
+        alert('Nie udało się zgłosić pobytu w schronie. Spróbuj ponownie.');
+      },
+    });
   };
 
   const handleBackToHome = () => {
     router.push('/');
   };
 
-  if (!activeEmergency) {
+  if (!location) {
+    return (
+      <div className="min-h-screen bg-red-50 flex items-center justify-center">
+        <div className="text-center">
+          <AlertTriangle className="w-16 h-16 text-red-600 mx-auto mb-4 animate-pulse" />
+          <h2 className="text-2xl font-bold text-red-900 mb-2">Pobieranie lokalizacji...</h2>
+          <p className="text-red-700">Określamy Twoją pozycję dla najlepszych instrukcji</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-red-50 flex items-center justify-center">
         <div className="text-center">
@@ -68,7 +101,9 @@ export default function EmergencyPage() {
     );
   }
 
-  const emergency = emergencyData[activeEmergency.type];
+  // Get the most critical alert for emergency instructions
+  const criticalAlert = alerts.find(alert => alert.severity === 'CRITICAL') || alerts[0];
+  const emergency = criticalAlert ? emergencyData[mapHazardTypeToEmergencyType(criticalAlert.hazard_type)] : null;
 
   return (
     <div className="min-h-screen bg-red-50">
@@ -113,22 +148,58 @@ export default function EmergencyPage() {
         </Card>
 
         {/* Emergency Instructions */}
-        <div className="mb-6">
-          <EmergencyCard 
-            emergency={emergency}
-            onFindShelter={handleFindShelter}
-          />
-        </div>
-
-        {/* Map Section */}
-        {showMap && activeEmergency.location && (
+        {emergency && (
           <div className="mb-6">
-            <MapPlaceholder
-              shelterName={activeEmergency.location.name}
-              distance={`${activeEmergency.location.distance} km`}
-              address="ul. Przykładowa 123, Warszawa"
+            <EmergencyCard 
+              emergency={emergency}
+              onFindShelter={() => {}}
             />
           </div>
+        )}
+
+        {/* Real-time Emergency Dashboard */}
+        <div className="mb-6">
+          <EmergencyDashboard lat={location.lat} lon={location.lon} />
+        </div>
+
+        {/* Shelter Check-in Section */}
+        {shelters.length > 0 && (
+          <Card className="border-blue-300 bg-blue-50 mb-6">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-blue-900">
+                <Shield className="w-5 h-5" />
+                Zgłoś pobyt w schronie
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-blue-800 mb-4">
+                Jeśli dotarłeś do schronu, zgłoś swój pobyt służbom ratunkowym:
+              </p>
+              <div className="space-y-2">
+                {shelters.slice(0, 3).map((shelter) => (
+                  <Button
+                    key={shelter.id}
+                    onClick={() => handleShelterCheckIn(shelter.id)}
+                    variant="outline"
+                    className="w-full justify-start"
+                    disabled={updateSafetyStatusMutation.isPending || selectedShelterId === shelter.id}
+                  >
+                    {selectedShelterId === shelter.id ? (
+                      <>
+                        <Shield className="w-4 h-4 mr-2 text-green-600" />
+                        Zgłoszono pobyt - {shelter.name}
+                      </>
+                    ) : (
+                      <>
+                        <Shield className="w-4 h-4 mr-2" />
+                        Jestem w: {shelter.name}
+                      </>
+                    )}
+                  </Button>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         )}
 
         {/* Additional Emergency Info */}
@@ -152,7 +223,7 @@ export default function EmergencyPage() {
 
         {/* Footer */}
         <div className="text-center text-red-700 text-sm mt-6">
-          <p>Ostatnia aktualizacja: {activeEmergency.timestamp.toLocaleTimeString('pl-PL')}</p>
+          <p>Ostatnia aktualizacja: {new Date().toLocaleTimeString('pl-PL')}</p>
           <p className="mt-1 font-semibold">To jest tryb awaryjny - w przypadku zagrożenia życia dzwoń 112</p>
         </div>
       </div>
