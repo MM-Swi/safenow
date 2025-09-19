@@ -56,7 +56,7 @@ export function EmergencyDashboard({ lat, lon }: EmergencyDashboardProps) {
 
   // Register device for push notifications
   useEffect(() => {
-    if (location && !deviceRegistered) {
+    if (location && !deviceRegistered && !registerDeviceMutation.isPending) {
       const deviceId = generateDeviceId();
       registerDeviceMutation.mutate(
         { device_id: deviceId },
@@ -67,11 +67,13 @@ export function EmergencyDashboard({ lat, lon }: EmergencyDashboardProps) {
           },
           onError: (error) => {
             console.error('Failed to register device:', error);
+            // Don't retry immediately to avoid rate limiting
           },
         }
       );
     }
-  }, [location, deviceRegistered, registerDeviceMutation]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location, deviceRegistered]); // Intentionally excluding registerDeviceMutation to prevent infinite loop
 
   if (!location) {
     return (
