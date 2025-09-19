@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeNow - Emergency Alert Simulation</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+</head>
+<body class="bg-light">
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow">
+                    <div class="card-header bg-danger text-white">
+                        <h3 class="mb-0">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            SafeNow Emergency Alert Simulation
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        {% if success %}
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <i class="bi bi-check-circle-fill me-2"></i>
+                                <strong>Success!</strong> {{ message }}
+                                <p class="mb-1 mt-2">
+                                    <strong>Alert Details:</strong><br>
+                                    Type: {{ alert.get_hazard_type_display }}<br>
+                                    Severity: {{ alert.get_severity_display }}<br>
+                                    Location: {{ alert.center_lat }}, {{ alert.center_lon }}<br>
+                                    Radius: {{ alert.radius_m }}m<br>
+                                    Valid until: {{ alert.valid_until|date:"Y-m-d H:i:s" }}
+                                </p>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endif %}
+
+                        {% if not success and errors %}
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="bi bi-exclamation-circle-fill me-2"></i>
+                                <strong>Error!</strong> Please fix the following issues:
+                                <ul class="mb-0 mt-2">
+                                    {% for field, field_errors in errors.items %}
+                                        {% for error in field_errors %}
+                                            <li>{{ field }}: {{ error }}</li>
+                                        {% endfor %}
+                                    {% endfor %}
+                                </ul>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endif %}
+
+                        <form method="post" class="needs-validation" novalidate>
+                            {% csrf_token %}
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="hazard_type" class="form-label">
+                                        <i class="bi bi-lightning-fill text-warning me-1"></i>
+                                        Hazard Type
+                                    </label>
+                                    <select class="form-select" id="hazard_type" name="hazard_type" required>
+                                        <option value="">Select hazard type...</option>
+                                        {% for value, label in hazard_types %}
+                                            <option value="{{ value }}" {% if form_data.hazard_type == value %}selected{% endif %}>
+                                                {{ label }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="severity" class="form-label">
+                                        <i class="bi bi-thermometer-half text-danger me-1"></i>
+                                        Severity Level
+                                    </label>
+                                    <select class="form-select" id="severity" name="severity" required>
+                                        {% for value, label in severities %}
+                                            <option value="{{ value }}" {% if form_data.severity == value or value == 'MEDIUM' and not form_data.severity %}selected{% endif %}>
+                                                {{ label }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="center_lat" class="form-label">
+                                        <i class="bi bi-geo-alt-fill text-primary me-1"></i>
+                                        Latitude
+                                    </label>
+                                    <input type="number" class="form-control" id="center_lat" name="center_lat"
+                                           step="0.000001" min="-90" max="90"
+                                           value="{{ form_data.center_lat|default:'52.2297' }}"
+                                           placeholder="52.2297" required>
+                                    <div class="form-text">Warsaw Central: 52.2297</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="center_lon" class="form-label">
+                                        <i class="bi bi-geo-alt-fill text-primary me-1"></i>
+                                        Longitude
+                                    </label>
+                                    <input type="number" class="form-control" id="center_lon" name="center_lon"
+                                           step="0.000001" min="-180" max="180"
+                                           value="{{ form_data.center_lon|default:'21.0122' }}"
+                                           placeholder="21.0122" required>
+                                    <div class="form-text">Warsaw Central: 21.0122</div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="radius_m" class="form-label">
+                                        <i class="bi bi-circle text-info me-1"></i>
+                                        Radius (meters)
+                                    </label>
+                                    <input type="number" class="form-control" id="radius_m" name="radius_m"
+                                           min="1" max="50000"
+                                           value="{{ form_data.radius_m|default:'5000' }}"
+                                           placeholder="5000" required>
+                                    <div class="form-text">Maximum: 50,000m (50km)</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="valid_minutes" class="form-label">
+                                        <i class="bi bi-clock-fill text-success me-1"></i>
+                                        Valid Duration (minutes)
+                                    </label>
+                                    <input type="number" class="form-control" id="valid_minutes" name="valid_minutes"
+                                           min="1" max="1440"
+                                           value="{{ form_data.valid_minutes|default:'60' }}"
+                                           placeholder="60" required>
+                                    <div class="form-text">Maximum: 1440 minutes (24 hours)</div>
+                                </div>
+                            </div>
+
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle-fill me-2"></i>
+                                <strong>Note:</strong>
+                                {% if debug_mode %}
+                                    Running in DEBUG mode - no authentication required.
+                                {% else %}
+                                    Running in production mode - API requires X-API-KEY header.
+                                {% endif %}
+                            </div>
+
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <button type="button" class="btn btn-outline-secondary me-md-2" onclick="setWarsawDefaults()">
+                                    <i class="bi bi-geo-fill me-1"></i>
+                                    Use Warsaw Center
+                                </button>
+                                <button type="submit" class="btn btn-danger btn-lg">
+                                    <i class="bi bi-broadcast me-2"></i>
+                                    Create Emergency Alert
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-link-45deg me-2"></i>
+                                API Usage
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <p>You can also create alerts via POST request to:</p>
+                            <code class="d-block bg-light p-2 rounded">
+                                POST /api/simulate-alert/
+                            </code>
+                            <div class="mt-2">
+                                <strong>Payload example:</strong>
+                                <pre class="bg-light p-2 rounded mt-1"><code>{
+  "hazard_type": "MISSILE",
+  "severity": "CRITICAL",
+  "center_lat": 52.2297,
+  "center_lon": 21.0122,
+  "radius_m": 5000,
+  "valid_minutes": 60
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function setWarsawDefaults() {
+            document.getElementById('center_lat').value = '52.2297';
+            document.getElementById('center_lon').value = '21.0122';
+            document.getElementById('radius_m').value = '5000';
+        }
+
+        // Form validation
+        (function() {
+            'use strict';
+            window.addEventListener('load', function() {
+                var forms = document.getElementsByClassName('needs-validation');
+                var validation = Array.prototype.filter.call(forms, function(form) {
+                    form.addEventListener('submit', function(event) {
+                        if (form.checkValidity() === false) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add('was-validated');
+                    }, false);
+                });
+            }, false);
+        })();
+    </script>
+</body>
+</html>

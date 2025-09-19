@@ -1,0 +1,76 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  python-tests:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: safenow
+          POSTGRES_USER: safenow
+          POSTGRES_PASSWORD: safenow
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U safenow"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Create .env for CI
+        run: |
+          cp .env.example .env
+          # Override DB to point at CI Postgres service
+          sed -i 's/^DB_NAME=.*/DB_NAME=safenow/' .env
+          sed -i 's/^DB_USER=.*/DB_USER=safenow/' .env
+          sed -i 's/^DB_PASS=.*/DB_PASS=safenow/' .env
+          sed -i 's/^DB_HOST=.*/DB_HOST=localhost/' .env
+          sed -i 's/^DB_PORT=.*/DB_PORT=5432/' .env
+          # Ensure DEBUG=0 to catch PROD-like mistakes in serializers, etc.
+          sed -i 's/^DEBUG=.*/DEBUG=0/' .env
+          # Provide a safe default FCM key to avoid code crashes
+          sed -i 's/^FCM_SERVER_KEY=.*/FCM_SERVER_KEY=ci-dummy/' .env
+          # Provide simulation API key for tests
+          sed -i 's/^SIMULATION_API_KEY=.*/SIMULATION_API_KEY=ci-test-key/' .env
+
+      - name: Wait for Postgres
+        run: |
+          for i in {1..30}; do
+            pg_isready -h localhost -p 5432 -U safenow && break
+            echo "Postgres not ready yet... ($i)"
+            sleep 2
+          done
+
+      - name: Run migrations
+        run: |
+          python manage.py migrate --noinput
+
+      - name: Run tests
+        env:
+          # Ensure Django sees the same .env config (if your settings load it)
+          DJANGO_SETTINGS_MODULE: safenow_project.settings
+        run: |
+          python manage.py test --verbosity=1

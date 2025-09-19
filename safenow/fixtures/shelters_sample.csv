@@ -1,0 +1,9 @@
+name,address,lat,lon,is_verified,capacity,is_open_now,source
+Warsaw Central Station Shelter,Aleje Jerozolimskie 54 Warsaw,52.2297,21.0122,true,500,true,municipal
+Palace of Culture Underground,Plac Defilad 1 Warsaw,52.2319,20.9957,true,300,true,municipal
+Old Town Metro Station,Plac Zamkowy Warsaw,52.2477,21.0130,true,200,true,municipal
+University of Warsaw Basement,Krakowskie Przedmieście 26/28 Warsaw,52.2397,21.0175,false,150,true,university
+Lazienki Park Emergency Shelter,Agrykola 1 Warsaw,52.2148,21.0350,true,100,false,park_service
+Wilanow Palace Basement,Stanisława Kostki Potockiego 10/16 Warsaw,52.1655,21.0918,false,80,true,heritage
+Praga District Community Center,Targowa 56 Warsaw,52.2514,21.0380,true,250,true,community
+Warsaw Zoo Emergency Facility,Ratuszowa 1/3 Warsaw,52.2425,21.0054,false,120,true,zoo

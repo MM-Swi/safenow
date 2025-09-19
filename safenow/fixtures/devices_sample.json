@@ -1,0 +1,24 @@
+[
+  {
+    "model": "devices.device",
+    "pk": 1,
+    "fields": {
+      "device_id": "demo_mobile_001",
+      "push_token": "FCM_TOKEN_abc123def456ghi789jkl012mno345pqr678stu901vwx234yz",
+      "last_lat": 52.2297,
+      "last_lon": 21.0122,
+      "last_seen_at": "2025-09-19T06:00:00Z"
+    }
+  },
+  {
+    "model": "devices.device",
+    "pk": 2,
+    "fields": {
+      "device_id": "demo_tablet_002",
+      "push_token": "FCM_TOKEN_zyx987wvu654tsr321qpo098nml765kji432hgf109edc876ba",
+      "last_lat": 52.2319,
+      "last_lon": 20.9957,
+      "last_seen_at": "2025-09-19T05:45:00Z"
+    }
+  }
+]
