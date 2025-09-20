@@ -229,3 +229,24 @@ class SimulateAlertSerializer(serializers.Serializer):
             'created_at': instance.created_at,
             'message': f'{instance.get_severity_display()} {instance.get_hazard_type_display()} alert created successfully'
         }
+
+
+class EmergencyEducationSerializer(serializers.Serializer):
+    """Emergency education data for learning and preparation."""
+    hazard_type = serializers.CharField(help_text="Hazard type identifier")
+    title = serializers.CharField(help_text="Emergency type title in Polish")
+    description = serializers.CharField(help_text="Brief description of the emergency")
+    priority = serializers.CharField(help_text="Priority level (low, medium, high, critical)")
+    icon = serializers.CharField(help_text="Emoji icon for the emergency type")
+    practical_tips = serializers.ListField(
+        child=serializers.CharField(),
+        help_text="Practical preparation tips"
+    )
+    warning_signs = serializers.ListField(
+        child=serializers.CharField(),
+        help_text="Warning signs to watch for"
+    )
+    preparation_steps = serializers.ListField(
+        child=serializers.CharField(),
+        help_text="Steps to prepare for this emergency"
+    )

@@ -21,6 +21,7 @@ from .serializers import (
     DeviceRegisterSerializer,
     SafetyStatusSerializer,
     SimulateAlertSerializer,
+    EmergencyEducationSerializer,
 )
 
 
@@ -396,3 +397,33 @@ class SafetyInstructionsView(APIView):
         instructions = advisor.get_instructions(hazard_type, eta_seconds)
 
         return Response(instructions)
+
+
+class EmergencyEducationView(APIView):
+    """Emergency education data for learning and preparation."""
+
+    throttle_classes = [AnonRateThrottle]
+
+    @extend_schema(
+        summary="Get Emergency Education Data",
+        description="Get comprehensive emergency education data including practical tips, warning signs, and preparation steps for all hazard types",
+        responses={
+            200: EmergencyEducationSerializer(many=True),
+        },
+    )
+    def get(self, request):
+        # Get all hazard types from Alert model
+        hazard_types = [choice[0] for choice in Alert.HAZARD_TYPE_CHOICES]
+        
+        # Get education data for each hazard type
+        advisor = SafetyAdvisor()
+        education_data = []
+        
+        for hazard_type in hazard_types:
+            data = advisor.get_education_data(hazard_type)
+            data['hazard_type'] = hazard_type
+            education_data.append(data)
+        
+        # Serialize the data
+        serializer = EmergencyEducationSerializer(education_data, many=True)
+        return Response(serializer.data)

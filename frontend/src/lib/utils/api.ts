@@ -108,7 +108,7 @@ export const mapHazardTypeToEmergencyType = (hazardType: HazardType): string => 
     FLOOD: 'flood',
     FIRE: 'wildfire',
     INDUSTRIAL: 'chemical_emergency', // Map industrial to chemical emergency
-    SHOOTING: 'terrorist_attack', // Map shooting to terrorist attack
+    SHOOTING: 'shooting', // Map shooting to terrorist attack
     STORM: 'natural_disaster',
     TSUNAMI: 'natural_disaster',
     'CHEMICAL WEAPON': 'chemical_emergency',
@@ -119,7 +119,7 @@ export const mapHazardTypeToEmergencyType = (hazardType: HazardType): string => 
     'TERRORIST ATTACK': 'terrorist_attack',
     'MASS POISONING': 'chemical_emergency',
     'CYBER ATTACK': 'cyber_attack',
-    EARTHQUAKE: 'natural_disaster',
+    EARTHQUAKE: 'earthquake',
   };
   return typeMap[hazardType] || 'missile_attack';
 };

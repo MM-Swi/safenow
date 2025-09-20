@@ -139,3 +139,15 @@ export interface SafetyInstructionsParams {
   hazard_type: HazardType;
   eta_seconds?: number;
 }
+
+// Emergency Education Types
+export interface EmergencyEducation {
+  hazard_type: HazardType;
+  title: string;
+  description: string;
+  priority: string;
+  icon: string;
+  practical_tips: string[];
+  warning_signs: string[];
+  preparation_steps: string[];
+}

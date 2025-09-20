@@ -10,6 +10,7 @@ import type {
   SimulateAlertRequest,
   SimulateAlertResponse,
   SafetyInstructions,
+  EmergencyEducation,
   NearbySheltersParams,
   ActiveAlertsParams,
   SafetyInstructionsParams,
@@ -113,6 +114,12 @@ export const safeNowApi = {
         eta_seconds: params.eta_seconds || 0,
       },
     });
+    return response.data;
+  },
+
+  // Emergency Education
+  getEmergencyEducation: async (): Promise<EmergencyEducation[]> => {
+    const response = await apiClient.get<EmergencyEducation[]>('/emergency-education/');
     return response.data;
   },
 };
