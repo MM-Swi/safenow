@@ -6,45 +6,55 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import { EmergencyModeToggle } from '@/components/EmergencyModeToggle';
 import { useEmergencyEducation, useSafetyInstructions } from '@/hooks/useApi';
-import { mapHazardTypeToEmergencyType } from '@/lib/utils/api';
-import { emergencyData, learningContent } from '@/data/emergencies';
-import { EmergencyType } from '@/types/emergency';
-import { ArrowLeft, BookOpen, Lightbulb, CheckCircle, AlertTriangle, Shield, Phone, Target, Flame, Droplets, Zap, Mountain, Skull, Loader2, LucideIcon } from 'lucide-react';
+import { HazardType } from '@/types/api';
+import { ArrowLeft, BookOpen, Lightbulb, CheckCircle, AlertTriangle, Shield, Phone, Loader2 } from 'lucide-react';
 
-const emergencyIcons: Record<EmergencyType, LucideIcon> = {
-  missile_attack: Target,
-  drone_attack: Zap,
-  flood: Droplets,
-  wildfire: Flame,
-  shooting: Target,
-  earthquake: Mountain,
-  chemical_emergency: Skull,
-  biological_emergency: Shield
-};
-
-const emergencyColors: Record<EmergencyType, string> = {
-  missile_attack: 'from-red-600 to-pink-600',
-  drone_attack: 'from-purple-600 to-indigo-600',
-  flood: 'from-blue-600 to-cyan-600',
-  wildfire: 'from-orange-600 to-red-600',
-  shooting: 'from-gray-700 to-gray-900',
-  earthquake: 'from-amber-600 to-orange-600',
-  chemical_emergency: 'from-green-600 to-emerald-600',
-  biological_emergency: 'from-teal-600 to-green-600'
+// Generate color class based on priority
+const getColorClass = (priority: string) => {
+  switch (priority) {
+    case 'critical':
+      return 'from-red-600 to-pink-600';
+    case 'high':
+      return 'from-orange-600 to-red-600';
+    case 'medium':
+      return 'from-yellow-600 to-orange-600';
+    case 'low':
+      return 'from-blue-600 to-cyan-600';
+    default:
+      return 'from-gray-600 to-gray-800';
+  }
 };
 
 export default function EmergencyDetailPage() {
   const [isEmergencyMode, setIsEmergencyMode] = useState(false);
   const router = useRouter();
   const params = useParams();
-  const emergencyType = params.type as EmergencyType;
+  const hazardTypeParam = params.type as string;
+
+  // Convert URL param back to hazard type
+  const convertUrlToHazardType = (urlParam: string): HazardType => {
+    const upperParam = urlParam.toUpperCase();
+    
+    // Special cases that use spaces in backend
+    const spaceBasedTypes: Record<string, string> = {
+      'CHEMICAL_WEAPON': 'CHEMICAL WEAPON',
+      'UNMARKED_SOLDIERS': 'UNMARKED SOLDIERS', 
+      'TERRORIST_ATTACK': 'TERRORIST ATTACK',
+      'MASS_POISONING': 'MASS POISONING',
+      'CYBER_ATTACK': 'CYBER ATTACK'
+    };
+    
+    return (spaceBasedTypes[upperParam] || upperParam) as HazardType;
+  };
+  
+  const hazardType = convertUrlToHazardType(hazardTypeParam);
 
   // Fetch emergency education data from backend
   const { data: educationData, isLoading, error } = useEmergencyEducation();
   
-  // Find the education data for this specific emergency type
+  // Find the education data for this specific hazard type
   const emergency = educationData?.find(data => 
-    mapHazardTypeToEmergencyType(data.hazard_type) === emergencyType
+    data.hazard_type === hazardType
   );
   
   // Fetch safety instructions from backend (like in /emergency)
@@ -52,12 +62,6 @@ export default function EmergencyDetailPage() {
     { hazard_type: emergency?.hazard_type || 'AIR_RAID', eta_seconds: 0 },
     !!emergency?.hazard_type
   );
-  
-  // Keep learning content for compatibility (this contains the detailed content)
-  const learningData = learningContent.find(c => c.emergencyType === emergencyType);
-  
-  // Get hardcoded emergency data for instructions (fallback)
-  const hardcodedEmergency = emergencyData[emergencyType];
 
   const handleEmergencyToggle = (isEmergency: boolean) => {
     setIsEmergencyMode(isEmergency);
@@ -97,7 +101,7 @@ export default function EmergencyDetailPage() {
     );
   }
 
-  if (!emergency || !learningData) {
+  if (!emergency) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center">
@@ -112,8 +116,7 @@ export default function EmergencyDetailPage() {
     );
   }
 
-  const IconComponent = emergencyIcons[emergencyType];
-  const colorClass = emergencyColors[emergencyType];
+  const colorClass = getColorClass(emergency.priority);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden">
@@ -142,7 +145,7 @@ export default function EmergencyDetailPage() {
           </Button>
           <div className="flex items-center gap-3">
             <div className={`p-3 bg-gradient-to-br ${colorClass} rounded-2xl shadow-lg`}>
-              <IconComponent className="w-6 h-6 text-white" />
+              <span className="text-2xl">{emergency.icon}</span>
             </div>
             <h1 className="text-3xl font-black bg-gradient-to-r from-gray-900 to-blue-800 bg-clip-text text-transparent">
               {emergency.title}
@@ -156,24 +159,30 @@ export default function EmergencyDetailPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-4 text-2xl">
                 <div className={`p-3 bg-gradient-to-br ${colorClass} rounded-2xl`}>
-                  <IconComponent className="w-8 h-8 text-white" />
+                  <span className="text-3xl">{emergency.icon}</span>
                 </div>
                 <div>
-                  {learningData.title}
+                  {emergency.title}
                   <div className={`text-xs font-medium uppercase tracking-wider mt-1 ${
                     emergency.priority === 'critical' ? 'text-red-600' : 
-                    emergency.priority === 'high' ? 'text-orange-600' : 'text-yellow-600'
+                    emergency.priority === 'high' ? 'text-orange-600' : 
+                    emergency.priority === 'medium' ? 'text-yellow-600' : 'text-blue-600'
                   }`}>
-                    Priorytet: {emergency.priority === 'critical' ? 'Krytyczny' : emergency.priority === 'high' ? 'Wysoki' : 'Średni'}
+                    Priorytet: {emergency.priority === 'critical' ? 'Krytyczny' : 
+                               emergency.priority === 'high' ? 'Wysoki' : 
+                               emergency.priority === 'medium' ? 'Średni' : 'Niski'}
                   </div>
                 </div>
               </CardTitle>
               <CardDescription className="text-lg font-medium text-gray-700">
-                {learningData.description}
+                {emergency.description}
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-700 leading-relaxed text-lg">{learningData.content}</p>
+              <p className="text-gray-700 leading-relaxed text-lg">
+                Poznaj szczegółowe informacje o tym typie zagrożenia, w tym praktyczne wskazówki, 
+                oznaki ostrzegawcze i kroki przygotowawcze.
+              </p>
             </CardContent>
           </Card>
 
@@ -196,16 +205,8 @@ export default function EmergencyDetailPage() {
               ) : instructionsError ? (
                 <div className="p-4 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20">
                   <p className="text-white font-medium leading-relaxed">
-                    Nie udało się załadować instrukcji. Używamy instrukcji rezerwowych.
+                    Nie udało się załadować instrukcji bezpieczeństwa. Spróbuj ponownie później.
                   </p>
-                  {hardcodedEmergency?.instructions?.map((instruction: string, index: number) => (
-                    <div key={index} className="flex items-start gap-4 p-4 mt-4 bg-white/5 rounded-xl">
-                      <div className="flex-shrink-0 w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                        <span className="font-bold text-white text-sm">{index + 1}</span>
-                      </div>
-                      <p className="text-white font-medium leading-relaxed">{instruction}</p>
-                    </div>
-                  ))}
                 </div>
               ) : safetyInstructions ? (
                 <>
@@ -271,12 +272,11 @@ export default function EmergencyDetailPage() {
                       <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                       <p className="text-gray-700 leading-relaxed">{tip}</p>
                     </div>
-                  )) || learningData.tips.map((tip: string, index: number) => (
-                    <div key={index} className="flex items-start gap-3 p-4 bg-yellow-50 rounded-xl border border-yellow-200">
-                      <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
-                      <p className="text-gray-700 leading-relaxed">{tip}</p>
+                  )) || (
+                    <div className="p-4 bg-yellow-50 rounded-xl border border-yellow-200">
+                      <p className="text-gray-700 leading-relaxed">Praktyczne wskazówki będą dostępne wkrótce.</p>
                     </div>
-                  ))}
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -298,12 +298,11 @@ export default function EmergencyDetailPage() {
                       <AlertTriangle className="w-5 h-5 text-orange-600 mt-0.5 flex-shrink-0" />
                       <p className="text-gray-700 leading-relaxed">{sign}</p>
                     </div>
-                  )) || learningData.warningSigns.map((sign: string, index: number) => (
-                    <div key={index} className="flex items-start gap-3 p-4 bg-orange-50 rounded-xl border border-orange-200">
-                      <AlertTriangle className="w-5 h-5 text-orange-600 mt-0.5 flex-shrink-0" />
-                      <p className="text-gray-700 leading-relaxed">{sign}</p>
+                  )) || (
+                    <div className="p-4 bg-orange-50 rounded-xl border border-orange-200">
+                      <p className="text-gray-700 leading-relaxed">Oznaki ostrzegawcze będą dostępne wkrótce.</p>
                     </div>
-                  ))}
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -328,14 +327,11 @@ export default function EmergencyDetailPage() {
                     </div>
                     <p className="text-gray-700 leading-relaxed">{step}</p>
                   </div>
-                )) || learningData.preparationSteps.map((step: string, index: number) => (
-                  <div key={index} className="flex items-start gap-4 p-4 bg-blue-50 rounded-xl border border-blue-200">
-                    <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
-                      {index + 1}
-                    </div>
-                    <p className="text-gray-700 leading-relaxed">{step}</p>
+                )) || (
+                  <div className="p-4 bg-blue-50 rounded-xl border border-blue-200">
+                    <p className="text-gray-700 leading-relaxed">Kroki przygotowawcze będą dostępne wkrótce.</p>
                   </div>
-                ))}
+                )}
               </div>
             </CardContent>
           </Card>

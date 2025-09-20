@@ -7,8 +7,7 @@ import { Card, CardContent } from '@/components/ui/Card';
 import { EmergencyModeToggle } from '@/components/EmergencyModeToggle';
 import { EmergencyEducationCard } from '@/components/EmergencyEducationCard';
 import { useEmergencyEducation } from '@/hooks/useApi';
-import { mapHazardTypeToEmergencyType } from '@/lib/utils/api';
-import { EmergencyType } from '@/types/emergency';
+import { HazardType } from '@/types/api';
 import { ArrowLeft, BookOpen, Shield, AlertTriangle, Loader2 } from 'lucide-react';
 
 
@@ -30,8 +29,9 @@ export default function EducationPage() {
     router.push('/');
   };
 
-  const handleEmergencySelect = (emergencyType: EmergencyType) => {
-    router.push(`/education/${emergencyType}`);
+  const handleEmergencySelect = (hazardType: HazardType) => {
+    // Use hazard type directly for routing - convert to lowercase with underscores
+    router.push(`/education/${hazardType.toLowerCase().replace(/\s+/g, '_')}`);
   };
 
   // Loading state
@@ -114,13 +114,11 @@ export default function EducationPage() {
         {/* Emergency Types Grid - Using Backend Data */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
           {educationData?.map((data) => {
-            const emergencyType = mapHazardTypeToEmergencyType(data.hazard_type);
-            
             return (
               <EmergencyEducationCard
                 key={data.hazard_type}
                 data={data}
-                onClick={() => handleEmergencySelect(emergencyType as EmergencyType)}
+                onClick={() => handleEmergencySelect(data.hazard_type)}
               />
             );
           })}
