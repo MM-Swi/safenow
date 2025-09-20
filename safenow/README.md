@@ -126,6 +126,16 @@ python manage.py reset_demo
 - **2 active alerts**: CRITICAL MISSILE + MEDIUM FIRE with realistic durations
 - **Push notifications** automatically sent to demo devices (mock mode logs to console)
 
+### Create All Alert Types
+
+For comprehensive testing of all hazard types, use the `create_alerts.py` script to generate alerts for every supported hazard type:
+
+```bash
+# Create alerts for all hazard types (AIR_RAID, DRONE, MISSILE, FLOOD, FIRE, INDUSTRIAL)
+python create_alerts.py
+```
+
+
 ### Quick Demo Verification
 
 ```bash
