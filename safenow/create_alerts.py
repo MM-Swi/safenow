@@ -48,7 +48,7 @@ def create_all_alerts():
             center_lat=center_lat,
             center_lon=center_lon,
             radius_m=radius_m,
-            valid_until=datetime.now() + timedelta(hours=2),  # Valid for 2 hours
+            valid_until=datetime.now() + timedelta(hours=200),  # Valid for 2 hours
             source='Manual Creation Script'
         )
         alerts_created.append(alert)
