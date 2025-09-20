@@ -1,6 +1,24 @@
 // API Types for SafeNow Backend Integration
 
-export type HazardType = 'AIR_RAID' | 'DRONE' | 'MISSILE' | 'FLOOD' | 'FIRE' | 'INDUSTRIAL';
+export type HazardType = 
+  | 'AIR_RAID' 
+  | 'DRONE' 
+  | 'MISSILE' 
+  | 'FLOOD' 
+  | 'FIRE' 
+  | 'INDUSTRIAL'
+  | 'SHOOTING'
+  | 'STORM'
+  | 'TSUNAMI'
+  | 'CHEMICAL WEAPON'
+  | 'BIOHAZARD'
+  | 'NUCLEAR'
+  | 'UNMARKED SOLDIERS'
+  | 'PANDEMIC'
+  | 'TERRORIST ATTACK'
+  | 'MASS POISONING'
+  | 'CYBER ATTACK'
+  | 'EARTHQUAKE';
 export type Severity = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 export type SafetyStatusType = 'OK' | 'NEEDS_HELP' | 'IN_SHELTER' | 'UNREACHABLE';
 
