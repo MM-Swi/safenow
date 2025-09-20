@@ -3,15 +3,11 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { EmergencyCard } from '@/components/EmergencyCard';
 import { useEmergencyData, useRegisterDevice } from '@/hooks/useApi';
 import { 
   formatDistance, 
   formatETA, 
-  getHazardTypeDisplay, 
-  getSeverityDisplay, 
-  getSeverityColor,
-  getHazardTypeIcon,
-  formatTimeUntilExpiry,
   generateDeviceId 
 } from '@/lib/utils/api';
 import { AlertTriangle, MapPin, Clock, Shield, Smartphone } from 'lucide-react';
@@ -143,35 +139,26 @@ export function EmergencyDashboard({ lat, lon }: EmergencyDashboardProps) {
             <AlertTriangle className="w-6 h-6" />
             Aktywne zagrożenia ({alerts.length})
           </h2>
-          {alerts.map((alert) => (
-            <Card key={alert.id} className={`border-2 ${getSeverityColor(alert.severity)}`}>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <span className="text-2xl">{getHazardTypeIcon(alert.hazard_type)}</span>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      {getSeverityDisplay(alert.severity)} - {getHazardTypeDisplay(alert.hazard_type)}
-                    </div>
-                    <div className="text-sm font-normal text-gray-600">
-                      Odległość: {formatDistance(alert.distance_km)}
-                    </div>
-                  </div>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-4 text-sm text-gray-600">
-                  <div className="flex items-center gap-1">
-                    <Clock className="w-4 h-4" />
-                    Wygasa za: {formatTimeUntilExpiry(alert.valid_until)}
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <MapPin className="w-4 h-4" />
-                    Zasięg: {formatDistance(alert.radius_m / 1000)}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+          {alerts.map((alert) => {
+            // Find the nearest shelter ETA for safety instructions context
+            const nearestShelter = shelters.find(shelter => shelter.is_open_now) || shelters[0];
+            const nearestShelterETA = nearestShelter?.eta_seconds;
+            
+            return (
+              <EmergencyCard 
+                key={alert.id}
+                alert={alert}
+                nearestShelterETA={nearestShelterETA}
+                onFindShelter={() => {
+                  // Scroll to shelters section
+                  const sheltersSection = document.querySelector('[data-shelters-section]');
+                  if (sheltersSection) {
+                    sheltersSection.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
+              />
+            );
+          })}
         </div>
       )}
 
@@ -193,7 +180,7 @@ export function EmergencyDashboard({ lat, lon }: EmergencyDashboardProps) {
       )}
 
       {/* Nearby Shelters */}
-      <div className="space-y-4">
+      <div className="space-y-4" data-shelters-section>
         <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
           <Shield className="w-6 h-6" />
           Najbliższe schrony ({shelters.length})

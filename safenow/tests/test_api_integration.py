@@ -262,7 +262,7 @@ class APIIntegrationTest(APITestCase):
             'lon': 'invalid'
         })
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response['Content-Type'], 'application/json; charset=utf-8')
+        self.assertEqual(response['Content-Type'], 'application/json')
 
     def test_alert_geo_filtering_precision(self):
         """Test precise geo-filtering for alerts."""

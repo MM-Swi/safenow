@@ -3,23 +3,20 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { EmergencyCard } from '@/components/EmergencyCard';
-import { MapPlaceholder } from '@/components/MapPlaceholder';
 import { EmergencyModeToggle } from '@/components/EmergencyModeToggle';
-import { EmergencyDashboard } from '@/components/EmergencyDashboard';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import { emergencyData } from '@/data/emergencies';
-import { EmergencyType, ActiveEmergency } from '@/types/emergency';
 import { useEmergencyData, useUpdateSafetyStatus } from '@/hooks/useApi';
-import { mapHazardTypeToEmergencyType, generateDeviceId } from '@/lib/utils/api';
-import { AlertTriangle, ArrowLeft, Phone, Shield } from 'lucide-react';
+import { generateDeviceId } from '@/lib/utils/api';
+import { AlertTriangle, ArrowLeft, Phone, Shield, MapPin, Clock } from 'lucide-react';
+import { formatDistance, formatETA } from '@/lib/utils/api';
 
 export default function EmergencyPage() {
   const [location, setLocation] = useState<{ lat: number; lon: number } | null>(null);
   const [selectedShelterId, setSelectedShelterId] = useState<number | null>(null);
   const router = useRouter();
 
-  const { alerts, shelters, isLoading, isError } = useEmergencyData(
+  const { alerts, shelters, isLoading } = useEmergencyData(
     location?.lat || 0,
     location?.lon || 0,
     !!location
@@ -101,9 +98,6 @@ export default function EmergencyPage() {
     );
   }
 
-  // Get the most critical alert for emergency instructions
-  const criticalAlert = alerts.find(alert => alert.severity === 'CRITICAL') || alerts[0];
-  const emergency = criticalAlert ? emergencyData[mapHazardTypeToEmergencyType(criticalAlert.hazard_type)] : null;
 
   return (
     <div className="min-h-screen bg-red-50">
@@ -147,20 +141,97 @@ export default function EmergencyPage() {
           </CardContent>
         </Card>
 
-        {/* Emergency Instructions */}
-        {emergency && (
+        {/* Active Alerts with First One Expanded */}
+        {alerts.length > 0 && (
           <div className="mb-6">
-            <EmergencyCard 
-              emergency={emergency}
-              onFindShelter={() => {}}
-            />
+            <div className="space-y-4">
+              <h2 className="text-xl font-bold text-red-900 flex items-center gap-2">
+                <AlertTriangle className="w-6 h-6" />
+                Aktywne zagrożenia ({alerts.length})
+              </h2>
+              {alerts.map((alert, index) => {
+                // Find the nearest shelter ETA for safety instructions context
+                const nearestShelter = shelters.find(shelter => shelter.is_open_now) || shelters[0];
+                const nearestShelterETA = nearestShelter?.eta_seconds;
+                
+                return (
+                  <EmergencyCard 
+                    key={alert.id}
+                    alert={alert}
+                    nearestShelterETA={nearestShelterETA}
+                    defaultExpanded={index === 0} // Expand the first alert by default
+                    onFindShelter={() => {
+                      // Scroll to shelters section
+                      const sheltersSection = document.querySelector('[data-shelters-section]');
+                      if (sheltersSection) {
+                        sheltersSection.scrollIntoView({ behavior: 'smooth' });
+                      }
+                    }}
+                  />
+                );
+              })}
+            </div>
           </div>
         )}
+        
+        {/* No Active Alerts */}
+        {alerts.length === 0 && (
+          <Card className="border-green-200 bg-green-50 mb-6">
+            <CardContent className="p-6">
+              <div className="text-center">
+                <Shield className="w-8 h-8 text-green-600 mx-auto mb-2" />
+                <h3 className="text-lg font-semibold text-green-900 mb-2">
+                  Brak aktywnych zagrożeń
+                </h3>
+                <p className="text-green-700">
+                  W Twojej okolicy nie ma obecnie aktywnych alertów bezpieczeństwa.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
-        {/* Real-time Emergency Dashboard */}
-        <div className="mb-6">
-          <EmergencyDashboard lat={location.lat} lon={location.lon} />
-        </div>
+        {/* Nearby Shelters */}
+        {shelters.length > 0 && (
+          <div className="space-y-4 mb-6" data-shelters-section>
+            <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+              <Shield className="w-6 h-6" />
+              Najbliższe schrony ({shelters.length})
+            </h2>
+            
+            <div className="grid gap-4">
+              {shelters.map((shelter) => (
+                <Card key={shelter.id} className="hover:shadow-md transition-shadow">
+                  <CardHeader>
+                    <CardTitle className="text-lg">{shelter.name}</CardTitle>
+                    <div className="text-sm text-gray-600">{shelter.address}</div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4 text-sm text-gray-600">
+                        <div className="flex items-center gap-1">
+                          <MapPin className="w-4 h-4" />
+                          {formatDistance(shelter.distance_km)}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Clock className="w-4 h-4" />
+                          {formatETA(shelter.eta_seconds)} pieszo
+                        </div>
+                      </div>
+                      <div className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        shelter.is_open_now 
+                          ? 'bg-green-100 text-green-800' 
+                          : 'bg-red-100 text-red-800'
+                      }`}>
+                        {shelter.is_open_now ? 'Otwarty' : 'Zamknięty'}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Shelter Check-in Section */}
         {shelters.length > 0 && (

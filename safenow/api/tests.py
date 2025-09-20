@@ -21,7 +21,7 @@ class HealthAPITestCase(APITestCase):
             name="Test Shelter 1",
             address="Test Address 1",
             lat=Decimal('52.2297'),
-            lon=Decimal('21.0122')
+            lon=Decimal('21.0122'),
         )
         Alert.objects.create(
             hazard_type='MISSILE',
@@ -30,7 +30,7 @@ class HealthAPITestCase(APITestCase):
             center_lon=Decimal('20.9957'),
             radius_m=5000,
             valid_until=timezone.now() + timedelta(hours=1),
-            source='test'
+            source='test',
         )
 
     def test_health_endpoint_success(self):
@@ -57,7 +57,7 @@ class HealthAPITestCase(APITestCase):
             center_lon=Decimal('21.0000'),
             radius_m=1000,
             valid_until=timezone.now() - timedelta(hours=1),  # Expired
-            source='test_expired'
+            source='test_expired',
         )
 
         url = reverse('health')
@@ -80,32 +80,28 @@ class NearbySheltersAPITestCase(APITestCase):
             address="Warsaw Central Station",
             lat=Decimal('52.2297'),
             lon=Decimal('21.0122'),
-            is_open_now=True
+            is_open_now=True,
         )
         self.shelter2 = Shelter.objects.create(
             name="Palace Shelter",
             address="Palace of Culture",
             lat=Decimal('52.2319'),
             lon=Decimal('20.9957'),
-            is_open_now=True
+            is_open_now=True,
         )
         self.shelter3 = Shelter.objects.create(
             name="Far Shelter",
             address="Far from center",
             lat=Decimal('52.3000'),
             lon=Decimal('21.1000'),
-            is_open_now=False
+            is_open_now=False,
         )
 
     def test_nearby_shelters_success(self):
         """Test nearby shelters endpoint with valid parameters."""
         url = reverse('nearby-shelters')
         # User location: near Warsaw Central Station
-        response = self.client.get(url, {
-            'lat': 52.2300,
-            'lon': 21.0100,
-            'limit': 2
-        })
+        response = self.client.get(url, {'lat': 52.2300, 'lon': 21.0100, 'limit': 2})
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.json()
@@ -139,10 +135,7 @@ class NearbySheltersAPITestCase(APITestCase):
     def test_nearby_shelters_default_limit(self):
         """Test nearby shelters endpoint uses default limit of 3."""
         url = reverse('nearby-shelters')
-        response = self.client.get(url, {
-            'lat': 52.2300,
-            'lon': 21.0100
-        })
+        response = self.client.get(url, {'lat': 52.2300, 'lon': 21.0100})
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.json()
@@ -152,11 +145,10 @@ class NearbySheltersAPITestCase(APITestCase):
     def test_nearby_shelters_distance_calculation(self):
         """Test that distance calculations are reasonable."""
         url = reverse('nearby-shelters')
-        response = self.client.get(url, {
-            'lat': 52.2297,  # Same as shelter1 location
-            'lon': 21.0122,
-            'limit': 1
-        })
+        response = self.client.get(
+            url,
+            {'lat': 52.2297, 'lon': 21.0122, 'limit': 1},  # Same as shelter1 location
+        )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.json()
@@ -175,16 +167,13 @@ class SafetyStatusAPITestCase(APITestCase):
             name="Test Shelter",
             address="Test Address",
             lat=Decimal('52.2297'),
-            lon=Decimal('21.0122')
+            lon=Decimal('21.0122'),
         )
 
     def test_safety_status_success(self):
         """Test safety status update with valid data."""
         url = reverse('safety-status')
-        data = {
-            'device_id': 'test_device',
-            'status': 'OK'
-        }
+        data = {'device_id': 'test_device', 'status': 'OK'}
 
         response = self.client.post(url, data, format='json')
 
@@ -201,7 +190,7 @@ class SafetyStatusAPITestCase(APITestCase):
         url = reverse('safety-status')
         data = {
             'device_id': 'test_device',
-            'status': 'IN_SHELTER'
+            'status': 'IN_SHELTER',
             # Missing shelter_id
         }
 
@@ -223,12 +212,13 @@ class SimulateAlertSecurityTestCase(APITestCase):
             'center_lat': 52.2297,
             'center_lon': 21.0122,
             'radius_m': 5000,
-            'valid_minutes': 60
+            'valid_minutes': 60,
         }
 
     def _disable_throttling(self):
         """Helper method to disable throttling by clearing cache."""
         from django.core.cache import cache
+
         cache.clear()
 
     @override_settings(DEBUG=True)
@@ -252,23 +242,24 @@ class SimulateAlertSecurityTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         data = response.json()
         self.assertEqual(data['error']['code'], 401)
-        self.assertEqual(data['error']['message'], 'Invalid or missing X-API-KEY header')
+        self.assertEqual(
+            data['error']['message'], 'Invalid or missing X-API-KEY header'
+        )
 
     @override_settings(DEBUG=False, SIMULATION_API_KEY='test-secret-key')
     def test_simulate_alert_production_mode_with_invalid_api_key(self):
         """Test simulate alert rejects invalid API key in production mode."""
         self._disable_throttling()
         response = self.client.post(
-            self.url,
-            self.valid_alert_data,
-            format='json',
-            HTTP_X_API_KEY='wrong-key'
+            self.url, self.valid_alert_data, format='json', HTTP_X_API_KEY='wrong-key'
         )
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         data = response.json()
         self.assertEqual(data['error']['code'], 401)
-        self.assertEqual(data['error']['message'], 'Invalid or missing X-API-KEY header')
+        self.assertEqual(
+            data['error']['message'], 'Invalid or missing X-API-KEY header'
+        )
 
     @override_settings(DEBUG=False, SIMULATION_API_KEY='test-secret-key')
     def test_simulate_alert_production_mode_with_valid_api_key(self):
@@ -278,7 +269,7 @@ class SimulateAlertSecurityTestCase(APITestCase):
             self.url,
             self.valid_alert_data,
             format='json',
-            HTTP_X_API_KEY='test-secret-key'
+            HTTP_X_API_KEY='test-secret-key',
         )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -291,29 +282,27 @@ class SimulateAlertSecurityTestCase(APITestCase):
         """Test simulate alert rejects empty API key in production mode."""
         self._disable_throttling()
         response = self.client.post(
-            self.url,
-            self.valid_alert_data,
-            format='json',
-            HTTP_X_API_KEY=''
+            self.url, self.valid_alert_data, format='json', HTTP_X_API_KEY=''
         )
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         data = response.json()
         self.assertEqual(data['error']['code'], 401)
-        self.assertEqual(data['error']['message'], 'Invalid or missing X-API-KEY header')
+        self.assertEqual(
+            data['error']['message'], 'Invalid or missing X-API-KEY header'
+        )
 
     @override_settings(DEBUG=False)
     def test_simulate_alert_production_mode_without_configured_key(self):
         """Test simulate alert behavior when SIMULATION_API_KEY is not configured."""
         self._disable_throttling()
         response = self.client.post(
-            self.url,
-            self.valid_alert_data,
-            format='json',
-            HTTP_X_API_KEY='any-key'
+            self.url, self.valid_alert_data, format='json', HTTP_X_API_KEY='any-key'
         )
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         data = response.json()
         self.assertEqual(data['error']['code'], 401)
-        self.assertEqual(data['error']['message'], 'Invalid or missing X-API-KEY header')
+        self.assertEqual(
+            data['error']['message'], 'Invalid or missing X-API-KEY header'
+        )

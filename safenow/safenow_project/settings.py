@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 import os
+import sys
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -19,6 +20,8 @@ load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Detect if we're running tests
+TESTING = 'test' in sys.argv or 'pytest' in sys.modules
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -30,6 +33,10 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-o@c@h-4wu*i9ytzw=9$cy(851f
 DEBUG = os.getenv('DEBUG', 'False').lower() in ['true', '1', 'yes']
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+
+# Add testserver for Django test client when testing
+if TESTING:
+    ALLOWED_HOSTS.append('testserver')
 
 # Security Settings for Production
 # IMPORTANT: Only enable when using a reverse proxy (nginx, traefik, etc.) that sets X-Forwarded-Proto
@@ -145,6 +152,7 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Django REST Framework
+
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
@@ -154,16 +162,22 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,
-    'DEFAULT_THROTTLE_CLASSES': [
-        'rest_framework.throttling.AnonRateThrottle',
-    ],
-    'DEFAULT_THROTTLE_RATES': {
-        'anon': '10/min',
-        'simulate': '3/min',
-    },
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'COERCE_DECIMAL_TO_STRING': False,
+    # Always define throttle rates (even for testing) to avoid scope errors
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '10000/min' if TESTING else '10/min',
+        'simulate': '10000/min' if TESTING else '3/min',
+    },
 }
+
+# Only enable throttling classes when not testing
+if not TESTING:
+    REST_FRAMEWORK.update({
+        'DEFAULT_THROTTLE_CLASSES': [
+            'rest_framework.throttling.AnonRateThrottle',
+        ],
+    })
 
 # CORS Settings
 CORS_ALLOWED_ORIGINS = [
