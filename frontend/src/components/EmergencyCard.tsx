@@ -20,10 +20,11 @@ interface EmergencyCardProps {
   alert?: Alert;
   onFindShelter?: () => void;
   nearestShelterETA?: number; // in seconds, for safety instructions context
+  defaultExpanded?: boolean; // whether to show expanded by default
 }
 
-export function EmergencyCard({ emergency, alert, onFindShelter, nearestShelterETA }: EmergencyCardProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
+export function EmergencyCard({ emergency, alert, onFindShelter, nearestShelterETA, defaultExpanded = false }: EmergencyCardProps) {
+  const [isExpanded, setIsExpanded] = useState(defaultExpanded);
   
   // Use alert data if provided, otherwise fall back to emergency data
   const isAlertMode = !!alert;
