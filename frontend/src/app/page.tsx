@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import { EmergencyModeToggle } from '@/components/EmergencyModeToggle';
 import { EmergencyDashboard } from '@/components/EmergencyDashboard';
+import Navigation from '@/components/Navigation';
 import { Shield, BookOpen, Phone, Activity } from 'lucide-react';
 
 export default function Home() {
@@ -23,6 +24,8 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden">
+      <Navigation />
+      
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-600/20 rounded-full blur-3xl animate-pulse" />
@@ -34,7 +37,7 @@ export default function Home() {
         onToggle={handleEmergencyToggle} 
       />
       
-      <div className="relative z-10 container mx-auto px-4 py-8">
+      <div className="relative z-10 container mx-auto px-4 pt-24 pb-8">
         {/* Header */}
         <div className="text-center mb-12">
           <div className="flex items-center justify-center gap-4 mb-6">

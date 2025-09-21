@@ -6,6 +6,7 @@ import { EmergencyCard } from '@/components/EmergencyCard';
 import { EmergencyModeToggle } from '@/components/EmergencyModeToggle';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import Navigation from '@/components/Navigation';
 import { useEmergencyData, useUpdateSafetyStatus } from '@/hooks/useApi';
 import { generateDeviceId } from '@/lib/utils/api';
 import { AlertTriangle, ArrowLeft, Phone, Shield, MapPin, Clock } from 'lucide-react';
@@ -16,11 +17,21 @@ export default function EmergencyPage() {
   const [selectedShelterId, setSelectedShelterId] = useState<number | null>(null);
   const router = useRouter();
 
-  const { alerts, shelters, isLoading } = useEmergencyData(
+  const { alerts, shelters, isLoading, isError, error } = useEmergencyData(
     location?.lat || 0,
     location?.lon || 0,
     !!location
   );
+
+  // Debug logging
+  console.log('Emergency Page Debug:', {
+    location,
+    alerts: alerts?.length,
+    shelters: shelters?.length,
+    isLoading,
+    isError,
+    error
+  });
 
   const updateSafetyStatusMutation = useUpdateSafetyStatus();
 
@@ -101,12 +112,13 @@ export default function EmergencyPage() {
 
   return (
     <div className="min-h-screen bg-red-50">
+      <Navigation />
       <EmergencyModeToggle 
         isEmergencyMode={true} 
         onToggle={handleEmergencyToggle} 
       />
       
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 pt-24 pb-8">
         {/* Header */}
         <div className="flex items-center gap-4 mb-6">
           <Button 
