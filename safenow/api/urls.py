@@ -16,4 +16,12 @@ urlpatterns = [
     path('alerts/<int:pk>/', views.AlertDetailView.as_view(), name='alert-detail'),
     path('alerts/<int:pk>/vote/', views.AlertVoteView.as_view(), name='alert-vote'),
     path('alerts/<int:pk>/votes/', views.AlertVoteSummaryView.as_view(), name='alert-vote-summary'),
+    
+    # Dashboard endpoints
+    path('alerts/user/', views.UserAlertsView.as_view(), name='user-alerts'),
+    path('dashboard/stats/', views.DashboardStatsView.as_view(), name='dashboard-stats'),
+    path('dashboard/votes/', views.VotingHistoryView.as_view(), name='voting-history'),
+    path('dashboard/activity/', views.UserActivityView.as_view(), name='user-activity'),
+    path('dashboard/notifications/', views.NotificationsView.as_view(), name='notifications'),
+    path('dashboard/notifications/<int:notification_id>/read/', views.MarkNotificationReadView.as_view(), name='mark-notification-read'),
 ]

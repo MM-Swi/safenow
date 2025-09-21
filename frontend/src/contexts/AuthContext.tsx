@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useReducer, useEffect, useCallback } from 'react';
 import { safeNowApi } from '@/lib/api';
-import { authHelpers, tokenStorage, userStorage, jwtUtils } from '@/lib/auth';
+import { authHelpers, tokenStorage, userStorage } from '@/lib/auth';
 import type {
   AuthContextType,
   AuthState,
@@ -90,61 +90,61 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        // Clear any invalid tokens first
-        const accessToken = tokenStorage.getAccessToken();
-        if (accessToken && jwtUtils.isTokenExpired(accessToken)) {
-          console.log('🔐 Clearing expired access token');
-          authHelpers.clearAuthData();
-        }
-
-        const { isAuthenticated, user, hasTokens } = authHelpers.initializeAuthState();
+        console.log('🔄 Starting auth initialization...');
+        const { isAuthenticated, user, hasTokens, canTryRefresh } = authHelpers.initializeAuthState();
 
         console.log('🔐 Auth Initialization:', {
           isAuthenticated,
           hasUser: !!user,
           hasTokens,
+          canTryRefresh,
           accessToken: tokenStorage.getAccessToken()?.substring(0, 20) + '...',
-          refreshToken: tokenStorage.getRefreshToken()?.substring(0, 20) + '...'
+          refreshToken: tokenStorage.getRefreshToken()?.substring(0, 20) + '...',
+          userPreview: user ? { username: user.username, email: user.email } : null
         });
 
-        if (isAuthenticated && user) {
-          // We have valid tokens and user data, verify with server
-          try {
-            const currentUser = await safeNowApi.auth.getProfile();
-            dispatch({ type: 'AUTH_SUCCESS', payload: { user: currentUser } });
-          } catch (error) {
-            // Token might be invalid, clear auth data
-            authHelpers.clearAuthData();
-            dispatch({ type: 'AUTH_LOGOUT' });
-          }
-        } else if (hasTokens) {
-          // We have tokens but no user data or expired tokens, try to refresh
+        if (isAuthenticated) {
+          // We have valid access token and user data, set authenticated state immediately
+          dispatch({ type: 'AUTH_SUCCESS', payload: { user } });
+          console.log('✅ User authenticated with valid token');
+          return;
+        }
+        
+        if (canTryRefresh) {
+          // We have refresh token and user data, but access token is expired/invalid
           try {
             const refreshToken = tokenStorage.getRefreshToken();
             if (refreshToken) {
+              console.log('🔄 Attempting token refresh...');
+              
+              // Try to refresh the token
               const response = await safeNowApi.auth.refreshToken({ refresh: refreshToken });
               tokenStorage.setAccessToken(response.access);
               if (response.refresh) {
                 tokenStorage.setRefreshToken(response.refresh);
               }
               
-              // Get user profile after token refresh
+              // Verify the new token works by fetching user profile
               const currentUser = await safeNowApi.auth.getProfile();
               userStorage.setUser(currentUser);
               dispatch({ type: 'AUTH_SUCCESS', payload: { user: currentUser } });
-            } else {
-              dispatch({ type: 'AUTH_LOGOUT' });
+              console.log('✅ Token refresh successful');
+              return;
             }
           } catch (error) {
+            console.log('❌ Token refresh failed, clearing auth data:', error);
             authHelpers.clearAuthData();
             dispatch({ type: 'AUTH_LOGOUT' });
+            return;
           }
-        } else {
-          // No authentication data
-          dispatch({ type: 'AUTH_LOGOUT' });
         }
+        
+        // No valid authentication data
+        console.log('🚪 No valid authentication data found');
+        dispatch({ type: 'AUTH_LOGOUT' });
       } catch (error) {
         console.error('Error initializing auth:', error);
+        authHelpers.clearAuthData();
         dispatch({ type: 'AUTH_LOGOUT' });
       }
     };
@@ -174,8 +174,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       authHelpers.storeAuthData({ access, refresh }, user);
       
       dispatch({ type: 'AUTH_SUCCESS', payload: { user } });
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.error || error.response?.data?.message || 'Login failed';
+    } catch (error: unknown) {
+      const errorMessage = (error as { response?: { data?: { error?: string; message?: string } } })?.response?.data?.error || 
+                          (error as { response?: { data?: { error?: string; message?: string } } })?.response?.data?.message || 
+                          'Login failed';
       dispatch({ type: 'AUTH_ERROR', payload: { error: errorMessage } });
       throw error;
     }

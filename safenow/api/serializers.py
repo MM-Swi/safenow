@@ -399,3 +399,86 @@ class AlertVoteSummarySerializer(serializers.Serializer):
         allow_null=True, 
         help_text="Current user's vote (UPVOTE/DOWNVOTE/null)"
     )
+
+
+# Dashboard Serializers
+class UserAlertSerializer(serializers.ModelSerializer):
+    """Serializer for user's own alerts with full details."""
+    vote_summary = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Alert
+        fields = [
+            'id', 'hazard_type', 'center_lat', 'center_lon', 'radius_m', 
+            'severity', 'status', 'source', 'valid_until', 'created_at',
+            'created_by', 'verification_score', 'is_official', 'vote_summary'
+        ]
+    
+    def get_vote_summary(self, obj):
+        """Get vote summary for the alert"""
+        upvotes = obj.votes.filter(vote_type='UPVOTE').count()
+        downvotes = obj.votes.filter(vote_type='DOWNVOTE').count()
+        user_vote = None
+        
+        # Get current user's vote if authenticated
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            try:
+                user_vote_obj = obj.votes.get(user=request.user)
+                user_vote = user_vote_obj.vote_type
+            except AlertVote.DoesNotExist:
+                pass
+        
+        return {
+            'upvotes': upvotes,
+            'downvotes': downvotes,
+            'total': upvotes + downvotes,
+            'user_vote': user_vote
+        }
+
+
+class DashboardStatsSerializer(serializers.Serializer):
+    """Serializer for user dashboard statistics."""
+    alerts_created = serializers.IntegerField(help_text="Number of alerts created by user")
+    votes_cast = serializers.IntegerField(help_text="Number of votes cast by user")
+    verified_alerts = serializers.IntegerField(help_text="Number of user's alerts that were verified")
+    total_score = serializers.IntegerField(help_text="Total verification score of user's alerts")
+    profile_completion = serializers.IntegerField(help_text="Profile completion percentage")
+
+
+class VoteHistorySerializer(serializers.ModelSerializer):
+    """Serializer for user's voting history."""
+    alert = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = AlertVote
+        fields = ['id', 'alert', 'vote_type', 'created_at']
+    
+    def get_alert(self, obj):
+        """Get basic alert information"""
+        return {
+            'id': obj.alert.id,
+            'title': f"{obj.alert.hazard_type} Alert",
+            'hazard_type': obj.alert.hazard_type,
+            'status': obj.alert.status
+        }
+
+
+class UserActivitySerializer(serializers.Serializer):
+    """Serializer for user activity log."""
+    id = serializers.IntegerField()
+    type = serializers.CharField()
+    message = serializers.CharField()
+    timestamp = serializers.DateTimeField()
+    related_alert_id = serializers.IntegerField(allow_null=True)
+
+
+class NotificationSerializer(serializers.Serializer):
+    """Serializer for user notifications."""
+    id = serializers.IntegerField()
+    type = serializers.CharField()
+    title = serializers.CharField()
+    message = serializers.CharField()
+    read = serializers.BooleanField()
+    created_at = serializers.DateTimeField()
+    related_alert_id = serializers.IntegerField(allow_null=True)

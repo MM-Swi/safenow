@@ -59,6 +59,16 @@ export interface Alert {
   valid_until: string;
   source: string;
   created_at: string;
+  status: 'PENDING' | 'VERIFIED' | 'REJECTED' | 'ACTIVE';
+  verification_score: number;
+  is_official: boolean;
+  created_by_username?: string;
+  vote_summary: {
+    upvotes: number;
+    downvotes: number;
+    total: number;
+    user_vote?: 'UPVOTE' | 'DOWNVOTE' | null;
+  };
 }
 
 // Device Types
@@ -110,6 +120,18 @@ export interface SimulateAlertResponse {
   source: string;
   created_at: string;
   message: string;
+}
+
+// API Parameter Types
+export interface NearbySheltersParams {
+  lat: number;
+  lon: number;
+  limit?: number;
+}
+
+export interface ActiveAlertsParams {
+  lat: number;
+  lon: number;
 }
 
 // Safety Instructions Types
@@ -249,15 +271,14 @@ export interface UserPreferencesUpdateRequest {
 export interface UserAlert {
   id: number;
   hazard_type: HazardType;
-  title: string;
-  description?: string;
-  latitude: number;
-  longitude: number;
-  radius: number;
-  severity: AlertSeverity;
-  status: AlertStatus;
+  center_lat: number;
+  center_lon: number;
+  radius_m: number;
+  severity: Severity;
+  status: 'PENDING' | 'VERIFIED' | 'REJECTED' | 'ACTIVE';
+  source: string;
+  valid_until: string;
   created_at: string;
-  updated_at: string;
   created_by: number;
   verification_score: number;
   is_official: boolean;
@@ -275,10 +296,10 @@ export interface VoteHistory {
     id: number;
     title: string;
     hazard_type: HazardType;
-    status: AlertStatus;
+    status: 'PENDING' | 'VERIFIED' | 'REJECTED' | 'ACTIVE';
   };
   vote_type: 'UPVOTE' | 'DOWNVOTE';
-  voted_at: string;
+  created_at: string;
 }
 
 export interface UserActivity {

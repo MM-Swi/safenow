@@ -205,6 +205,35 @@ export const useCreateAlert = () => {
   });
 };
 
+// Voting hooks
+export const useVoteOnAlert = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: ({ alertId, voteType }: { alertId: number; voteType: 'UPVOTE' | 'DOWNVOTE' }) => 
+      safeNowApi.voting.voteOnAlert(alertId, voteType),
+    onSuccess: (data, variables) => {
+      // Invalidate queries that might show vote counts
+      queryClient.invalidateQueries({ queryKey: ['active-alerts'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.userAlerts });
+      queryClient.invalidateQueries({ queryKey: queryKeys.votingHistory });
+      queryClient.invalidateQueries({ queryKey: queryKeys.dashboardStats });
+      queryClient.invalidateQueries({ queryKey: queryKeys.recentActivity });
+      // Invalidate specific alert vote summary
+      queryClient.invalidateQueries({ queryKey: ['vote-summary', variables.alertId] });
+    },
+  });
+};
+
+export const useVoteSummary = (alertId: number, enabled = true) => {
+  return useQuery({
+    queryKey: ['vote-summary', alertId],
+    queryFn: () => safeNowApi.voting.getVoteSummary(alertId),
+    enabled: enabled && !!alertId,
+    staleTime: 30000, // 30 seconds
+  });
+};
+
 // Combined hook for emergency data (alerts + shelters)
 export const useEmergencyData = (lat: number, lon: number, enabled = true) => {
   const alertsQuery = useActiveAlerts({ lat, lon }, enabled);

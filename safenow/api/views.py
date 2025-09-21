@@ -29,6 +29,11 @@ from .serializers import (
     AlertUpdateSerializer,
     AlertVoteSerializer,
     AlertVoteSummarySerializer,
+    UserAlertSerializer,
+    DashboardStatsSerializer,
+    VoteHistorySerializer,
+    UserActivitySerializer,
+    NotificationSerializer,
 )
 
 
@@ -731,3 +736,184 @@ class AlertVoteSummaryView(APIView):
 
         serializer = AlertVoteSummarySerializer(data)
         return Response(serializer.data)
+
+
+# Dashboard Views
+class UserAlertsView(APIView):
+    """Get user's own alerts."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    @extend_schema(
+        summary="Get User's Alerts",
+        description="Get all alerts created by the current user",
+        responses={200: UserAlertSerializer(many=True)},
+    )
+    def get(self, request):
+        alerts = Alert.objects.filter(created_by=request.user).order_by('-created_at')
+        serializer = UserAlertSerializer(alerts, many=True, context={'request': request})
+        return Response(serializer.data)
+
+
+class DashboardStatsView(APIView):
+    """Get user dashboard statistics."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    @extend_schema(
+        summary="Get Dashboard Statistics",
+        description="Get user's dashboard statistics including alerts created, votes cast, etc.",
+        responses={200: DashboardStatsSerializer},
+    )
+    def get(self, request):
+        user = request.user
+        
+        # Calculate statistics
+        alerts_created = Alert.objects.filter(created_by=user).count()
+        votes_cast = AlertVote.objects.filter(user=user).count()
+        verified_alerts = Alert.objects.filter(
+            created_by=user, 
+            status='VERIFIED'
+        ).count()
+        
+        # Calculate total score from user's alerts
+        user_alerts = Alert.objects.filter(created_by=user)
+        total_score = sum(alert.verification_score for alert in user_alerts)
+        
+        # Calculate profile completion percentage
+        profile_completion = 100  # Base completion
+        if not user.first_name:
+            profile_completion -= 20
+        if not user.last_name:
+            profile_completion -= 20
+        if not user.phone_number:
+            profile_completion -= 10
+        if not hasattr(user, 'profile') or not user.profile.preferred_language:
+            profile_completion -= 10
+        
+        data = {
+            'alerts_created': alerts_created,
+            'votes_cast': votes_cast,
+            'verified_alerts': verified_alerts,
+            'total_score': total_score,
+            'profile_completion': max(0, profile_completion)
+        }
+        
+        serializer = DashboardStatsSerializer(data)
+        return Response(serializer.data)
+
+
+class VotingHistoryView(APIView):
+    """Get user's voting history."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    @extend_schema(
+        summary="Get Voting History",
+        description="Get user's voting history with alert details",
+        responses={200: VoteHistorySerializer(many=True)},
+    )
+    def get(self, request):
+        votes = AlertVote.objects.filter(user=request.user).order_by('-created_at')
+        serializer = VoteHistorySerializer(votes, many=True)
+        return Response(serializer.data)
+
+
+class UserActivityView(APIView):
+    """Get user's recent activity."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    @extend_schema(
+        summary="Get User Activity",
+        description="Get user's recent activity log",
+        responses={200: UserActivitySerializer(many=True)},
+    )
+    def get(self, request):
+        user = request.user
+        activities = []
+        activity_id = 1
+        
+        # Get recent alerts created
+        recent_alerts = Alert.objects.filter(created_by=user).order_by('-created_at')[:5]
+        for alert in recent_alerts:
+            activities.append({
+                'id': activity_id,
+                'type': 'alert_created',
+                'message': f'Created {alert.hazard_type} alert',
+                'timestamp': alert.created_at,
+                'related_alert_id': alert.id
+            })
+            activity_id += 1
+        
+        # Get recent votes
+        recent_votes = AlertVote.objects.filter(user=user).order_by('-created_at')[:5]
+        for vote in recent_votes:
+            activities.append({
+                'id': activity_id,
+                'type': 'vote_cast',
+                'message': f'Voted {vote.vote_type.lower()} on {vote.alert.hazard_type} alert',
+                'timestamp': vote.created_at,
+                'related_alert_id': vote.alert.id
+            })
+            activity_id += 1
+        
+        # Get verified alerts
+        verified_alerts = Alert.objects.filter(
+            created_by=user, 
+            status='VERIFIED'
+        ).order_by('-created_at')[:3]
+        for alert in verified_alerts:
+            activities.append({
+                'id': activity_id,
+                'type': 'alert_verified',
+                'message': f'Your {alert.hazard_type} alert was verified',
+                'timestamp': alert.created_at,
+                'related_alert_id': alert.id
+            })
+            activity_id += 1
+        
+        # Sort by timestamp (most recent first)
+        activities.sort(key=lambda x: x['timestamp'], reverse=True)
+        activities = activities[:10]  # Limit to 10 most recent
+        
+        serializer = UserActivitySerializer(activities, many=True)
+        return Response(serializer.data)
+
+
+class NotificationsView(APIView):
+    """Get user notifications."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    @extend_schema(
+        summary="Get Notifications",
+        description="Get user's notifications",
+        responses={200: NotificationSerializer(many=True)},
+    )
+    def get(self, request):
+        # For now, return mock notifications since we don't have a notification system yet
+        # In a real implementation, you would query a Notification model
+        notifications = [
+            {
+                'id': 1,
+                'type': 'system_announcement',
+                'title': 'Welcome to SafeNow',
+                'message': 'Thank you for joining SafeNow. Stay safe!',
+                'read': False,
+                'created_at': timezone.now() - timezone.timedelta(hours=1),
+                'related_alert_id': None
+            }
+        ]
+        
+        serializer = NotificationSerializer(notifications, many=True)
+        return Response(serializer.data)
+
+
+class MarkNotificationReadView(APIView):
+    """Mark notification as read."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    @extend_schema(
+        summary="Mark Notification as Read",
+        description="Mark a specific notification as read",
+        responses={200: {'type': 'object', 'properties': {'message': {'type': 'string'}}}},
+    )
+    def patch(self, request, notification_id):
+        # Mock implementation - in real app, you would update the notification
+        return Response({'message': 'Notification marked as read'})

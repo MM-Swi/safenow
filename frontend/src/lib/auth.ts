@@ -180,13 +180,22 @@ export const authHelpers = {
     const user = userStorage.getUser();
 
     // Check if we have valid tokens and user data
-    const hasValidTokens = accessToken && refreshToken && !jwtUtils.isTokenExpired(accessToken);
-    const isAuthenticated = hasValidTokens && user;
+    const hasValidAccessToken = accessToken && !jwtUtils.isTokenExpired(accessToken);
+    const hasRefreshToken = !!refreshToken;
+    const hasTokens = !!(accessToken && refreshToken);
+    const hasUser = !!user;
+    
+    // We're authenticated if we have a valid access token AND user data
+    const isAuthenticated = hasValidAccessToken && hasUser;
+    
+    // We can try refresh if we have refresh token and user data, but access token is expired/invalid
+    const canTryRefresh = hasRefreshToken && hasUser && (!accessToken || jwtUtils.isTokenExpired(accessToken));
 
     return {
-      isAuthenticated: !!isAuthenticated,
-      user: isAuthenticated ? user : null,
-      hasTokens: !!(accessToken && refreshToken),
+      isAuthenticated,
+      user: hasUser ? user : null,
+      hasTokens,
+      canTryRefresh,
     };
   },
 
@@ -208,11 +217,14 @@ export const authHelpers = {
     console.log('🧹 Clearing all authentication data...');
     authHelpers.clearAuthData();
     console.log('✅ Authentication data cleared. Refresh the page.');
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('auth:logout'));
+    }
   },
 };
 
 // Make debug function available globally in development
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-  (window as any).clearSafeNowAuth = authHelpers.debugClearAuth;
+  (window as typeof window & { clearSafeNowAuth: () => void }).clearSafeNowAuth = authHelpers.debugClearAuth;
   console.log('🔧 Debug: Use clearSafeNowAuth() in console to clear authentication data');
 }
