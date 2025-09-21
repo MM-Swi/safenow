@@ -522,6 +522,28 @@ export const safeNowApi = {
 			return response.data;
 		},
 	},
+
+	// Admin endpoints
+	admin: {
+		// Get all alerts for admin management
+		getAllAlerts: async (): Promise<UserAlert[]> => {
+			const response = await apiClient.get<UserAlert[]>('/admin/alerts/');
+			return response.data;
+		},
+
+		// Bulk update alert statuses
+		bulkUpdateAlertStatus: async (data: {
+			alert_ids: number[];
+			status: 'PENDING' | 'VERIFIED' | 'REJECTED' | 'ACTIVE';
+		}): Promise<{
+			message: string;
+			updated_count: number;
+			updated_alerts: number[];
+		}> => {
+			const response = await apiClient.post('/admin/alerts/', data);
+			return response.data;
+		},
+	},
 };
 
 export default apiClient;

@@ -24,4 +24,7 @@ urlpatterns = [
     path('dashboard/activity/', views.UserActivityView.as_view(), name='user-activity'),
     path('dashboard/notifications/', views.NotificationsView.as_view(), name='notifications'),
     path('dashboard/notifications/<int:notification_id>/read/', views.MarkNotificationReadView.as_view(), name='mark-notification-read'),
+    
+    # Admin endpoints
+    path('admin/alerts/', views.AdminAlertManagementView.as_view(), name='admin-alert-management'),
 ]

@@ -18,22 +18,12 @@ from backend.safenow.common.geo import haversine_km, eta_walk_seconds, bounding_
 from backend.safenow.advice.provider import SafetyAdvisor
 from .throttles import SimulateAlertThrottle
 from .serializers import (
-    HealthSerializer,
-    NearbyShelterSerializer,
-    ActiveAlertSerializer,
-    DeviceRegisterSerializer,
-    SafetyStatusSerializer,
-    SimulateAlertSerializer,
-    EmergencyEducationSerializer,
-    AlertCreateSerializer,
-    AlertUpdateSerializer,
-    AlertVoteSerializer,
-    AlertVoteSummarySerializer,
-    UserAlertSerializer,
-    DashboardStatsSerializer,
-    VoteHistorySerializer,
-    UserActivitySerializer,
-    NotificationSerializer,
+    HealthSerializer, NearbyShelterSerializer, ActiveAlertSerializer, 
+    EmergencyEducationSerializer, AlertCreateSerializer, AlertUpdateSerializer, 
+    AlertVoteSerializer, AlertVoteSummarySerializer, UserAlertSerializer, 
+    DashboardStatsSerializer, VoteHistorySerializer, UserActivitySerializer, 
+    NotificationSerializer, DeviceRegisterSerializer, SafetyStatusSerializer, 
+    SimulateAlertSerializer
 )
 
 
@@ -917,3 +907,112 @@ class MarkNotificationReadView(APIView):
     def patch(self, request, notification_id):
         # Mock implementation - in real app, you would update the notification
         return Response({'message': 'Notification marked as read'})
+
+
+class AdminAlertManagementView(APIView):
+    """
+    Admin endpoint for managing alert statuses.
+    Only admins can access this endpoint.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    throttle_classes = [AnonRateThrottle]
+
+    def has_permission(self, request, view):
+        """Check if user is admin"""
+        if not request.user or not request.user.is_authenticated:
+            return False
+        
+        # Check if user is admin
+        if hasattr(request.user, 'role') and request.user.role == 'ADMIN':
+            return True
+        
+        return request.user.is_staff or request.user.is_superuser
+
+    @extend_schema(
+        summary="Bulk Update Alert Statuses (Admin Only)",
+        description="Update status of multiple alerts. Only admins can access this endpoint.",
+        request={
+            'type': 'object',
+            'properties': {
+                'alert_ids': {
+                    'type': 'array',
+                    'items': {'type': 'integer'},
+                    'description': 'List of alert IDs to update'
+                },
+                'status': {
+                    'type': 'string',
+                    'enum': ['PENDING', 'VERIFIED', 'REJECTED', 'ACTIVE'],
+                    'description': 'New status for the alerts'
+                }
+            },
+            'required': ['alert_ids', 'status']
+        },
+        responses={
+            200: {
+                'type': 'object',
+                'properties': {
+                    'message': {'type': 'string'},
+                    'updated_count': {'type': 'integer'},
+                    'updated_alerts': {
+                        'type': 'array',
+                        'items': {'type': 'integer'}
+                    }
+                }
+            },
+            403: {'description': 'Admin access required'},
+            400: {'description': 'Invalid request data'},
+        },
+    )
+    def post(self, request):
+        # Check admin permissions
+        if not self.has_permission(request, self):
+            return Response(
+                {'error': 'Admin access required'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        alert_ids = request.data.get('alert_ids', [])
+        new_status = request.data.get('status')
+
+        if not alert_ids or not new_status:
+            return Response(
+                {'error': 'alert_ids and status are required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if new_status not in ['PENDING', 'VERIFIED', 'REJECTED', 'ACTIVE']:
+            return Response(
+                {'error': 'Invalid status. Must be one of: PENDING, VERIFIED, REJECTED, ACTIVE'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Update alerts
+        updated_alerts = Alert.objects.filter(id__in=alert_ids)
+        updated_count = updated_alerts.update(status=new_status)
+
+        return Response({
+            'message': f'Successfully updated {updated_count} alerts to {new_status}',
+            'updated_count': updated_count,
+            'updated_alerts': list(alert_ids)
+        })
+
+    @extend_schema(
+        summary="Get All Alerts for Admin Management",
+        description="Get all alerts with their current status for admin management. Only admins can access this endpoint.",
+        responses={
+            200: UserAlertSerializer(many=True),
+            403: {'description': 'Admin access required'},
+        },
+    )
+    def get(self, request):
+        # Check admin permissions
+        if not self.has_permission(request, self):
+            return Response(
+                {'error': 'Admin access required'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # Get all alerts (not just user's own alerts)
+        alerts = Alert.objects.all().order_by('-created_at')
+        serializer = UserAlertSerializer(alerts, many=True, context={'request': request})
+        return Response(serializer.data)

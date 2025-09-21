@@ -237,17 +237,41 @@ export const useVoteSummary = (alertId: number, enabled = true) => {
 // Combined hook for emergency data (alerts + shelters)
 export const useEmergencyData = (lat: number, lon: number, enabled = true) => {
   const alertsQuery = useActiveAlerts({ lat, lon }, enabled);
-  const sheltersQuery = useNearbyShelters({ lat, lon, limit: 5 }, enabled);
+  const sheltersQuery = useNearbyShelters({ lat, lon }, enabled);
 
   return {
     alerts: alertsQuery.data || [],
     shelters: sheltersQuery.data || [],
     isLoading: alertsQuery.isLoading || sheltersQuery.isLoading,
-    isError: alertsQuery.isError || sheltersQuery.isError,
     error: alertsQuery.error || sheltersQuery.error,
     refetch: () => {
       alertsQuery.refetch();
       sheltersQuery.refetch();
     },
   };
+};
+
+// Admin hooks
+export const useAdminAllAlerts = () => {
+  return useQuery({
+    queryKey: ['admin-all-alerts'],
+    queryFn: safeNowApi.admin.getAllAlerts,
+    staleTime: 30000, // 30 seconds
+  });
+};
+
+export const useBulkUpdateAlertStatus = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: safeNowApi.admin.bulkUpdateAlertStatus,
+    onSuccess: () => {
+      // Invalidate all alert-related queries
+      queryClient.invalidateQueries({ queryKey: ['admin-all-alerts'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.userAlerts });
+      queryClient.invalidateQueries({ queryKey: ['active-alerts'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.dashboardStats });
+      queryClient.invalidateQueries({ queryKey: queryKeys.recentActivity });
+    },
+  });
 };

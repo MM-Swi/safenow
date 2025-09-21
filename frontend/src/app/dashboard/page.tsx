@@ -17,6 +17,7 @@ import Navigation from '@/components/Navigation';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import AlertManagementModal from '@/components/AlertManagementModal';
 import AlertCreationModal, { type AlertFormData } from '@/components/AlertCreationModal';
+import AdminAlertPanel from '@/components/AdminAlertPanel';
 import { 
   Bell, 
   AlertTriangle, 
@@ -330,6 +331,13 @@ const Dashboard: React.FC = () => {
                 Uzupełnij brakujące informacje: numer telefonu, preferencje lokalizacji
               </p>
             </div>
+
+            {/* Admin Panel - Only show for admin users */}
+            {(user?.role === 'ADMIN') && (
+              <div className="mb-8">
+                <AdminAlertPanel />
+              </div>
+            )}
 
             {/* Tabs */}
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden">
