@@ -10,4 +10,10 @@ urlpatterns = [
     path('simulate-alert/', views.SimulateAlertView.as_view(), name='simulate-alert'),
     path('safety-instructions/', views.SafetyInstructionsView.as_view(), name='safety-instructions'),
     path('emergency-education/', views.EmergencyEducationView.as_view(), name='emergency-education'),
+    
+    # Alert management endpoints
+    path('alerts/', views.AlertListCreateView.as_view(), name='alert-list-create'),
+    path('alerts/<int:pk>/', views.AlertDetailView.as_view(), name='alert-detail'),
+    path('alerts/<int:pk>/vote/', views.AlertVoteView.as_view(), name='alert-vote'),
+    path('alerts/<int:pk>/votes/', views.AlertVoteSummaryView.as_view(), name='alert-vote-summary'),
 ]

@@ -2,14 +2,17 @@ from django.conf import settings
 from django.utils import timezone
 from django.db import models
 from django.shortcuts import render
-from rest_framework import status
+from rest_framework import status, permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.throttling import AnonRateThrottle
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.decorators import api_view, permission_classes
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiTypes
 
 from shelters.models import Shelter
-from alerts.models import Alert
+from alerts.models import Alert, AlertVote
+from alerts.permissions import IsOwnerOrReadOnly, IsAuthenticatedOrReadOnlyPublic, CanVoteOnAlert
 from devices.models import Device, SafetyStatus
 from backend.safenow.common.geo import haversine_km, eta_walk_seconds, bounding_box
 from backend.safenow.advice.provider import SafetyAdvisor
@@ -22,6 +25,10 @@ from .serializers import (
     SafetyStatusSerializer,
     SimulateAlertSerializer,
     EmergencyEducationSerializer,
+    AlertCreateSerializer,
+    AlertUpdateSerializer,
+    AlertVoteSerializer,
+    AlertVoteSummarySerializer,
 )
 
 
@@ -178,8 +185,11 @@ class ActiveAlertsView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # Get all active alerts
-        active_alerts = Alert.objects.filter(valid_until__gte=timezone.now())
+        # Get all active alerts (only verified and active status)
+        active_alerts = Alert.objects.filter(
+            valid_until__gte=timezone.now(),
+            status__in=['VERIFIED', 'ACTIVE']
+        )
 
         # Filter alerts where user is within radius
         relevant_alerts = []
@@ -426,4 +436,298 @@ class EmergencyEducationView(APIView):
         
         # Serialize the data
         serializer = EmergencyEducationSerializer(education_data, many=True)
+        return Response(serializer.data)
+
+
+class AlertListCreateView(ListCreateAPIView):
+    """
+    List all alerts or create a new alert.
+    GET: Public access to active alerts
+    POST: Authenticated users can create alerts
+    """
+    permission_classes = [IsAuthenticatedOrReadOnlyPublic]
+    throttle_classes = [AnonRateThrottle]
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return AlertCreateSerializer
+        return ActiveAlertSerializer
+    
+    def create(self, request, *args, **kwargs):
+        """Override create to return full alert data"""
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        alert = serializer.save()
+        
+        # Return the full alert data using ActiveAlertSerializer
+        response_serializer = ActiveAlertSerializer(alert)
+        headers = self.get_success_headers(response_serializer.data)
+        return Response(response_serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def get_queryset(self):
+        queryset = Alert.objects.all()
+        
+        # For GET requests, filter by status and validity
+        if self.request.method == 'GET':
+            queryset = queryset.filter(
+                valid_until__gte=timezone.now(),
+                status__in=['VERIFIED', 'ACTIVE']
+            )
+        
+        # Optional filtering by location
+        lat = self.request.query_params.get('lat')
+        lon = self.request.query_params.get('lon')
+        
+        if lat and lon:
+            try:
+                user_lat = float(lat)
+                user_lon = float(lon)
+                
+                # Filter alerts where user is within radius
+                relevant_alerts = []
+                for alert in queryset:
+                    distance_km = haversine_km(
+                        user_lat, user_lon, float(alert.center_lat), float(alert.center_lon)
+                    )
+                    distance_m = distance_km * 1000
+                    
+                    if distance_m <= alert.radius_m:
+                        alert.distance_km = round(distance_km, 3)
+                        relevant_alerts.append(alert.id)
+                
+                queryset = queryset.filter(id__in=relevant_alerts)
+            except (TypeError, ValueError):
+                pass  # Ignore invalid coordinates
+        
+        return queryset.order_by('-created_at')
+
+    @extend_schema(
+        summary="List Active Alerts",
+        description="Get list of active emergency alerts. Optionally filter by location.",
+        parameters=[
+            OpenApiParameter(
+                name='lat',
+                type=OpenApiTypes.FLOAT,
+                location=OpenApiParameter.QUERY,
+                required=False,
+                description='User latitude for location filtering',
+            ),
+            OpenApiParameter(
+                name='lon',
+                type=OpenApiTypes.FLOAT,
+                location=OpenApiParameter.QUERY,
+                required=False,
+                description='User longitude for location filtering',
+            ),
+        ],
+        responses={200: ActiveAlertSerializer(many=True)},
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    @extend_schema(
+        summary="Create Alert",
+        description="Create a new emergency alert. Requires authentication.",
+        request=AlertCreateSerializer,
+        responses={
+            201: ActiveAlertSerializer,
+            400: {'description': 'Validation errors'},
+            401: {'description': 'Authentication required'},
+        },
+    )
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
+
+
+class AlertDetailView(RetrieveUpdateDestroyAPIView):
+    """
+    Retrieve, update or delete an alert.
+    GET: Public access
+    PUT/PATCH/DELETE: Only owners or admins
+    """
+    queryset = Alert.objects.all()
+    permission_classes = [IsOwnerOrReadOnly]
+    throttle_classes = [AnonRateThrottle]
+
+    def get_serializer_class(self):
+        if self.request.method in ['PUT', 'PATCH']:
+            return AlertUpdateSerializer
+        return ActiveAlertSerializer
+    
+    def update(self, request, *args, **kwargs):
+        """Override update to return full alert data"""
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        alert = serializer.save()
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+
+        # Return the full alert data using ActiveAlertSerializer
+        response_serializer = ActiveAlertSerializer(alert)
+        return Response(response_serializer.data)
+
+    @extend_schema(
+        summary="Get Alert Details",
+        description="Get detailed information about a specific alert",
+        responses={
+            200: ActiveAlertSerializer,
+            404: {'description': 'Alert not found'},
+        },
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    @extend_schema(
+        summary="Update Alert",
+        description="Update an alert. Only owners or admins can update alerts.",
+        request=AlertUpdateSerializer,
+        responses={
+            200: ActiveAlertSerializer,
+            400: {'description': 'Validation errors'},
+            401: {'description': 'Authentication required'},
+            403: {'description': 'Permission denied'},
+            404: {'description': 'Alert not found'},
+        },
+    )
+    def put(self, request, *args, **kwargs):
+        return super().put(request, *args, **kwargs)
+
+    @extend_schema(
+        summary="Partially Update Alert",
+        description="Partially update an alert. Only owners or admins can update alerts.",
+        request=AlertUpdateSerializer,
+        responses={
+            200: ActiveAlertSerializer,
+            400: {'description': 'Validation errors'},
+            401: {'description': 'Authentication required'},
+            403: {'description': 'Permission denied'},
+            404: {'description': 'Alert not found'},
+        },
+    )
+    def patch(self, request, *args, **kwargs):
+        return super().patch(request, *args, **kwargs)
+
+    @extend_schema(
+        summary="Delete Alert",
+        description="Delete an alert. Only owners or admins can delete alerts.",
+        responses={
+            204: {'description': 'Alert deleted successfully'},
+            401: {'description': 'Authentication required'},
+            403: {'description': 'Permission denied'},
+            404: {'description': 'Alert not found'},
+        },
+    )
+    def delete(self, request, *args, **kwargs):
+        return super().delete(request, *args, **kwargs)
+
+
+class AlertVoteView(APIView):
+    """
+    Vote on an alert (upvote/downvote).
+    """
+    permission_classes = [permissions.IsAuthenticated, CanVoteOnAlert]
+    throttle_classes = [AnonRateThrottle]
+
+    @extend_schema(
+        summary="Vote on Alert",
+        description="Cast a vote (upvote/downvote) on an alert. Users cannot vote on their own alerts.",
+        request=AlertVoteSerializer,
+        responses={
+            201: {'description': 'Vote cast successfully'},
+            200: {'description': 'Vote updated successfully'},
+            400: {'description': 'Validation errors'},
+            401: {'description': 'Authentication required'},
+            403: {'description': 'Cannot vote on this alert'},
+            404: {'description': 'Alert not found'},
+        },
+    )
+    def post(self, request, pk):
+        try:
+            alert = Alert.objects.get(pk=pk)
+        except Alert.DoesNotExist:
+            return Response(
+                {'error': 'Alert not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # Check permissions
+        self.check_object_permissions(request, alert)
+
+        serializer = AlertVoteSerializer(
+            data=request.data,
+            context={'request': request, 'alert': alert}
+        )
+        
+        if serializer.is_valid():
+            # Check if vote already exists
+            existing_vote = AlertVote.objects.filter(
+                user=request.user,
+                alert=alert
+            ).first()
+            
+            vote = serializer.save()
+            created = existing_vote is None
+            
+            return Response(
+                {
+                    'message': 'Vote cast successfully' if created else 'Vote updated successfully',
+                    'vote_type': vote.vote_type,
+                    'verification_score': alert.verification_score
+                },
+                status=status.HTTP_201_CREATED if created else status.HTTP_200_OK
+            )
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class AlertVoteSummaryView(APIView):
+    """
+    Get vote summary for an alert.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    throttle_classes = [AnonRateThrottle]
+
+    @extend_schema(
+        summary="Get Alert Vote Summary",
+        description="Get voting statistics and current user's vote for an alert",
+        responses={
+            200: AlertVoteSummarySerializer,
+            404: {'description': 'Alert not found'},
+        },
+    )
+    def get(self, request, pk):
+        try:
+            alert = Alert.objects.get(pk=pk)
+        except Alert.DoesNotExist:
+            return Response(
+                {'error': 'Alert not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        upvotes = alert.votes.filter(vote_type='UPVOTE').count()
+        downvotes = alert.votes.filter(vote_type='DOWNVOTE').count()
+        total_votes = upvotes + downvotes
+
+        # Get current user's vote
+        user_vote = None
+        try:
+            user_vote_obj = alert.votes.get(user=request.user)
+            user_vote = user_vote_obj.vote_type
+        except AlertVote.DoesNotExist:
+            pass
+
+        data = {
+            'upvotes': upvotes,
+            'downvotes': downvotes,
+            'total_votes': total_votes,
+            'verification_score': alert.verification_score,
+            'user_vote': user_vote
+        }
+
+        serializer = AlertVoteSummarySerializer(data)
         return Response(serializer.data)

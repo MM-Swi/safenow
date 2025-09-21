@@ -961,6 +961,372 @@
 				}
 			},
 			"response": []
+		}
+	]
+		},
+		{
+			"name": "Alert Management",
+			"item": [
+				{
+					"name": "Create User Alert",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Alert created successfully\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.be.a('number');",
+									"    pm.expect(jsonData.hazard_type).to.eql('FLOOD');",
+									"    pm.expect(jsonData.status).to.eql('PENDING');",
+									"    pm.expect(jsonData.created_by_username).to.be.a('string');",
+									"    pm.expect(jsonData.is_official).to.eql(false);",
+									"});",
+									"",
+									"// Store alert ID for voting tests",
+									"if (pm.response.code === 201) {",
+									"    var responseJson = pm.response.json();",
+									"    pm.environment.set('userAlertId', responseJson.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"hazard_type\": \"FLOOD\",\n  \"severity\": \"HIGH\",\n  \"center_lat\": 52.2297,\n  \"center_lon\": 21.0122,\n  \"radius_m\": 3000,\n  \"valid_minutes\": 120,\n  \"source\": \"User Report - Postman Test\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/alerts/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"alerts",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List All Alerts",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has pagination structure\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('count');",
+									"    pm.expect(jsonData).to.have.property('results');",
+									"    pm.expect(jsonData.results).to.be.an('array');",
+									"});",
+									"",
+									"pm.test(\"Alerts have required fields\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.results.length > 0) {",
+									"        var alert = jsonData.results[0];",
+									"        pm.expect(alert).to.have.property('id');",
+									"        pm.expect(alert).to.have.property('hazard_type');",
+									"        pm.expect(alert).to.have.property('status');",
+									"        pm.expect(alert).to.have.property('verification_score');",
+									"        pm.expect(alert).to.have.property('is_official');",
+									"        pm.expect(alert).to.have.property('vote_summary');",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/alerts/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"alerts",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Alert Details",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Alert details returned\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('id');",
+									"    pm.expect(jsonData).to.have.property('hazard_type');",
+									"    pm.expect(jsonData).to.have.property('status');",
+									"    pm.expect(jsonData).to.have.property('verification_score');",
+									"    pm.expect(jsonData).to.have.property('vote_summary');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/alerts/{{userAlertId}}/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"alerts",
+								"{{userAlertId}}",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Own Alert",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Alert updated successfully\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.severity).to.eql('CRITICAL');",
+									"    pm.expect(jsonData.radius_m).to.eql(5000);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"severity\": \"CRITICAL\",\n  \"radius_m\": 5000\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/alerts/{{userAlertId}}/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"alerts",
+								"{{userAlertId}}",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Vote on Alert (Upvote)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201 or 200\", function () {",
+									"    pm.expect([200, 201]).to.include(pm.response.code);",
+									"});",
+									"",
+									"pm.test(\"Vote cast successfully\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.message).to.include('Vote');",
+									"    pm.expect(jsonData.vote_type).to.eql('UPVOTE');",
+									"    pm.expect(jsonData.verification_score).to.be.a('number');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"vote_type\": \"UPVOTE\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/alerts/21/vote/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"alerts",
+								"21",
+								"vote",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Vote on Alert (Downvote)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Vote updated successfully\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.message).to.include('Vote');",
+									"    pm.expect(jsonData.vote_type).to.eql('DOWNVOTE');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"vote_type\": \"DOWNVOTE\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/alerts/21/vote/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"alerts",
+								"21",
+								"vote",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Vote Summary",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Vote summary returned\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('upvotes');",
+									"    pm.expect(jsonData).to.have.property('downvotes');",
+									"    pm.expect(jsonData).to.have.property('total_votes');",
+									"    pm.expect(jsonData).to.have.property('verification_score');",
+									"    pm.expect(jsonData).to.have.property('user_vote');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/alerts/21/votes/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"alerts",
+								"21",
+								"votes",
+								""
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		}

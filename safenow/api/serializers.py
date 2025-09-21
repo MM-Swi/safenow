@@ -3,7 +3,7 @@ from django.utils import timezone
 from datetime import timedelta
 from drf_spectacular.utils import extend_schema_field
 from shelters.models import Shelter
-from alerts.models import Alert
+from alerts.models import Alert, AlertVote
 from devices.models import Device, SafetyStatus
 
 
@@ -27,13 +27,26 @@ class NearbyShelterSerializer(serializers.ModelSerializer):
 class ActiveAlertSerializer(serializers.ModelSerializer):
     """Active emergency alert with distance from user location."""
     distance_km = serializers.FloatField(read_only=True, help_text="Distance from user to alert center in kilometers")
+    created_by_username = serializers.CharField(source='created_by.username', read_only=True, help_text="Username of alert creator")
+    vote_summary = serializers.SerializerMethodField(help_text="Vote summary for this alert")
 
     class Meta:
         model = Alert
         fields = [
             'id', 'hazard_type', 'severity', 'center_lat', 'center_lon',
-            'radius_m', 'distance_km', 'valid_until', 'source', 'created_at'
+            'radius_m', 'distance_km', 'valid_until', 'source', 'created_at',
+            'status', 'verification_score', 'is_official', 'created_by_username', 'vote_summary'
         ]
+    
+    def get_vote_summary(self, obj):
+        """Get vote summary for the alert"""
+        upvotes = obj.votes.filter(vote_type='UPVOTE').count()
+        downvotes = obj.votes.filter(vote_type='DOWNVOTE').count()
+        return {
+            'upvotes': upvotes,
+            'downvotes': downvotes,
+            'total': upvotes + downvotes
+        }
 
 
 class DeviceRegisterSerializer(serializers.Serializer):
@@ -249,4 +262,140 @@ class EmergencyEducationSerializer(serializers.Serializer):
     preparation_steps = serializers.ListField(
         child=serializers.CharField(),
         help_text="Steps to prepare for this emergency"
+    )
+
+
+class AlertCreateSerializer(serializers.ModelSerializer):
+    """Serializer for creating new alerts by authenticated users."""
+    valid_minutes = serializers.IntegerField(
+        min_value=1, 
+        max_value=1440, 
+        default=60,
+        help_text="Alert validity duration in minutes (max 24 hours)"
+    )
+
+    class Meta:
+        model = Alert
+        fields = [
+            'hazard_type', 'severity', 'center_lat', 'center_lon',
+            'radius_m', 'source', 'valid_minutes'
+        ]
+        extra_kwargs = {
+            'source': {'required': True, 'allow_blank': False}
+        }
+
+    def validate_center_lat(self, value):
+        if not (-90 <= value <= 90):
+            raise serializers.ValidationError("Latitude must be between -90 and 90")
+        return value
+
+    def validate_center_lon(self, value):
+        if not (-180 <= value <= 180):
+            raise serializers.ValidationError("Longitude must be between -180 and 180")
+        return value
+
+    def validate_radius_m(self, value):
+        if value < 1 or value > 50000:  # Max 50km radius
+            raise serializers.ValidationError("Radius must be between 1 and 50000 meters")
+        return value
+
+    def create(self, validated_data):
+        valid_minutes = validated_data.pop('valid_minutes')
+        valid_until = timezone.now() + timedelta(minutes=valid_minutes)
+        
+        # Set user as creator and default status
+        alert = Alert.objects.create(
+            **validated_data,
+            valid_until=valid_until,
+            created_by=self.context['request'].user,
+            status='PENDING',  # User-created alerts start as pending
+            is_official=False
+        )
+        return alert
+
+
+class AlertUpdateSerializer(serializers.ModelSerializer):
+    """Serializer for updating existing alerts by owners or admins."""
+    valid_minutes = serializers.IntegerField(
+        min_value=1, 
+        max_value=1440,
+        required=False,
+        help_text="Update alert validity duration in minutes"
+    )
+
+    class Meta:
+        model = Alert
+        fields = [
+            'hazard_type', 'severity', 'center_lat', 'center_lon',
+            'radius_m', 'source', 'valid_minutes', 'status', 'is_official'
+        ]
+
+    def validate_status(self, value):
+        user = self.context['request'].user
+        # Only admins can change status directly
+        if not (hasattr(user, 'role') and user.role == 'ADMIN') and not user.is_staff:
+            if 'status' in self.initial_data:
+                raise serializers.ValidationError("Only admins can change alert status")
+        return value
+    
+    def validate_is_official(self, value):
+        user = self.context['request'].user
+        # Only admins can mark alerts as official
+        if not (hasattr(user, 'role') and user.role == 'ADMIN') and not user.is_staff:
+            if 'is_official' in self.initial_data:
+                raise serializers.ValidationError("Only admins can mark alerts as official")
+        return value
+
+    def update(self, instance, validated_data):
+        valid_minutes = validated_data.pop('valid_minutes', None)
+        
+        if valid_minutes:
+            validated_data['valid_until'] = timezone.now() + timedelta(minutes=valid_minutes)
+        
+        return super().update(instance, validated_data)
+
+
+class AlertVoteSerializer(serializers.ModelSerializer):
+    """Serializer for voting on alerts."""
+    
+    class Meta:
+        model = AlertVote
+        fields = ['vote_type']
+
+    def validate(self, data):
+        user = self.context['request'].user
+        alert = self.context['alert']
+        
+        # Users cannot vote on their own alerts
+        if alert.created_by == user:
+            raise serializers.ValidationError("You cannot vote on your own alert")
+        
+        # Users can only vote on pending or verified alerts
+        if alert.status not in ['PENDING', 'VERIFIED']:
+            raise serializers.ValidationError("You can only vote on pending or verified alerts")
+        
+        return data
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        alert = self.context['alert']
+        
+        # Update or create vote
+        vote, created = AlertVote.objects.update_or_create(
+            user=user,
+            alert=alert,
+            defaults={'vote_type': validated_data['vote_type']}
+        )
+        return vote
+
+
+class AlertVoteSummarySerializer(serializers.Serializer):
+    """Serializer for alert vote summary."""
+    upvotes = serializers.IntegerField(help_text="Number of upvotes")
+    downvotes = serializers.IntegerField(help_text="Number of downvotes")
+    total_votes = serializers.IntegerField(help_text="Total number of votes")
+    verification_score = serializers.IntegerField(help_text="Current verification score")
+    user_vote = serializers.CharField(
+        allow_null=True, 
+        help_text="Current user's vote (UPVOTE/DOWNVOTE/null)"
     )
