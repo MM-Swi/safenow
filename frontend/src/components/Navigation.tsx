@@ -22,7 +22,8 @@ const Navigation: React.FC = () => {
 
   const navigation = [
     { name: 'Strona główna', href: '/' },
-    { name: 'Sytuacja awaryjna', href: '/emergency' },
+    { name: 'Panel', href: '/dashboard' },
+    { name: 'Tryb awaryjny', href: '/emergency' },
     { name: 'Edukacja', href: '/education' },
   ];
 
@@ -34,14 +35,24 @@ const Navigation: React.FC = () => {
   };
 
   return (
-    <nav className="bg-white shadow-lg fixed top-0 left-0 right-0 z-50">
+    <nav className="bg-gradient-to-r from-blue-900 via-blue-800 to-purple-900 shadow-2xl fixed top-0 left-0 right-0 z-50 backdrop-blur-sm border-b border-blue-700/20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
+        <div className="flex justify-between h-20">
           <div className="flex">
             {/* Logo */}
             <div className="flex-shrink-0 flex items-center">
-              <Link href="/" className="text-xl font-bold text-blue-600">
-                SafeNow
+              <Link href="/" className="group flex items-center space-x-3">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 rounded-xl blur-lg opacity-60 group-hover:opacity-80 transition-opacity duration-300"></div>
+                  <div className="relative p-3 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl shadow-xl">
+                    <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                  </div>
+                </div>
+                <div className="text-2xl font-black bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent group-hover:from-blue-200 group-hover:to-purple-200 transition-all duration-300">
+                  SafeNow
+                </div>
               </Link>
             </div>
 
@@ -51,10 +62,10 @@ const Navigation: React.FC = () => {
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
+                  className={`inline-flex items-center px-4 py-2 border-b-2 text-sm font-medium transition-all duration-300 ${
                     isActive(item.href)
-                      ? 'border-blue-500 text-gray-900'
-                      : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                      ? 'border-blue-300 text-white bg-white/10 rounded-t-lg backdrop-blur-sm'
+                      : 'border-transparent text-blue-100 hover:border-blue-300 hover:text-white hover:bg-white/5 rounded-lg'
                   }`}
                 >
                   {item.name}
@@ -71,19 +82,27 @@ const Navigation: React.FC = () => {
               <div className="relative">
                 <button
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  className="group flex items-center text-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-300 bg-white/10 backdrop-blur-sm px-4 py-2 hover:bg-white/20 transition-all duration-300"
                 >
-                  <div className="flex items-center space-x-2">
-                    <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
-                      <span className="text-sm font-medium text-blue-600">
-                        {user.first_name?.[0] || user.username[0]}
-                      </span>
+                  <div className="flex items-center space-x-3">
+                    <div className="relative">
+                      <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full blur opacity-60 group-hover:opacity-80 transition-opacity duration-300"></div>
+                      <div className="relative h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg">
+                        <span className="text-sm font-bold text-white">
+                          {user.first_name?.[0] || user.username[0]}
+                        </span>
+                      </div>
                     </div>
-                    <span className="text-gray-700 font-medium">
-                      {user.first_name || user.username}
-                    </span>
+                    <div className="text-left">
+                      <div className="text-white font-semibold text-sm">
+                        {user.first_name || user.username}
+                      </div>
+                      <div className="text-blue-200 text-xs">
+                        {user.role === 'ADMIN' ? 'Administrator' : 'Użytkownik'}
+                      </div>
+                    </div>
                     <svg
-                      className={`h-4 w-4 text-gray-400 transition-transform ${
+                      className={`h-5 w-5 text-blue-200 transition-transform duration-300 ${
                         isDropdownOpen ? 'rotate-180' : ''
                       }`}
                       fill="none"
@@ -136,15 +155,16 @@ const Navigation: React.FC = () => {
               <div className="flex items-center space-x-4">
                 <Link
                   href="/auth/login"
-                  className="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium"
+                  className="text-blue-100 hover:text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:bg-white/10 backdrop-blur-sm"
                 >
                   Zaloguj się
                 </Link>
                 <Link
                   href="/auth/register"
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                  className="group relative bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6 py-2 rounded-xl text-sm font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
                 >
-                  Zarejestruj się
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 rounded-xl blur opacity-60 group-hover:opacity-80 transition-opacity duration-300"></div>
+                  <span className="relative">Zarejestruj się</span>
                 </Link>
               </div>
             )}

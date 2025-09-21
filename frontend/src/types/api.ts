@@ -19,7 +19,12 @@ export type HazardType =
   | 'MASS POISONING'
   | 'CYBER ATTACK'
   | 'EARTHQUAKE';
+
+export type Priority = 'low' | 'medium' | 'high' | 'critical';
+
 export type Severity = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+export type AlertSeverity = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+export type AlertStatus = 'PENDING' | 'VERIFIED' | 'REJECTED' | 'ACTIVE';
 export type SafetyStatusType = 'OK' | 'NEEDS_HELP' | 'IN_SHELTER' | 'UNREACHABLE';
 
 // Health Check Response
@@ -238,6 +243,68 @@ export interface UserPreferencesUpdateRequest {
   sms_notifications?: boolean;
   auto_location?: boolean;
   alert_radius?: number;
+}
+
+// Dashboard types
+export interface UserAlert {
+  id: number;
+  hazard_type: HazardType;
+  title: string;
+  description?: string;
+  latitude: number;
+  longitude: number;
+  radius: number;
+  severity: AlertSeverity;
+  status: AlertStatus;
+  created_at: string;
+  updated_at: string;
+  created_by: number;
+  verification_score: number;
+  is_official: boolean;
+  vote_summary: {
+    upvotes: number;
+    downvotes: number;
+    total: number;
+    user_vote?: 'UPVOTE' | 'DOWNVOTE' | null;
+  };
+}
+
+export interface VoteHistory {
+  id: number;
+  alert: {
+    id: number;
+    title: string;
+    hazard_type: HazardType;
+    status: AlertStatus;
+  };
+  vote_type: 'UPVOTE' | 'DOWNVOTE';
+  voted_at: string;
+}
+
+export interface UserActivity {
+  id: number;
+  type: 'alert_created' | 'vote_cast' | 'alert_verified' | 'alert_rejected' | 'profile_updated';
+  message: string;
+  timestamp: string;
+  related_alert_id?: number;
+}
+
+export interface DashboardStats {
+  alerts_created: number;
+  votes_cast: number;
+  verified_alerts: number;
+  total_score: number;
+  profile_completion: number;
+}
+
+export interface Notification {
+  id: number;
+  type: 'alert_status_change' | 'vote_received' | 'system_announcement';
+  title: string;
+  message: string;
+  read: boolean;
+  created_at: string;
+  related_alert_id?: number;
 }
 
 // Authentication State Types

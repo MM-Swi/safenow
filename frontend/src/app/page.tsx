@@ -37,7 +37,7 @@ export default function Home() {
         onToggle={handleEmergencyToggle} 
       />
       
-      <div className="relative z-10 container mx-auto px-4 pt-24 pb-8">
+      <div className="relative z-10 container mx-auto px-4 pt-28 pb-8">
         {/* Header */}
         <div className="text-center mb-12">
           <div className="flex items-center justify-center gap-4 mb-6">

@@ -10,13 +10,18 @@ import type {
 } from '@/types/api';
 
 // Query Keys
-export const queryKeys = {
+const queryKeys = {
   health: ['health'] as const,
-  nearbyShelters: (params: NearbySheltersParams) => ['nearby-shelters', params] as const,
-  activeAlerts: (params: ActiveAlertsParams) => ['active-alerts', params] as const,
-  safetyInstructions: (params: SafetyInstructionsParams) => ['safety-instructions', params] as const,
+  nearbyShelters: (params: any) => ['nearby-shelters', params] as const,
+  activeAlerts: (params: any) => ['active-alerts', params] as const,
+  safetyInstructions: (params: any) => ['safety-instructions', params] as const,
   emergencyEducation: ['emergency-education'] as const,
-};
+  dashboardStats: ['dashboard-stats'] as const,
+  userAlerts: ['user-alerts'] as const,
+  votingHistory: ['voting-history'] as const,
+  recentActivity: ['recent-activity'] as const,
+  notifications: ['notifications'] as const,
+} as const;
 
 // Health Check Hook
 export const useHealth = () => {
@@ -106,7 +111,97 @@ export const useEmergencyEducation = () => {
   return useQuery({
     queryKey: queryKeys.emergencyEducation,
     queryFn: safeNowApi.getEmergencyEducation,
-    staleTime: 600000, // 10 minutes (education data doesn't change often)
+    staleTime: 10 * 60 * 1000, // 10 minutes
+  });
+};
+
+// Dashboard hooks
+export const useDashboardStats = () => {
+  return useQuery({
+    queryKey: queryKeys.dashboardStats,
+    queryFn: safeNowApi.dashboard.getStats,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+};
+
+export const useUserAlerts = () => {
+  return useQuery({
+    queryKey: queryKeys.userAlerts,
+    queryFn: safeNowApi.dashboard.getUserAlerts,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+  });
+};
+
+export const useVotingHistory = () => {
+  return useQuery({
+    queryKey: queryKeys.votingHistory,
+    queryFn: safeNowApi.dashboard.getVotingHistory,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+};
+
+export const useRecentActivity = () => {
+  return useQuery({
+    queryKey: queryKeys.recentActivity,
+    queryFn: safeNowApi.dashboard.getRecentActivity,
+    staleTime: 1 * 60 * 1000, // 1 minute
+  });
+};
+
+export const useNotifications = () => {
+  return useQuery({
+    queryKey: queryKeys.notifications,
+    queryFn: safeNowApi.dashboard.getNotifications,
+    staleTime: 30 * 1000, // 30 seconds
+  });
+};
+
+// Mutations for dashboard actions
+export const useDeleteAlert = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: safeNowApi.dashboard.deleteAlert,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.userAlerts });
+      queryClient.invalidateQueries({ queryKey: queryKeys.dashboardStats });
+    },
+  });
+};
+
+export const useUpdateAlert = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: ({ alertId, data }: { alertId: number; data: Partial<any> }) => 
+      safeNowApi.dashboard.updateAlert(alertId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.userAlerts });
+    },
+  });
+};
+
+export const useMarkNotificationRead = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: safeNowApi.dashboard.markNotificationRead,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.notifications });
+    },
+  });
+};
+
+export const useCreateAlert = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: safeNowApi.dashboard.createAlert,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.userAlerts });
+      queryClient.invalidateQueries({ queryKey: queryKeys.dashboardStats });
+      queryClient.invalidateQueries({ queryKey: queryKeys.recentActivity });
+    },
   });
 };
 

@@ -3,17 +3,9 @@ import type {
   HealthResponse,
   Shelter,
   Alert,
-  DeviceRegisterRequest,
-  DeviceRegisterResponse,
-  SafetyStatusRequest,
-  SafetyStatusResponse,
-  SimulateAlertRequest,
-  SimulateAlertResponse,
   SafetyInstructions,
-  EmergencyEducation,
-  NearbySheltersParams,
-  ActiveAlertsParams,
   SafetyInstructionsParams,
+  EmergencyEducation,
   LoginRequest,
   LoginResponse,
   RegisterRequest,
@@ -21,11 +13,15 @@ import type {
   TokenRefreshRequest,
   TokenRefreshResponse,
   LogoutRequest,
-  ChangePasswordRequest,
-  UserUpdateRequest,
-  UserPreferencesUpdateRequest,
   User,
   UserProfile,
+  UserPreferencesUpdateRequest,
+  ChangePasswordRequest,
+  UserAlert,
+  DashboardStats,
+  VoteHistory,
+  UserActivity,
+  Notification,
 } from '@/types/api';
 import { tokenStorage, authHelpers } from './auth';
 
@@ -187,11 +183,9 @@ apiClient.interceptors.response.use(
 
 // API Functions
 export const safeNowApi = {
-  // Health Check
-  getHealth: async (): Promise<HealthResponse> => {
-    const response = await apiClient.get<HealthResponse>('/health/');
-    return response.data;
-  },
+  // Health check
+  getHealth: (): Promise<HealthResponse> => 
+    apiClient.get('/health/').then(response => response.data),
 
   // Nearby Shelters
   getNearbyShelters: async (params: NearbySheltersParams): Promise<Shelter[]> => {
@@ -304,6 +298,63 @@ export const safeNowApi = {
     // Change password
     changePassword: async (data: ChangePasswordRequest): Promise<{ message: string }> => {
       const response = await apiClient.post<{ message: string }>('/auth/change-password/', data);
+      return response.data;
+    },
+  },
+
+  // Dashboard endpoints
+  dashboard: {
+    // Get user's alerts
+    getUserAlerts: async (): Promise<UserAlert[]> => {
+      const response = await apiClient.get<UserAlert[]>('/alerts/user/');
+      return response.data;
+    },
+
+    // Get dashboard statistics
+    getStats: async (): Promise<DashboardStats> => {
+      const response = await apiClient.get<DashboardStats>('/dashboard/stats/');
+      return response.data;
+    },
+
+    // Get voting history
+    getVotingHistory: async (): Promise<VoteHistory[]> => {
+      const response = await apiClient.get<VoteHistory[]>('/dashboard/votes/');
+      return response.data;
+    },
+
+    // Get recent activity
+    getRecentActivity: async (): Promise<UserActivity[]> => {
+      const response = await apiClient.get<UserActivity[]>('/dashboard/activity/');
+      return response.data;
+    },
+
+    // Get notifications
+    getNotifications: async (): Promise<Notification[]> => {
+      const response = await apiClient.get<Notification[]>('/dashboard/notifications/');
+      return response.data;
+    },
+
+    // Mark notification as read
+    markNotificationRead: async (notificationId: number): Promise<{ message: string }> => {
+      const response = await apiClient.patch<{ message: string }>(`/dashboard/notifications/${notificationId}/read/`);
+      return response.data;
+    },
+
+    // Delete user alert
+    deleteAlert: async (alertId: number): Promise<{ message: string }> => {
+      const response = await apiClient.delete<{ message: string }>(`/alerts/${alertId}/`);
+      return response.data;
+    },
+
+    // Update user alert
+    updateAlert: async (alertId: number, data: Partial<UserAlert>): Promise<UserAlert> => {
+      const response = await apiClient.patch<UserAlert>(`/alerts/${alertId}/`, data);
+      return response.data;
+    },
+
+    // Create new alert
+    createAlert: async (data: Partial<UserAlert>): Promise<UserAlert> => {
+      const response = await apiClient.post<UserAlert>('/alerts/', data);
       return response.data;
     },
   },
