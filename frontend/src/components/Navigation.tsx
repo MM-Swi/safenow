@@ -22,7 +22,6 @@ const Navigation: React.FC = () => {
 
   const navigation = [
     { name: 'Strona główna', href: '/' },
-    { name: 'Panel', href: '/dashboard' },
     { name: 'Tryb awaryjny', href: '/emergency' },
     { name: 'Edukacja', href: '/education' },
   ];
@@ -126,21 +125,19 @@ const Navigation: React.FC = () => {
                         {user.email}
                       </div>
                       <Link
+                        href="/dashboard"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => setIsDropdownOpen(false)}
+                      >
+                        Panel użytkownika
+                      </Link>
+                      <Link
                         href="/profile"
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         onClick={() => setIsDropdownOpen(false)}
                       >
                         Mój profil
                       </Link>
-                      {user.role === 'ADMIN' && (
-                        <Link
-                          href="/admin"
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                          onClick={() => setIsDropdownOpen(false)}
-                        >
-                          Panel administratora
-                        </Link>
-                      )}
                       <button
                         onClick={handleLogout}
                         className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -248,21 +245,19 @@ const Navigation: React.FC = () => {
                 </div>
                 <div className="mt-3 space-y-1">
                   <Link
+                    href="/dashboard"
+                    className="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Panel użytkownika
+                  </Link>
+                  <Link
                     href="/profile"
                     className="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Mój profil
                   </Link>
-                  {user.role === 'ADMIN' && (
-                    <Link
-                      href="/admin"
-                      className="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      Panel administratora
-                    </Link>
-                  )}
                   <button
                     onClick={() => {
                       handleLogout();

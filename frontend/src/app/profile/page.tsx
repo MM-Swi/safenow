@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
+import Navigation from '@/components/Navigation';
 import type { UserUpdateRequest, UserPreferencesUpdateRequest, ChangePasswordRequest, Language } from '@/types/api';
 
 const ProfilePage: React.FC = () => {
@@ -159,90 +160,97 @@ const ProfilePage: React.FC = () => {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white shadow rounded-lg">
-            {/* Header */}
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h1 className="text-2xl font-bold text-gray-900">Mój profil</h1>
-              <p className="mt-1 text-sm text-gray-600">
-                Zarządzaj swoimi danymi osobowymi i preferencjami
-              </p>
-            </div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+        <Navigation />
+        
+        <div className="pt-28 pb-12">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden">
+              {/* Header */}
+              <div className="px-6 py-6 border-b border-gray-200/50">
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent">
+                  Mój profil
+                </h1>
+                <p className="mt-2 text-gray-600">
+                  Zarządzaj swoimi danymi osobowymi i preferencjami
+                </p>
+              </div>
 
-            {/* Tabs */}
-            <div className="border-b border-gray-200">
-              <nav className="-mb-px flex space-x-8 px-6">
-                {tabs.map((tab) => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                      activeTab === tab.id
-                        ? 'border-blue-500 text-blue-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                    }`}
-                  >
-                    <span className="mr-2">{tab.icon}</span>
-                    {tab.name}
-                  </button>
-                ))}
-              </nav>
-            </div>
+              {/* Tabs */}
+              <div className="border-b border-gray-200/50">
+                <nav className="-mb-px flex space-x-8 px-6">
+                  {tabs.map((tab) => (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`py-4 px-1 border-b-2 font-medium text-sm transition-all duration-300 ${
+                        activeTab === tab.id
+                          ? 'border-blue-500 text-blue-600'
+                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      }`}
+                    >
+                      <div className="flex items-center space-x-2">
+                        <span>{tab.icon}</span>
+                        <span>{tab.name}</span>
+                      </div>
+                    </button>
+                  ))}
+                </nav>
+              </div>
 
-            {/* Content */}
-            <div className="px-6 py-6">
-              {/* Success Message */}
-              {successMessage && (
-                <div className="mb-6 rounded-md bg-green-50 p-4">
-                  <div className="flex">
-                    <div className="flex-shrink-0">
-                      <svg
-                        className="h-5 w-5 text-green-400"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </div>
-                    <div className="ml-3">
-                      <p className="text-sm font-medium text-green-800">
-                        {successMessage}
-                      </p>
+              {/* Content */}
+              <div className="px-6 py-6">
+                {/* Success Message */}
+                {successMessage && (
+                  <div className="mb-6 rounded-xl bg-green-50/80 backdrop-blur-sm p-4 border border-green-200/50">
+                    <div className="flex">
+                      <div className="flex-shrink-0">
+                        <svg
+                          className="h-5 w-5 text-green-400"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </div>
+                      <div className="ml-3">
+                        <p className="text-sm font-medium text-green-800">
+                          {successMessage}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {/* Error Message */}
-              {error && (
-                <div className="mb-6 rounded-md bg-red-50 p-4">
-                  <div className="flex">
-                    <div className="flex-shrink-0">
-                      <svg
-                        className="h-5 w-5 text-red-400"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </div>
-                    <div className="ml-3">
-                      <p className="text-sm font-medium text-red-800">
-                        {error}
-                      </p>
+                {/* Error Message */}
+                {error && (
+                  <div className="mb-6 rounded-xl bg-red-50/80 backdrop-blur-sm p-4 border border-red-200/50">
+                    <div className="flex">
+                      <div className="flex-shrink-0">
+                        <svg
+                          className="h-5 w-5 text-red-400"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </div>
+                      <div className="ml-3">
+                        <p className="text-sm font-medium text-red-800">
+                          {error}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
 
               {/* Profile Tab */}
               {activeTab === 'profile' && (
@@ -257,7 +265,7 @@ const ProfilePage: React.FC = () => {
                         id="first_name"
                         value={profileData.first_name}
                         onChange={(e) => setProfileData(prev => ({ ...prev, first_name: e.target.value }))}
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                        className="mt-1 block w-full border-gray-300 rounded-xl shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all duration-300"
                         disabled={isSubmitting}
                       />
                     </div>
@@ -271,7 +279,7 @@ const ProfilePage: React.FC = () => {
                         id="last_name"
                         value={profileData.last_name}
                         onChange={(e) => setProfileData(prev => ({ ...prev, last_name: e.target.value }))}
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                        className="mt-1 block w-full border-gray-300 rounded-xl shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all duration-300"
                         disabled={isSubmitting}
                       />
                     </div>
@@ -286,7 +294,7 @@ const ProfilePage: React.FC = () => {
                       id="phone_number"
                       value={profileData.phone_number}
                       onChange={(e) => setProfileData(prev => ({ ...prev, phone_number: e.target.value }))}
-                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                      className="mt-1 block w-full border-gray-300 rounded-xl shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all duration-300"
                       placeholder="+48 123 456 789"
                       disabled={isSubmitting}
                     />
@@ -296,7 +304,7 @@ const ProfilePage: React.FC = () => {
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                      className="group relative bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:opacity-50 disabled:transform-none"
                     >
                       {isSubmitting ? 'Zapisywanie...' : 'Zapisz zmiany'}
                     </button>
@@ -401,7 +409,7 @@ const ProfilePage: React.FC = () => {
                         max="100"
                         value={preferencesData.alert_radius}
                         onChange={(e) => setPreferencesData(prev => ({ ...prev, alert_radius: parseInt(e.target.value) || 10 }))}
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                        className="mt-1 block w-full border-gray-300 rounded-xl shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all duration-300"
                         disabled={isSubmitting}
                       />
                     </div>
@@ -411,7 +419,7 @@ const ProfilePage: React.FC = () => {
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                      className="group relative bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:opacity-50 disabled:transform-none"
                     >
                       {isSubmitting ? 'Zapisywanie...' : 'Zapisz preferencje'}
                     </button>
@@ -483,13 +491,14 @@ const ProfilePage: React.FC = () => {
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
+                      className="group relative bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:opacity-50 disabled:transform-none"
                     >
                       {isSubmitting ? 'Zmienianie...' : 'Zmień hasło'}
                     </button>
                   </div>
                 </form>
               )}
+              </div>
             </div>
           </div>
         </div>
