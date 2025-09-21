@@ -81,8 +81,8 @@ class CanVoteOnAlert(permissions.BasePermission):
         if obj.created_by == request.user:
             return False
         
-        # Users can only vote on pending or verified alerts
-        if obj.status not in ['PENDING', 'VERIFIED']:
+        # Users can only vote on pending, verified, or active alerts
+        if obj.status not in ['PENDING', 'VERIFIED', 'ACTIVE']:
             return False
         
         return True

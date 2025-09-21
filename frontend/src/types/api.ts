@@ -58,6 +58,7 @@ export interface Alert {
   distance_km: number;
   valid_until: string;
   source: string;
+  description?: string;
   created_at: string;
   status: 'PENDING' | 'VERIFIED' | 'REJECTED' | 'ACTIVE';
   verification_score: number;
@@ -277,6 +278,7 @@ export interface UserAlert {
   severity: Severity;
   status: 'PENDING' | 'VERIFIED' | 'REJECTED' | 'ACTIVE';
   source: string;
+  description?: string;
   valid_until: string;
   created_at: string;
   created_by: number;

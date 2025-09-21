@@ -466,7 +466,13 @@ export const safeNowApi = {
 			source: string;
 			valid_minutes: number;
 		}): Promise<UserAlert> => {
-			const response = await apiClient.post<UserAlert>('/alerts/', data);
+			// Round coordinates to 6 decimal places to match backend requirements
+			const alertData = {
+				...data,
+				center_lat: Math.round(data.center_lat * 1000000) / 1000000,
+				center_lon: Math.round(data.center_lon * 1000000) / 1000000,
+			};
+			const response = await apiClient.post<UserAlert>('/alerts/', alertData);
 			return response.data;
 		},
 	},
@@ -504,9 +510,15 @@ export const safeNowApi = {
 			return response.data;
 		},
 
-		// Create new alert
+		// Create new alert (dashboard version)
 		createAlert: async (data: Partial<UserAlert>): Promise<UserAlert> => {
-			const response = await apiClient.post<UserAlert>('/alerts/', data);
+			// Round coordinates to 6 decimal places to match backend requirements
+			const alertData = {
+				...data,
+				center_lat: data.center_lat ? Math.round(data.center_lat * 1000000) / 1000000 : data.center_lat,
+				center_lon: data.center_lon ? Math.round(data.center_lon * 1000000) / 1000000 : data.center_lon,
+			};
+			const response = await apiClient.post<UserAlert>('/alerts/', alertData);
 			return response.data;
 		},
 	},

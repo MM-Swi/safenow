@@ -18,7 +18,7 @@ interface AlertManagementModalProps {
 const alertSchema = z.object({
   title: z.string().min(5, 'Tytuł musi mieć co najmniej 5 znaków'),
   description: z.string().min(10, 'Opis musi mieć co najmniej 10 znaków'),
-  hazard_type: z.string(),
+  hazard_type: z.enum(['AIR_RAID', 'DRONE', 'MISSILE', 'FLOOD', 'FIRE', 'INDUSTRIAL', 'SHOOTING', 'STORM', 'TSUNAMI', 'CHEMICAL WEAPON', 'BIOHAZARD', 'NUCLEAR', 'UNMARKED SOLDIERS', 'PANDEMIC', 'TERRORIST ATTACK', 'MASS POISONING', 'CYBER ATTACK', 'EARTHQUAKE']),
   severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']),
   radius: z.number().min(100).max(10000),
 });
@@ -43,11 +43,11 @@ const AlertManagementModal: React.FC<AlertManagementModalProps> = ({
   } = useForm<AlertFormData>({
     resolver: zodResolver(alertSchema),
     defaultValues: {
-      title: alert.title,
-      description: alert.description || '',
+      title: alert.source || '', // Use source as title
+      description: alert.description || '', // Now UserAlert has description field
       hazard_type: alert.hazard_type,
       severity: alert.severity,
-      radius: alert.radius,
+      radius: alert.radius_m,
     },
   });
 
@@ -81,7 +81,15 @@ const AlertManagementModal: React.FC<AlertManagementModalProps> = ({
 
   const onSubmit = async (data: AlertFormData) => {
     try {
-      await onSave(alert.id, data);
+      // Transform form data to UserAlert format
+      const updateData: Partial<UserAlert> = {
+        source: data.title, // Map title back to source
+        description: data.description, // Include description
+        hazard_type: data.hazard_type as HazardType,
+        severity: data.severity,
+        radius_m: data.radius,
+      };
+      await onSave(alert.id, updateData);
       onClose();
     } catch (error) {
       console.error('Failed to update alert:', error);
@@ -273,7 +281,7 @@ const AlertManagementModal: React.FC<AlertManagementModalProps> = ({
               <span className="font-medium">Lokalizacja</span>
             </div>
             <p className="text-sm text-blue-700">
-              Szerokość: {alert.latitude.toFixed(6)}, Długość: {alert.longitude.toFixed(6)}
+              Szerokość: {alert.center_lat.toFixed(6)}, Długość: {alert.center_lon.toFixed(6)}
             </p>
             <p className="text-xs text-blue-600 mt-1">
               Lokalizacja nie może być zmieniona po utworzeniu alertu

@@ -34,7 +34,7 @@ class ActiveAlertSerializer(serializers.ModelSerializer):
         model = Alert
         fields = [
             'id', 'hazard_type', 'severity', 'center_lat', 'center_lon',
-            'radius_m', 'distance_km', 'valid_until', 'source', 'created_at',
+            'radius_m', 'distance_km', 'valid_until', 'source', 'description', 'created_at',
             'status', 'verification_score', 'is_official', 'created_by_username', 'vote_summary'
         ]
     
@@ -278,7 +278,7 @@ class AlertCreateSerializer(serializers.ModelSerializer):
         model = Alert
         fields = [
             'hazard_type', 'severity', 'center_lat', 'center_lon',
-            'radius_m', 'source', 'valid_minutes'
+            'radius_m', 'source', 'description', 'valid_minutes'
         ]
         extra_kwargs = {
             'source': {'required': True, 'allow_blank': False}
@@ -370,9 +370,9 @@ class AlertVoteSerializer(serializers.ModelSerializer):
         if alert.created_by == user:
             raise serializers.ValidationError("You cannot vote on your own alert")
         
-        # Users can only vote on pending or verified alerts
-        if alert.status not in ['PENDING', 'VERIFIED']:
-            raise serializers.ValidationError("You can only vote on pending or verified alerts")
+        # Users can only vote on pending, verified, or active alerts
+        if alert.status not in ['PENDING', 'VERIFIED', 'ACTIVE']:
+            raise serializers.ValidationError("You can only vote on pending, verified, or active alerts")
         
         return data
 
@@ -410,7 +410,7 @@ class UserAlertSerializer(serializers.ModelSerializer):
         model = Alert
         fields = [
             'id', 'hazard_type', 'center_lat', 'center_lon', 'radius_m', 
-            'severity', 'status', 'source', 'valid_until', 'created_at',
+            'severity', 'status', 'source', 'description', 'valid_until', 'created_at',
             'created_by', 'verification_score', 'is_official', 'vote_summary'
         ]
     

@@ -71,6 +71,7 @@ class Alert(models.Model):
     )
     valid_until = models.DateTimeField()
     source = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True, help_text="Detailed description of the alert")
     created_at = models.DateTimeField(auto_now_add=True)
     
     # New fields for user ownership and verification

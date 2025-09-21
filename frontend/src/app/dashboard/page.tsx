@@ -152,8 +152,27 @@ const Dashboard: React.FC = () => {
   };
 
   const handleCreateAlert = async (data: AlertFormData) => {
-    await createAlertMutation.mutateAsync(data);
-    setIsCreateModalOpen(false);
+    try {
+      // Transform form data to backend API format
+      const alertData = {
+        hazard_type: data.hazard_type,
+        severity: data.severity,
+        center_lat: data.latitude,
+        center_lon: data.longitude,
+        radius_m: data.radius,
+        source: data.title || 'User Report', // Use title as source, fallback to default
+        description: data.description || '', // Include description
+        valid_minutes: 60, // Default to 1 hour
+      };
+      
+      console.log('Creating alert with data:', alertData);
+      await createAlertMutation.mutateAsync(alertData);
+      setIsCreateModalOpen(false);
+    } catch (error) {
+      console.error('Failed to create alert:', error);
+      // Show error to user - you could add a toast notification here
+      alert('Failed to create alert. Please check the console for details.');
+    }
   };
 
   // Use real data or fallback to mock data

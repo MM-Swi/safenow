@@ -19,8 +19,8 @@ const alertSchema = z.object({
   hazard_type: z.enum(['AIR_RAID', 'DRONE', 'MISSILE', 'FLOOD', 'FIRE', 'INDUSTRIAL', 'SHOOTING', 'STORM', 'TSUNAMI', 'CHEMICAL WEAPON', 'BIOHAZARD', 'NUCLEAR', 'UNMARKED SOLDIERS', 'PANDEMIC', 'TERRORIST ATTACK', 'MASS POISONING', 'CYBER ATTACK', 'EARTHQUAKE']),
   severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']),
   radius: z.number().min(100).max(10000),
-  latitude: z.number().min(-90).max(90),
-  longitude: z.number().min(-180).max(180),
+  latitude: z.number().min(-90).max(90).transform(val => Math.round(val * 1000000) / 1000000),
+  longitude: z.number().min(-180).max(180).transform(val => Math.round(val * 1000000) / 1000000),
 });
 
 export type AlertFormData = z.infer<typeof alertSchema>;
@@ -97,8 +97,11 @@ const AlertCreationModal: React.FC<AlertCreationModalProps> = ({
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        setValue('latitude', position.coords.latitude);
-        setValue('longitude', position.coords.longitude);
+        // Round coordinates to 6 decimal places to match backend requirements
+        const roundedLat = Math.round(position.coords.latitude * 1000000) / 1000000;
+        const roundedLon = Math.round(position.coords.longitude * 1000000) / 1000000;
+        setValue('latitude', roundedLat);
+        setValue('longitude', roundedLon);
         setIsGettingLocation(false);
       },
       (error) => {
@@ -298,7 +301,7 @@ const AlertCreationModal: React.FC<AlertCreationModalProps> = ({
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                     errors.latitude ? 'border-red-300' : 'border-gray-300'
                   }`}
-                  placeholder="50.064650"
+                  placeholder="50.092442"
                 />
                 {errors.latitude && (
                   <p className="mt-1 text-xs text-red-600">{errors.latitude.message}</p>
@@ -316,7 +319,7 @@ const AlertCreationModal: React.FC<AlertCreationModalProps> = ({
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                     errors.longitude ? 'border-red-300' : 'border-gray-300'
                   }`}
-                  placeholder="19.944980"
+                  placeholder="22.347776"
                 />
                 {errors.longitude && (
                   <p className="mt-1 text-xs text-red-600">{errors.longitude.message}</p>
