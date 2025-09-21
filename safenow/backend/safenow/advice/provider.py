@@ -2,14 +2,14 @@ from typing import Dict, List
 
 
 class SafetyAdvisor:
-    """Provides safety instructions based on hazard type and evacuation time."""
+    """Provides safety instructions and educational content based on hazard type and evacuation time."""
 
     def get_instructions(self, hazard_type: str, eta_seconds: int) -> Dict:
         """
         Get safety instructions for a specific hazard type and shelter ETA.
 
         Args:
-            hazard_type: One of AIR_RAID, DRONE, MISSILE, FLOOD, FIRE, INDUSTRIAL
+            hazard_type: One of AIR_RAID, DRONE, MISSILE, FLOOD, FIRE, INDUSTRIAL, SHOOTING, STORM, TSUNAMI, CHEMICAL WEAPON, BIOHAZARD, NUCLEAR, UNMARKED SOLDIERS, PANDEMIC, TERRORIST ATTACK, MASS POISONING, CYBER ATTACK, EARTHQUAKE
             eta_seconds: Time to reach shelter in seconds
 
         Returns:
@@ -19,124 +19,847 @@ class SafetyAdvisor:
 
         instructions = {
             'AIR_RAID': {
-                'title': 'Air Raid Alert - Take Immediate Shelter',
+                'title': 'Alert lotniczy - Natychmiast szukaj schronienia',
                 'steps': [
-                    'Drop everything and move to shelter immediately',
-                    'Stay low and avoid windows',
-                    'Move to the lowest floor or basement if available',
-                    'Stay away from exterior walls',
-                    'Wait for all-clear signal before leaving shelter'
+                    'Porzuć wszystko i natychmiast udaj się do schronienia',
+                    'Pozostań nisko i unikaj okien',
+                    'Przenieś się na najniższe piętro lub do piwnicy jeśli dostępne',
+                    'Trzymaj się z dala od zewnętrznych ścian',
+                    'Czekaj na sygnał odwołania alarmu przed opuszczeniem schronienia',
                 ],
                 'do_not': [
-                    'Do not use elevators',
-                    'Do not stop to gather belongings',
-                    'Do not look up at aircraft',
-                    'Do not leave shelter until official all-clear'
+                    'Nie używaj wind',
+                    'Nie zatrzymuj się, aby zbierać rzeczy',
+                    'Nie patrz w górę na samoloty',
+                    'Nie opuszczaj schronienia do oficjalnego odwołania alarmu',
                 ],
-                'eta_hint': f'Move quickly - you have {eta_minutes} minutes to reach safety'
+                'eta_hint': f'Poruszaj się szybko - masz {eta_minutes} minut, aby dotrzeć do bezpiecznego miejsca',
             },
-
             'DRONE': {
-                'title': 'Hostile Drone Alert - Seek Cover',
+                'title': 'Alert dronów - Szukaj osłony',
                 'steps': [
-                    'Move indoors or under solid cover immediately',
-                    'Stay away from windows and open areas',
-                    'Avoid gathering in groups outside',
-                    'Move to interior rooms if possible',
-                    'Monitor official channels for updates'
+                    'Natychmiast przenieś się do budynku lub pod solidną osłonę',
+                    'Trzymaj się z dala od okien i otwartych przestrzeni',
+                    'Unikaj gromadzenia się w grupach na zewnątrz',
+                    'Przenieś się do wewnętrznych pomieszczeń jeśli możliwe',
+                    'Monitoruj oficjalne kanały informacyjne',
                 ],
                 'do_not': [
-                    'Do not point lasers or lights at drones',
-                    'Do not gather outside to observe',
-                    'Do not use flash photography',
-                    'Do not ignore the alert even if drone seems distant'
+                    'Nie kieruj laserów ani świateł na drony',
+                    'Nie gromadź się na otwartych przestrzeniach',
+                    'Nie używaj lampy błyskowej do fotografowania',
+                    'Nie ignoruj alarmu nawet jeśli dron wydaje się daleko',
                 ],
-                'eta_hint': f'Seek immediate cover - shelter in {eta_minutes} minutes'
+                'eta_hint': f'Szukaj natychmiastowej osłony - schronienie za {eta_minutes} minut',
             },
-
             'MISSILE': {
-                'title': 'Incoming Missile - Take Shelter NOW',
+                'title': 'Nadlatujący pocisk - NATYCHMIAST do schronienia',
                 'steps': [
-                    'Drop to ground and take cover immediately',
-                    'Move to nearest solid building or shelter',
-                    'Go to lowest floor, away from windows',
-                    'Lie flat on ground if caught in open',
-                    'Cover head and wait for impact/all-clear'
+                    'Natychmiast upadnij na ziemię i szukaj osłony',
+                    'Przenieś się do najbliższego solidnego budynku lub schronienia',
+                    'Idź na najniższe piętro, z dala od okien',
+                    'Połóż się płasko na ziemi jeśli zostałeś na otwartej przestrzeni',
+                    'Osłoń głowę i czekaj na uderzenie/sygnał odwołania',
                 ],
                 'do_not': [
-                    'Do not run in open areas',
-                    'Do not waste time gathering items',
-                    'Do not use vehicles unless already moving to shelter',
-                    'Do not stand near windows or glass'
+                    'Nie biegnij po otwartych przestrzeniach',
+                    'Nie próbuj uciekać przed pociskiem',
+                    'Nie używaj pojazdów chyba że już jedziesz do schronienia',
+                    'Nie stój przy oknach ani szkle',
                 ],
-                'eta_hint': f'URGENT: Only {eta_minutes} minutes to reach shelter - RUN'
+                'eta_hint': f'PILNE: Tylko {eta_minutes} minut do dotarcia do schronienia - BIEGNIJ',
             },
-
             'FLOOD': {
-                'title': 'Flood Warning - Evacuate to Higher Ground',
+                'title': 'Ostrzeżenie powodziowe - Ewakuacja na wyższy teren',
                 'steps': [
-                    'Move to higher ground immediately',
-                    'Avoid walking in moving water',
-                    'Stay away from storm drains and ditches',
-                    'Move to upper floors if trapped in building',
-                    'Signal for help if stranded'
+                    'Natychmiast przenieś się na wyższy teren',
+                    'Unikaj chodzenia w płynącej wodzie',
+                    'Trzymaj się z dala od kanałów burzowych i rowów',
+                    'Przenieś się na wyższe piętra jeśli jesteś uwięziony w budynku',
+                    'Sygnalizuj o pomoc jeśli jesteś odcięty',
                 ],
                 'do_not': [
-                    'Do not drive through flooded roads',
-                    'Do not walk in water over your ankles',
-                    'Do not touch electrical equipment if wet',
-                    'Do not ignore evacuation orders'
+                    'Nie jedź przez zalane drogi',
+                    'Nie chodź w wodzie sięgającej powyżej kolan',
+                    'Nie dotykaj sprzętu elektrycznego jeśli jesteś mokry',
+                    'Nie ignoruj rozkazów ewakuacji',
                 ],
-                'eta_hint': f'Move to high ground - {eta_minutes} minutes before conditions worsen'
+                'eta_hint': f'Przenieś się na wyższy teren - {eta_minutes} minut zanim sytuacja się pogorszy',
             },
-
             'FIRE': {
-                'title': 'Fire Emergency - Evacuate Safely',
+                'title': 'Pożar - Ewakuuj się bezpiecznie',
                 'steps': [
-                    'Leave building immediately via safest exit',
-                    'Stay low under smoke - crawl if necessary',
-                    'Feel doors before opening - avoid hot surfaces',
-                    'Use stairs, never elevators',
-                    'Go to designated meeting point outside'
+                    'Natychmiast opuść budynek najbezpieczniejszym wyjściem',
+                    'Pozostań nisko pod dymem - czołgaj się jeśli konieczne',
+                    'Sprawdź drzwi przed otwarciem - unikaj gorących powierzchni',
+                    'Używaj schodów, nigdy wind',
+                    'Idź do wyznaczonego punktu zbornego na zewnątrz',
                 ],
                 'do_not': [
-                    'Do not use elevators',
-                    'Do not go back inside for belongings',
-                    'Do not open hot doors',
-                    'Do not break windows unless trapped'
+                    'Nie używaj wind',
+                    'Nie wracaj po rzeczy osobiste',
+                    'Nie otwieraj gorących drzwi',
+                    'Nie wybijaj okien chyba że jesteś uwięziony',
                 ],
-                'eta_hint': f'Evacuate now - safe area {eta_minutes} minutes away'
+                'eta_hint': f'Ewakuuj się teraz - bezpieczny obszar za {eta_minutes} minut',
             },
-
             'INDUSTRIAL': {
-                'title': 'Industrial Hazard - Follow Evacuation Orders',
+                'title': 'Zagrożenie przemysłowe - Postępuj zgodnie z rozkazami ewakuacji',
                 'steps': [
-                    'Follow official evacuation instructions',
-                    'Move perpendicular to wind direction if toxic release',
-                    'Stay indoors with windows/doors closed if ordered',
-                    'Turn off ventilation systems',
-                    'Monitor emergency broadcasts for updates'
+                    'Postępuj zgodnie z oficjalnymi instrukcjami ewakuacji',
+                    'Poruszaj się prostopadle do kierunku wiatru w przypadku uwolnienia toksyn',
+                    'Pozostań w budynku z zamkniętymi oknami/drzwiami jeśli nakazano',
+                    'Wyłącz systemy wentylacyjne',
+                    'Monitoruj audycje alarmowe w celu uzyskania aktualizacji',
                 ],
                 'do_not': [
-                    'Do not approach the hazard area',
-                    'Do not ignore evacuation orders',
-                    'Do not use fans or air conditioning during chemical release',
-                    'Do not go outside unless specifically instructed'
+                    'Nie zbliżaj się do strefy zagrożenia',
+                    'Nie używaj klimatyzacji podczas uwolnienia chemikaliów',
+                    'Nie używaj wentylatorów ani klimatyzacji podczas uwolnienia chemikaliów',
+                    'Nie wychodź na zewnątrz chyba że otrzymasz szczegółowe instrukcje',
                 ],
-                'eta_hint': f'Follow evacuation plan - safe zone {eta_minutes} minutes away'
-            }
+                'eta_hint': f'Postępuj zgodnie z planem ewakuacji - strefa bezpieczna za {eta_minutes} minut',
+            },
+            'SHOOTING': {
+                'title': 'Aktywny strzelec - Uciekaj, Ukryj się, Walcz',
+                'steps': [
+                    'UCIEKAJ: Ewakuuj się natychmiast jeśli istnieje bezpieczna droga',
+                    'UKRYJ SIĘ: Znajdź bezpieczne miejsce jeśli ucieczka niemożliwa',
+                    'Wyłącz światła, zamknij drzwi, wycisz urządzenia',
+                    'Zabarykaduj się jeśli ucieczka niemożliwa',
+                    'Pozostań cicho i poza zasięgiem wzroku',
+                    'WALCZ: Jako ostatnia deska ratunku, współpracuj aby powstrzymać zagrożenie',
+                ],
+                'do_not': [
+                    'Nie używaj wind',
+                    'Nie ukrywaj się w grupach na otwartych przestrzeniach',
+                    'Nie rób hałasu ani nie używaj telefonu chyba że jesteś bezpieczny',
+                    'Nie opuszczaj kryjówki dopóki policja nie da sygnału odwołania',
+                ],
+                'eta_hint': f'Wymagane natychmiastowe działanie - strefa bezpieczna za {eta_minutes} minut',
+            },
+            'STORM': {
+                'title': 'Gwałtowna burza - Szukaj solidnego schronienia',
+                'steps': [
+                    'Przenieś się do wewnętrznego pomieszczenia na najniższym piętrze',
+                    'Trzymaj się z dala od okien i szklanych drzwi',
+                    'Unikaj sprzętu elektrycznego i instalacji wodociągowej',
+                    'Słuchaj radia pogodowego w celu uzyskania aktualizacji',
+                    'Przygotuj się na przerwy w dostawie prądu',
+                ],
+                'do_not': [
+                    'Nie pozostawaj w domach mobilnych lub pojazdach',
+                    'Nie używaj urządzeń elektrycznych podczas burzy',
+                    'Nie wychodź na zewnątrz podczas burzy',
+                    'Nie jedź chyba że absolutnie konieczne',
+                ],
+                'eta_hint': f'Szukaj schronienia teraz - burza się nasila, bezpieczny budynek za {eta_minutes} minut',
+            },
+            'TSUNAMI': {
+                'title': 'Ostrzeżenie tsunami - NATYCHMIAST na wyższy teren',
+                'steps': [
+                    'Natychmiast przenieś się na wyższy teren (co najmniej 30 metrów nad poziomem morza)',
+                    'Przenieś się w głąb lądu co najmniej 3 km jeśli możliwe',
+                    'Używaj schodów, nie wind w wysokich budynkach',
+                    'Pozostań na wyższym terenie dopóki nie zostanie wydany sygnał odwołania',
+                    'Pomagaj innym, którzy potrzebują pomocy',
+                ],
+                'do_not': [
+                    'Nie idź na plażę oglądać fal',
+                    'Nie wracaj do niskich obszarów do czasu odwołania alarmu',
+                    'Nie jedź chyba że kierujesz się na wyższy teren',
+                    'Nie wracaj do niskich obszarów do czasu odwołania alarmu',
+                ],
+                'eta_hint': f'KRYTYCZNE: Przenieś się na wyższy teren - fale mogą nadejść wkrótce, punkt ewakuacji za {eta_minutes} minut',
+            },
+            'CHEMICAL WEAPON': {
+                'title': 'Atak bronią chemiczną - Chronić drogi oddechowe',
+                'steps': [
+                    'Nakryj natychmiast nos i usta',
+                    'Przenieś się na wyższy teren (chemikalia opadają)',
+                    'Wejdź do budynku i uszczelnij okna/drzwi',
+                    'Wyłącz systemy wentylacyjne',
+                    'Zdejmij skażoną odzież jeśli bezpiecznie',
+                ],
+                'do_not': [
+                    'Nie dotykaj podejrzanych substancji',
+                    'Nie używaj wentylatorów ani klimatyzacji',
+                    'Nie jedz ani nie pij niczego potencjalnie skażonego',
+                    'Nie opuszczaj schronienia do zakończenia dekontaminacji',
+                ],
+                'eta_hint': f'Potrzebna natychmiastowa ochrona - punkt dekontaminacji za {eta_minutes} minut',
+            },
+            'BIOHAZARD': {
+                'title': 'Zagrożenie biologiczne - Unikaj skażenia',
+                'steps': [
+                    'Unikaj kontaktu z podejrzanymi substancjami',
+                    'Myj ręce często mydłem',
+                    'Zakrywaj kaszel i kichanie',
+                    'Szukaj pomocy medycznej jeśli wystąpią objawy',
+                    'Przestrzegaj instrukcji kwarantanny jeśli otrzymasz',
+                ],
+                'do_not': [
+                    'Nie dotykaj nieznanych substancji',
+                    'Nie dziel się jedzeniem, napojami ani rzeczami osobistymi',
+                    'Nie ignoruj objawów (gorączka, problemy z oddychaniem)',
+                    'Nie opuszczaj obszaru kwarantanny jeśli nakazano zostać',
+                ],
+                'eta_hint': f'Minimalizuj narażenie - placówka medyczna za {eta_minutes} minut',
+            },
+            'NUCLEAR': {
+                'title': 'Zagrożenie nuklearne - Schronienie i ochrona',
+                'steps': [
+                    'Wejdź natychmiast do budynku i pozostań w środku',
+                    'Idź do piwnicy lub centrum budynku',
+                    'Zamknij okna i drzwi, wyłącz wentylację',
+                    'Słuchaj komunikatów alarmowych',
+                    'Weź jodek potasu jeśli nakazały władze',
+                ],
+                'do_not': [
+                    'Nie wychodź na zewnątrz chyba że nakazały władze',
+                    'Nie używaj telefonu chyba że w nagłym przypadku',
+                    'Nie jedz ani nie pij niczego z zewnątrz',
+                    'Nie opuszczaj schronienia przez co najmniej 24 godziny',
+                ],
+                'eta_hint': f'Pozostań w schronieniu - punkt ochrony przed promieniowaniem za {eta_minutes} minut',
+            },
+            'UNMARKED SOLDIERS': {
+                'title': 'Nieoznaczeni żołnierze - Unikaj i zgłoś',
+                'steps': [
+                    'Unikaj kontaktu i natychmiast opuść obszar',
+                    'Dokumentuj to co widzisz jeśli bezpiecznie',
+                    'Natychmiast zgłoś władzom',
+                    'Pozostań w budynku z dala od okien',
+                    'Postępuj zgodnie z oficjalnymi rozkazami ewakuacji',
+                ],
+                'do_not': [
+                    'Nie zbliżaj się ani nie konfrontuj z personelem',
+                    'Nie rób zdjęć jeśli naraża cię to na ryzyko',
+                    'Nie rozpowszechniaj niesprawdzonych informacji',
+                    'Nie ignoruj rozkazów ewakuacji',
+                ],
+                'eta_hint': f'Unikaj obszaru - strefa bezpieczna za {eta_minutes} minut',
+            },
+            'PANDEMIC': {
+                'title': 'Alert pandemiczny - Chroń siebie i innych',
+                'steps': [
+                    'Zachowuj dystans społeczny (ponad 2 metry)',
+                    'Noś maseczkę w miejscach publicznych',
+                    'Myj ręce często przez ponad 20 sekund',
+                    'Unikaj dużych zgromadzeń',
+                    'Pozostań w domu jeśli czujesz się źle',
+                ],
+                'do_not': [
+                    'Nie dotykaj twarzy niemytymi rękami',
+                    'Nie uczestnicz w dużych zgromadzeniach',
+                    'Nie ignoruj objawów',
+                    'Nie rozpowszechniaj dezinformacji',
+                ],
+                'eta_hint': f'Przestrzegaj protokołów zdrowotnych - placówka medyczna za {eta_minutes} minut w razie potrzeby',
+            },
+            'TERRORIST ATTACK': {
+                'title': 'Atak terrorystyczny - Uciekaj, Ukryj się, Walcz',
+                'steps': [
+                    'UCIEKAJ: Opuść obszar natychmiast jeśli istnieje bezpieczna droga',
+                    'UKRYJ SIĘ: Znajdź bezpieczne miejsce jeśli ucieczka niemożliwa',
+                    'Wyłącz światła, zamknij drzwi, wycisz urządzenia',
+                    'WALCZ: Jako ostatnia deska ratunku, współpracuj aby zatrzymać zagrożenie',
+                    'Zadzwoń po służby ratunkowe gdy będziesz bezpieczny',
+                ],
+                'do_not': [
+                    'Nie używaj wind',
+                    'Nie gromadź się na otwartych przestrzeniach',
+                    'Nie opuszczaj kryjówki dopóki nie przyjadą władze',
+                    'Nie zbliżaj się do podejrzanych paczek lub osób',
+                ],
+                'eta_hint': f'Wymagane natychmiastowe działanie - bezpieczny obszar za {eta_minutes} minut',
+            },
+            'MASS POISONING': {
+                'title': 'Masowe zatrucie - Unikaj skażenia',
+                'steps': [
+                    'Nie spożywaj jedzenia ani wody z dotkniętego obszaru',
+                    'Szukaj pomocy medycznej jeśli doświadczasz objawów',
+                    'Postępuj zgodnie z procedurami dekontaminacji jeśli narażony',
+                    'Zgłoś podejrzane aktywności władzom',
+                    'Pomóż innym szukać opieki medycznej',
+                ],
+                'do_not': [
+                    'Nie jedz ani nie pij niczego podejrzanego',
+                    'Nie ignoruj objawów (nudności, wymioty, zawroty głowy)',
+                    'Nie dziel się potencjalnie skażonymi przedmiotami',
+                    'Nie zwlekaj z szukaniem pomocy medycznej',
+                ],
+                'eta_hint': f'Szukaj pomocy medycznej - szpital za {eta_minutes} minut',
+            },
+            'CYBER ATTACK': {
+                'title': 'Atak cybernetyczny - Chroń zasoby cyfrowe',
+                'steps': [
+                    'Odłącz się od internetu jeśli systemy są skompromitowane',
+                    'Nie klikaj podejrzanych linków ani załączników',
+                    'Zmień hasła na krytycznych kontach',
+                    'Zrób kopie zapasowe ważnych danych jeśli możliwe',
+                    'Zgłoś incydent do działu bezpieczeństwa IT',
+                ],
+                'do_not': [
+                    'Nie używaj skompromitowanych systemów',
+                    'Nie podawaj danych osobowych nieznanym źródłom',
+                    'Nie ignoruj ostrzeżeń bezpieczeństwa',
+                    'Nie podłączaj zakażonych urządzeń do sieci',
+                ],
+                'eta_hint': f'Zabezpiecz systemy natychmiast - centrum wsparcia IT za {eta_minutes} minut',
+            },
+            'EARTHQUAKE': {
+                'title': 'Trzęsienie ziemi - Upadnij, Osłoń, Trzymaj',
+                'steps': [
+                    'UPADNIJ natychmiast na ręce i kolana',
+                    'OSŁOŃ głowę i kark pod solidnym biurkiem/stołem',
+                    'TRZYMAJ się swojej osłony i chroń się',
+                    'Pozostań tam gdzie jesteś dopóki trząsanie całkowicie się nie zatrzyma',
+                    'Opuść budynek ostrożnie po zatrzymaniu trząsania jeśli bezpiecznie',
+                ],
+                'do_not': [
+                    'Nie biegnij na zewnątrz podczas trząsania',
+                    'Nie stój w drzwiach',
+                    'Nie używaj wind',
+                    'Nie zapalaj zapałek ani świec jeśli czujesz zapach gazu',
+                ],
+                'eta_hint': f'Natychmiast szukaj osłony - możliwe wstrząsy wtórne, bezpieczny punkt zborny za {eta_minutes} minut',
+            },
         }
 
-        return instructions.get(hazard_type, {
-            'title': 'Emergency Alert - Seek Safety',
-            'steps': [
-                'Follow official emergency instructions',
-                'Move to designated safe area',
-                'Stay alert for further updates'
-            ],
-            'do_not': [
-                'Do not ignore official warnings',
-                'Do not panic'
-            ],
-            'eta_hint': f'Proceed to safety - {eta_minutes} minutes to shelter'
-        })
+        return instructions.get(
+            hazard_type,
+            {
+                'title': 'Alert alarmowy - Szukaj bezpieczeństwa',
+                'steps': [
+                    'Postępuj zgodnie z oficjalnymi instrukcjami alarmowymi',
+                    'Przenieś się do wyznaczonego bezpiecznego obszaru',
+                    'Pozostań czujny na dalsze aktualizacje',
+                ],
+                'do_not': ['Nie ignoruj oficjalnych ostrzeżeń', 'Nie panikuj'],
+                'eta_hint': f'Kieruj się do bezpiecznego miejsca - {eta_minutes} minut do schronienia',
+            },
+        )
+
+    def get_education_data(self, hazard_type: str) -> Dict:
+        """
+        Get educational content for a specific hazard type.
+
+        Args:
+            hazard_type: One of the supported hazard types
+
+        Returns:
+            dict: {title, description, priority, icon, practical_tips[], warning_signs[], preparation_steps[]}
+        """
+        education_content = {
+            'AIR_RAID': {
+                'title': 'Nalot',
+                'description': 'Atak z powietrza przy użyciu samolotów bojowych lub bombowców.',
+                'priority': 'critical',
+                'icon': '✈️',
+                'practical_tips': [
+                    'Znaj lokalizację najbliższych schronisk przeciwlotniczych',
+                    'Trzymaj zapasy awaryjne gotowe przez cały czas',
+                    'Regularnie ćwicz ćwiczenia schroniskowe',
+                    'Zainstaluj aplikacje ostrzeżeń lotniczych na telefonie',
+                    'Zidentyfikuj najsilniejsze pomieszczenia w swoim budynku',
+                ],
+                'warning_signs': [
+                    'Syreny przeciwlotnicze',
+                    'Oficjalne komunikaty alarmowe',
+                    'Dźwięki samolotów nad głową',
+                    'Eksplozje w oddali',
+                    'Aktywność służb ratunkowych',
+                ],
+                'preparation_steps': [
+                    'Zlokalizuj i zbadaj pobliskie schroniska przeciwlotnicze',
+                    'Przygotuj zestaw awaryjny z wodą, jedzeniem i materiałami medycznymi',
+                    'Zaplanuj trasy ewakuacyjne do schronisk',
+                    'Zainstaluj systemy alertów alarmowych',
+                    'Przedyskutuj plany awaryjne z członkami rodziny',
+                ],
+            },
+            'DRONE': {
+                'title': 'Atak dronów',
+                'description': 'Atak przy użyciu bezzałogowych statków powietrznych.',
+                'priority': 'high',
+                'icon': '🛸',
+                'practical_tips': [
+                    'Unikaj gromadzenia się na otwartych obszarach podczas alertów',
+                    'Trzymaj zasłony zamknięte podczas aktywności dronów',
+                    'Nie kieruj świateł ani laserów na drony',
+                    'Pozostawaj poinformowany przez oficjalne kanały',
+                    'Znaj bezpieczne obszary wewnątrz swojego budynku',
+                ],
+                'warning_signs': [
+                    'Brzuczące lub buczenie dźwięki nad głową',
+                    'Małe obiekty podobne do samolotów na niebie',
+                    'Oficjalne alerty dronowe',
+                    'Niezwykła aktywność nadzoru',
+                    'Ostrzeżenia służb ratunkowych',
+                ],
+                'preparation_steps': [
+                    'Zidentyfikuj wewnętrzne pomieszczenia z dala od okien',
+                    'Przygotuj materiały zacierniające do okien',
+                    'Zainstaluj aplikacje komunikacji awaryjnej',
+                    'Stwórz plan komunikacji rodzinnej',
+                    'Trzymaj zapasy awaryjne dostępne',
+                ],
+            },
+            'MISSILE': {
+                'title': 'Atak rakietowy',
+                'description': 'Atak przy użyciu pocisków rakietowych dalekiego zasięgu.',
+                'priority': 'critical',
+                'icon': '🚀',
+                'practical_tips': [
+                    'Naucz się rozpoznawać dźwięki ostrzeżeń rakietowych',
+                    'Ćwicz natychmiastową reakcję schronienia',
+                    'Trzymaj zapasy awaryjne w obszarach schronienia',
+                    'Znaj wiele tras ewakuacyjnych',
+                    'Utrzymuj urządzenia komunikacji awaryjnej',
+                ],
+                'warning_signs': [
+                    'Syreny alertów rakietowych',
+                    'Grzmoty dźwiękowe lub głośne eksplozje',
+                    'Ostrzeżenia w komunikatach alarmowych',
+                    'Wzrost aktywności wojskowej',
+                    'Rozkazy ewakuacji od władz',
+                ],
+                'preparation_steps': [
+                    'Zidentyfikuj najsilniejsze lokalizacje schronienia',
+                    'Wyposaż schronienie w zapasy na 72 godziny',
+                    'Zainstaluj aplikacje alertów rakietowych',
+                    'Ćwicz szybkie procedury schronienia',
+                    'Przygotuj informacje kontaktowe awaryjne',
+                ],
+            },
+            'FLOOD': {
+                'title': 'Powódź',
+                'description': 'Zalanie terenu wodą z rzek, opadów lub awarii infrastruktury.',
+                'priority': 'high',
+                'icon': '🌊',
+                'practical_tips': [
+                    'Znaj swoją strefę ryzyka powodziowego',
+                    'Trzymaj worki z piaskiem i materiały wodoodporne gotowe',
+                    'Umieść ważne przedmioty powyżej potencjalnego poziomu powodzi',
+                    'Utrzymuj zestaw ewakuacyjny awaryjny',
+                    'Znaj wiele tras ewakuacyjnych na wyższy teren',
+                ],
+                'warning_signs': [
+                    'Intensywne opady deszczu przez długie okresy',
+                    'Wzrastający poziom wody w rzekach lub strumykach',
+                    'Ostrzeżenia powodziowe od służb meteorologicznych',
+                    'Cofająca się woda w kanalizacji burzowej',
+                    'Niezwykłe wzorce przepływu wody',
+                ],
+                'preparation_steps': [
+                    'Stwórz plan awaryjny powodzi',
+                    'Przygotuj wodoodporny zestaw awaryjny',
+                    'Zidentyfikuj trasy ewakuacyjne na wyższy teren',
+                    'Zainstaluj aplikacje monitorowania powodzi',
+                    'Przygotuj domowe bariery przeciwpowodziowe',
+                ],
+            },
+            'FIRE': {
+                'title': 'Pożar',
+                'description': 'Pożar budynków, lasów lub instalacji przemysłowych.',
+                'priority': 'high',
+                'icon': '🔥',
+                'practical_tips': [
+                    'Zainstaluj i utrzymuj czujniki dymu',
+                    'Trzymaj gaśnice dostępne',
+                    'Planuj i ćwicz trasy ewakuacyjne',
+                    'Trzymaj drabinkę awaryjną dla wyższych pięter',
+                    'Utrzymuj przestrzeń obronną wokół nieruchomości',
+                ],
+                'warning_signs': [
+                    'Zapach dymu',
+                    'Widoczne płomienie lub żarzenie',
+                    'Alarmy pożarowe',
+                    'Gorące powierzchnie lub drzwi',
+                    'Popioł spadający z nieba',
+                ],
+                'preparation_steps': [
+                    'Zainstaluj sprzęt bezpieczeństwa pożarowego',
+                    'Stwórz i ćwicz plan ucieczki przed pożarem',
+                    'Przygotuj zestaw awaryjny pożarowy',
+                    'Oczyść roślinność wokół budynków',
+                    'Zidentyfikuj wiele tras wyjścia',
+                ],
+            },
+            'INDUSTRIAL': {
+                'title': 'Awaria przemysłowa',
+                'description': 'Awaria w zakładach przemysłowych mogąca powodować skażenie.',
+                'priority': 'high',
+                'icon': '⚠️',
+                'practical_tips': [
+                    'Znaj lokalizacje pobliskich zakładów przemysłowych',
+                    'Rozumiej procedury schronienia w miejscu',
+                    'Trzymaj folię plastikową i taśmę klejową gotowe',
+                    'Monitoruj raporty bezpieczeństwa zakładów przemysłowych',
+                    'Przygotuj materiały filtracji powietrza',
+                ],
+                'warning_signs': [
+                    'Niezwykłe zapachy lub chemiczne wonie',
+                    'Widoczne chmury chemiczne lub pary',
+                    'Alarmy zakładów przemysłowych',
+                    'Martwa roślinność lub zwierzęta',
+                    'Oficjalne zawiadomienia o ewakuacji',
+                ],
+                'preparation_steps': [
+                    'Dowiedz się o pobliskich zagrożeniach przemysłowych',
+                    'Przygotuj zapasy do schronienia w miejscu',
+                    'Zainstaluj systemy alertów alarmowych',
+                    'Stwórz plan komunikacji rodzinnej',
+                    'Zidentyfikuj trasy ewakuacyjne z dala od zakładów',
+                ],
+            },
+            'SHOOTING': {
+                'title': 'Strzelanina',
+                'description': 'Aktywny strzelec w miejscu publicznym lub prywatnym.',
+                'priority': 'critical',
+                'icon': '🔫',
+                'practical_tips': [
+                    'Naucz się zasad Uciekaj-Ukryj się-Walcz',
+                    'Identyfikuj wyjścia w miejscach publicznych',
+                    'Wiedz jak skutecznie zabarykadować drzwi',
+                    'Ćwicz świadomość sytuacyjną',
+                    'Trzymaj kontakty awaryjne łatwo dostępne',
+                ],
+                'warning_signs': [
+                    'Strzały lub głośne trzaski',
+                    'Ludzie biegnijący lub krzyczący',
+                    'Syreny policyjne i reakcja służb ratunkowych',
+                    'Ogłoszenia o blokadzie',
+                    'Niezwykłe agresywne zachowanie',
+                ],
+                'preparation_steps': [
+                    'Naucz się szkolenia reakcji na aktywnego strzelca',
+                    'Zidentyfikuj bezpieczne obszary w częstych lokalizacjach',
+                    'Ćwicz komunikację awaryjną',
+                    'Przygotuj mentalne plany reakcji',
+                    'Pozostawaj poinformowany o lokalnych środkach bezpieczeństwa',
+                ],
+            },
+            'STORM': {
+                'title': 'Burza',
+                'description': 'Gwałtowne zjawiska pogodowe z silnym wiatrem i opadami.',
+                'priority': 'medium',
+                'icon': '⛈️',
+                'practical_tips': [
+                    'Regularnie monitoruj prognozy pogody',
+                    'Zabezpiecz meble i przedmioty na zewnątrz',
+                    'Trzymaj latarki i baterie gotowe',
+                    'Utrzymuj awaryjne zapasy żywności i wody',
+                    'Wiedz jak wyłączyć media',
+                ],
+                'warning_signs': [
+                    'Ostrzeżenia o gwałtownej pogodzie',
+                    'Szybko zmieniające się warunki pogodowe',
+                    'Silne wiatry i intensywny deszcz',
+                    'Grad lub aktywność błyskawic',
+                    'Syreny tornado lub ostrzeżenia',
+                ],
+                'preparation_steps': [
+                    'Stwórz plan awaryjny gwałtownej pogody',
+                    'Przygotuj zestaw zapasów awaryjnych',
+                    'Zidentyfikuj bezpieczne pomieszczenia w domu',
+                    'Zainstaluj systemy alertów pogodowych',
+                    'Zabezpiecz własność przed uszkodzeniami wiatrowymi',
+                ],
+            },
+            'TSUNAMI': {
+                'title': 'Tsunami',
+                'description': 'Fale tsunami zagrażające obszarom przybrzeżnym.',
+                'priority': 'critical',
+                'icon': '🌊',
+                'practical_tips': [
+                    'Znaj strefy ewakuacyjne tsunami i trasy',
+                    'Rozumiej naturalne znaki ostrzegawcze',
+                    'Trzymaj zapasy awaryjne w zestawie ewakuacyjnym',
+                    'Regularnie ćwicz procedury ewakuacyjne',
+                    'Znaj lokalizacje wysokich terenów',
+                ],
+                'warning_signs': [
+                    'Silne trzęsienie ziemi blisko wybrzeża',
+                    'Woda oceaniczna cofająca się niezwykle',
+                    'Głośny ryk z oceanu',
+                    'Oficjalne ostrzeżenia tsunami',
+                    'Zwierzęta zachowujące się dziwnie',
+                ],
+                'preparation_steps': [
+                    'Naucz się tras ewakuacyjnych tsunami',
+                    'Przygotuj przenośny zestaw awaryjny',
+                    'Zidentyfikuj lokalizacje wysokich terenów',
+                    'Zainstaluj aplikacje ostrzeżeń tsunami',
+                    'Ćwicz ewakuację z rodziną',
+                ],
+            },
+            'CHEMICAL WEAPON': {
+                'title': 'Broń chemiczna',
+                'description': 'Atak przy użyciu substancji chemicznych.',
+                'priority': 'critical',
+                'icon': '☣️',
+                'practical_tips': [
+                    'Trzymaj maski gazowe lub sprzęt ochronny gotowy',
+                    'Znaj procedury schronienia w miejscu',
+                    'Rozumiej podstawy dekontaminacji',
+                    'Trzymaj folię plastikową i taśmę dostępną',
+                    'Monitoruj oficjalne kanały alarmowe',
+                ],
+                'warning_signs': [
+                    'Niezwykłe zapachy chemiczne',
+                    'Ludzie wykazujący objawy zatrucia',
+                    'Martwe zwierzęta lub roślinność',
+                    'Widoczne chmury chemiczne',
+                    'Oficjalne ostrzeżenia o ataku chemicznym',
+                ],
+                'preparation_steps': [
+                    'Przygotuj sprzęt ochrony chemicznej',
+                    'Naucz się procedur schronienia w miejscu',
+                    'Stwórz zapasy uszczelnionego pomieszczenia',
+                    'Zainstaluj systemy alertów alarmowych',
+                    'Przygotuj materiały dekontaminacyjne',
+                ],
+            },
+            'BIOHAZARD': {
+                'title': 'Zagrożenie biologiczne',
+                'description': 'Zagrożenie substancjami biologicznymi lub chorobotwórczymi.',
+                'priority': 'high',
+                'icon': '☣️',
+                'practical_tips': [
+                    'Utrzymuj dobre praktyki higieniczne',
+                    'Trzymaj środki dezynfekujące i sprzęt ochronny',
+                    'Rozumiej procedury kwarantanny',
+                    'Monitoruj komunikaty władz zdrowotnych',
+                    'Przygotuj zapasy izolacyjne',
+                ],
+                'warning_signs': [
+                    'Niezwykłe wybuchy chorób',
+                    'Oficjalne ostrzeżenia zdrowotne',
+                    'Podejrzane materiały biologiczne',
+                    'Masowe ofiary z podobnymi objawami',
+                    'Ogłoszenia kwarantanny',
+                ],
+                'preparation_steps': [
+                    'Przygotuj zapasy ochrony biologicznej',
+                    'Naucz się właściwych protokołów higienicznych',
+                    'Stwórz obszar izolacji w domu',
+                    'Zaopatrz się w zapasy medyczne i czyszczące',
+                    'Przygotuj zestaw awaryjny kwarantanny',
+                ],
+            },
+            'NUCLEAR': {
+                'title': 'Zagrożenie nuklearne',
+                'description': 'Zagrożenie promieniowaniem nuklearnym lub radioaktywnym.',
+                'priority': 'critical',
+                'icon': '☢️',
+                'practical_tips': [
+                    'Znaj lokalizacje schronisk przed promieniowaniem',
+                    'Trzymaj jodek potasu jeśli zalecany',
+                    'Rozumiej schronienie w miejscu przed promieniowaniem',
+                    'Monitoruj sieci wykrywania promieniowania',
+                    'Przygotuj zapasy uszczelnionego schronienia',
+                ],
+                'warning_signs': [
+                    'Alarmy zakładów nuklearnych',
+                    'Oficjalne ostrzeżenia o promieniowaniu',
+                    'Niezwykła aktywność wojskowa',
+                    'Rozkazy ewakuacji blisko zakładów nuklearnych',
+                    'Alerty wykrywania promieniowania',
+                ],
+                'preparation_steps': [
+                    'Zidentyfikuj lokalizacje schronisk przed promieniowaniem',
+                    'Przygotuj zestaw awaryjny promieniowania',
+                    'Naucz się zasad ochrony przed promieniowaniem',
+                    'Zainstaluj aplikacje monitorowania promieniowania',
+                    'Stwórz uszczelnione pomieszczenie do schronienia',
+                ],
+            },
+            'UNMARKED SOLDIERS': {
+                'title': 'Nieoznaczeni żołnierze',
+                'description': 'Obecność nieoznaczonych sił zbrojnych na terytorium.',
+                'priority': 'high',
+                'icon': '🪖',
+                'practical_tips': [
+                    'Unikaj konfrontacji z nieznanym personelem wojskowym',
+                    'Dokumentuj bezpiecznie jeśli możliwe',
+                    'Znaj oficjalne kanały zgłaszania',
+                    'Pozostawaj poinformowany przez oficjalne źródła',
+                    'Przygotuj się na potencjalną ewakuację',
+                ],
+                'warning_signs': [
+                    'Niezidentyfikowane pojazdy wojskowe',
+                    'Uzbrojony personel bez jasnej identyfikacji',
+                    'Niezwykła aktywność wojskowa',
+                    'Zablokowane drogi lub punkty kontrolne',
+                    'Oficjalne ostrzeżenia o obecności wojskowej',
+                ],
+                'preparation_steps': [
+                    'Naucz się oficjalnej identyfikacji wojskowej',
+                    'Przygotuj plan ewakuacji awaryjnej',
+                    'Zainstaluj bezpieczne aplikacje komunikacyjne',
+                    'Stwórz punkty spotkań rodzinnych',
+                    'Trzymaj ważne dokumenty gotowe',
+                ],
+            },
+            'PANDEMIC': {
+                'title': 'Pandemia',
+                'description': 'Rozprzestrzenianie się choroby zakaźnej na szeroką skalę.',
+                'priority': 'high',
+                'icon': '🦠',
+                'practical_tips': [
+                    'Utrzymuj dobre praktyki higieniczne',
+                    'Trzymaj maseczki i środki dezynfekujące gotowe',
+                    'Rozumiej wytyczne dystansu społecznego',
+                    'Monitoruj aktualizacje władz zdrowotnych',
+                    'Przygotuj się na przedłużoną izolację',
+                ],
+                'warning_signs': [
+                    'Wzrastające raporty chorób',
+                    'Oficjalne deklaracje stanu zdrowia publicznego',
+                    'Wprowadzane ograniczenia podróży',
+                    'Obciążenie systemu opieki zdrowotnej',
+                    'Anulowanie masowych zgromadzeń',
+                ],
+                'preparation_steps': [
+                    'Zaopatrz się w zapasy medyczne i higieniczne',
+                    'Przygotuj się na przedłużoną izolację domową',
+                    'Stwórz plan awaryjny pandemii',
+                    'Zainstaluj aplikacje monitorowania zdrowia',
+                    'Przygotuj zdalne stanowisko pracy/szkoły',
+                ],
+            },
+            'TERRORIST ATTACK': {
+                'title': 'Atak terrorystyczny',
+                'description': 'Atak terrorystyczny wymierzony w ludność cywilną.',
+                'priority': 'critical',
+                'icon': '💣',
+                'practical_tips': [
+                    'Ćwicz świadomość sytuacyjną w miejscach publicznych',
+                    'Znaj wyjścia awaryjne w budynkach',
+                    'Zgłaszaj podejrzane aktywności',
+                    'Trzymaj kontakty awaryjne dostępne',
+                    'Naucz się podstawowej pierwszej pomocy',
+                ],
+                'warning_signs': [
+                    'Podejrzane paczki lub pojazdy',
+                    'Niezwykłe zachowanie w miejscach publicznych',
+                    'Zwiększone środki bezpieczeństwa',
+                    'Oficjalne ostrzeżenia o zagrożeniu terrorystycznym',
+                    'Eksplozje lub ataki w pobliżu',
+                ],
+                'preparation_steps': [
+                    'Naucz się procedur reakcji na terroryzm',
+                    'Przygotuj plan komunikacji awaryjnej',
+                    'Zidentyfikuj bezpieczne obszary w częstych lokalizacjach',
+                    'Zainstaluj aplikacje alertów alarmowych',
+                    'Ćwicz scenariusze reakcji awaryjnej',
+                ],
+            },
+            'MASS POISONING': {
+                'title': 'Masowe zatrucie',
+                'description': 'Zatrucie dużej liczby osób substancjami toksycznymi.',
+                'priority': 'high',
+                'icon': '☠️',
+                'practical_tips': [
+                    'Znaj objawy zatrucia',
+                    'Trzymaj węgiel aktywny jeśli zalecany',
+                    'Rozumiej bezpieczeństwo żywności i wody',
+                    'Monitoruj alerty władz zdrowotnych',
+                    'Przygotuj alternatywne źródła żywności i wody',
+                ],
+                'warning_signs': [
+                    'Wiele osób wykazujących podobne objawy',
+                    'Raporty o skażonej żywności lub wodzie',
+                    'Oficjalne ostrzeżenia o zatruciu',
+                    'Niezwykły smak lub zapach w żywności/wodzie',
+                    'Masowe zachorowania na wydarzeniach lub w lokalizacjach',
+                ],
+                'preparation_steps': [
+                    'Przygotuj awaryjne zapasy żywności i wody',
+                    'Naucz się pierwszej pomocy przy zatruciu',
+                    'Zainstaluj aplikacje monitorowania bezpieczeństwa żywności',
+                    'Stwórz plan reakcji na skażenie',
+                    'Trzymaj awaryjne zapasy medyczne',
+                ],
+            },
+            'CYBER ATTACK': {
+                'title': 'Atak cybernetyczny',
+                'description': 'Atak na systemy informatyczne i infrastrukturę cyfrową.',
+                'priority': 'medium',
+                'icon': '💻',
+                'practical_tips': [
+                    'Trzymaj kopie zapasowe ważnych danych offline',
+                    'Używaj silnych, unikalnych haseł',
+                    'Trzymaj gotówkę na sytuacje awaryjne',
+                    'Utrzymuj papierowe kopie ważnych dokumentów',
+                    'Znaj ręczne alternatywy dla systemów cyfrowych',
+                ],
+                'warning_signs': [
+                    'Rozległe awarie internetu',
+                    'Awarie systemów bankowych lub płatniczych',
+                    'Zakłócenia usług rządowych',
+                    'Oficjalne ostrzeżenia o ataku cybernetycznym',
+                    'Niezwykłe zachowanie komputerów lub telefonów',
+                ],
+                'preparation_steps': [
+                    'Stwórz kopie zapasowe danych offline',
+                    'Przygotuj fundusz awaryjny gotówkowy',
+                    'Zainstaluj oprogramowanie cyberbezpieczeństwa',
+                    'Naucz się ręcznych alternatyw dla usług cyfrowych',
+                    'Stwórz papierowe plany awaryjne',
+                ],
+            },
+            'EARTHQUAKE': {
+                'title': 'Trzęsienie ziemi',
+                'description': 'Trzęsienie ziemi powodujące uszkodzenia budynków i infrastruktury.',
+                'priority': 'high',
+                'icon': '🌍',
+                'practical_tips': [
+                    'Zabezpiecz ciężkie meble i przedmioty',
+                    'Znaj procedurę Upadnij-Osłoń-Trzymaj',
+                    'Trzymaj zapasy awaryjne dostępne',
+                    'Zidentyfikuj bezpieczne miejsca w każdym pomieszczeniu',
+                    'Regularnie ćwicz ćwiczenia trzęsienia ziemi',
+                ],
+                'warning_signs': [
+                    'Trząsanie się lub drżenie ziemi',
+                    'Zwierzęta zachowujące się dziwnie',
+                    'Małe wstrząsy przed głównym trzęsieniem',
+                    'Niezwykłe dźwięki z budynków',
+                    'Oficjalne ostrzeżenia o trzęsieniu ziemi',
+                ],
+                'preparation_steps': [
+                    'Zabezpiecz meble i ciężkie przedmioty',
+                    'Przygotuj zestaw awaryjny trzęsienia ziemi',
+                    'Zidentyfikuj bezpieczne miejsca w domu i pracy',
+                    'Zainstaluj aplikacje monitorowania trzęsień ziemi',
+                    'Ćwicz ćwiczenia Upadnij-Osłoń-Trzymaj',
+                ],
+            },
+        }
+
+        return education_content.get(
+            hazard_type,
+            {
+                'title': 'Nieznane zagrożenie',
+                'description': 'Informacje o typie zagrożenia niedostępne.',
+                'priority': 'medium',
+                'icon': '⚠️',
+                'practical_tips': [
+                    'Postępuj zgodnie z oficjalnymi instrukcjami alarmowymi',
+                    'Pozostawaj poinformowany przez oficjalne kanały',
+                    'Przygotuj podstawowe zapasy awaryjne',
+                ],
+                'warning_signs': [
+                    'Oficjalne ostrzeżenia alarmowe',
+                    'Niezwykła aktywność służb ratunkowych',
+                ],
+                'preparation_steps': [
+                    'Stwórz podstawowy plan awaryjny',
+                    'Przygotuj zestaw zapasów awaryjnych',
+                    'Zainstaluj systemy alertów alarmowych',
+                ],
+            },
+        )

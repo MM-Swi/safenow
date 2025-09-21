@@ -15,19 +15,25 @@ from backend.safenow.common.geo import haversine_km, eta_walk_seconds, bounding_
 from backend.safenow.advice.provider import SafetyAdvisor
 from .throttles import SimulateAlertThrottle
 from .serializers import (
-    HealthSerializer, NearbyShelterSerializer, ActiveAlertSerializer,
-    DeviceRegisterSerializer, SafetyStatusSerializer, SimulateAlertSerializer
+    HealthSerializer,
+    NearbyShelterSerializer,
+    ActiveAlertSerializer,
+    DeviceRegisterSerializer,
+    SafetyStatusSerializer,
+    SimulateAlertSerializer,
+    EmergencyEducationSerializer,
 )
 
 
 class HealthView(APIView):
     """Health check endpoint."""
+
     throttle_classes = [AnonRateThrottle]
 
     @extend_schema(
         summary="System Health Check",
         description="Get system health status, version, and resource counts",
-        responses={200: HealthSerializer}
+        responses={200: HealthSerializer},
     )
     def get(self, request):
         shelters_count = Shelter.objects.count()
@@ -40,8 +46,8 @@ class HealthView(APIView):
             'version': getattr(settings, 'APP_VERSION', 'dev'),
             'counts': {
                 'shelters': shelters_count,
-                'active_alerts': active_alerts_count
-            }
+                'active_alerts': active_alerts_count,
+            },
         }
 
         serializer = HealthSerializer(data)
@@ -50,6 +56,7 @@ class HealthView(APIView):
 
 class NearbySheltersView(APIView):
     """Find nearby shelters with distance and ETA."""
+
     throttle_classes = [AnonRateThrottle]
 
     @extend_schema(
@@ -61,27 +68,27 @@ class NearbySheltersView(APIView):
                 type=OpenApiTypes.FLOAT,
                 location=OpenApiParameter.QUERY,
                 required=True,
-                description='User latitude (-90 to 90)'
+                description='User latitude (-90 to 90)',
             ),
             OpenApiParameter(
                 name='lon',
                 type=OpenApiTypes.FLOAT,
                 location=OpenApiParameter.QUERY,
                 required=True,
-                description='User longitude (-180 to 180)'
+                description='User longitude (-180 to 180)',
             ),
             OpenApiParameter(
                 name='limit',
                 type=OpenApiTypes.INT,
                 location=OpenApiParameter.QUERY,
                 required=False,
-                description='Maximum number of shelters to return (default: 3)'
+                description='Maximum number of shelters to return (default: 3)',
             ),
         ],
         responses={
             200: NearbyShelterSerializer(many=True),
-            400: {'description': 'Invalid lat, lon, or limit parameters'}
-        }
+            400: {'description': 'Invalid lat, lon, or limit parameters'},
+        },
     )
     def get(self, request):
         try:
@@ -90,8 +97,13 @@ class NearbySheltersView(APIView):
             limit = int(request.query_params.get('limit', 3))
         except (TypeError, ValueError):
             return Response(
-                {'error': {'code': 400, 'message': 'Invalid lat, lon, or limit parameters'}},
-                status=status.HTTP_400_BAD_REQUEST
+                {
+                    'error': {
+                        'code': 400,
+                        'message': 'Invalid lat, lon, or limit parameters',
+                    }
+                },
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         # Clamp limit to maximum of 20
@@ -103,18 +115,14 @@ class NearbySheltersView(APIView):
 
         # Query shelters within bounding box first (uses indexes)
         shelters = Shelter.objects.filter(
-            lat__gte=min_lat,
-            lat__lte=max_lat,
-            lon__gte=min_lon,
-            lon__lte=max_lon
+            lat__gte=min_lat, lat__lte=max_lat, lon__gte=min_lon, lon__lte=max_lon
         )
 
         shelter_distances = []
 
         for shelter in shelters:
             distance_km = haversine_km(
-                user_lat, user_lon,
-                float(shelter.lat), float(shelter.lon)
+                user_lat, user_lon, float(shelter.lat), float(shelter.lon)
             )
             eta_seconds = eta_walk_seconds(distance_km)
 
@@ -133,6 +141,7 @@ class NearbySheltersView(APIView):
 
 class ActiveAlertsView(APIView):
     """Get active alerts within user's location radius."""
+
     throttle_classes = [AnonRateThrottle]
 
     @extend_schema(
@@ -144,20 +153,20 @@ class ActiveAlertsView(APIView):
                 type=OpenApiTypes.FLOAT,
                 location=OpenApiParameter.QUERY,
                 required=True,
-                description='User latitude (-90 to 90)'
+                description='User latitude (-90 to 90)',
             ),
             OpenApiParameter(
                 name='lon',
                 type=OpenApiTypes.FLOAT,
                 location=OpenApiParameter.QUERY,
                 required=True,
-                description='User longitude (-180 to 180)'
+                description='User longitude (-180 to 180)',
             ),
         ],
         responses={
             200: ActiveAlertSerializer(many=True),
-            400: {'description': 'Invalid lat or lon parameters'}
-        }
+            400: {'description': 'Invalid lat or lon parameters'},
+        },
     )
     def get(self, request):
         try:
@@ -166,20 +175,17 @@ class ActiveAlertsView(APIView):
         except (TypeError, ValueError):
             return Response(
                 {'error': {'code': 400, 'message': 'Invalid lat or lon parameters'}},
-                status=status.HTTP_400_BAD_REQUEST
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         # Get all active alerts
-        active_alerts = Alert.objects.filter(
-            valid_until__gte=timezone.now()
-        )
+        active_alerts = Alert.objects.filter(valid_until__gte=timezone.now())
 
         # Filter alerts where user is within radius
         relevant_alerts = []
         for alert in active_alerts:
             distance_km = haversine_km(
-                user_lat, user_lon,
-                float(alert.center_lat), float(alert.center_lon)
+                user_lat, user_lon, float(alert.center_lat), float(alert.center_lon)
             )
             distance_m = distance_km * 1000
 
@@ -200,6 +206,7 @@ class ActiveAlertsView(APIView):
 
 class DeviceRegisterView(APIView):
     """Register or update a device."""
+
     throttle_classes = [AnonRateThrottle]
 
     def post(self, request):
@@ -207,14 +214,14 @@ class DeviceRegisterView(APIView):
         if serializer.is_valid():
             device = serializer.save()
             return Response(
-                serializer.to_representation(device),
-                status=status.HTTP_201_CREATED
+                serializer.to_representation(device), status=status.HTTP_201_CREATED
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class SafetyStatusView(APIView):
     """Update device safety status."""
+
     throttle_classes = [AnonRateThrottle]
 
     def post(self, request):
@@ -224,18 +231,19 @@ class SafetyStatusView(APIView):
                 safety_status = serializer.save()
                 return Response(
                     serializer.to_representation(safety_status),
-                    status=status.HTTP_201_CREATED
+                    status=status.HTTP_201_CREATED,
                 )
             except Exception as e:
                 return Response(
                     {'error': {'code': 400, 'message': str(e)}},
-                    status=status.HTTP_400_BAD_REQUEST
+                    status=status.HTTP_400_BAD_REQUEST,
                 )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class SimulateAlertView(APIView):
     """Simulate an emergency alert."""
+
     throttle_classes = [SimulateAlertThrottle]
 
     def post(self, request):
@@ -245,16 +253,20 @@ class SimulateAlertView(APIView):
             expected_key = getattr(settings, 'SIMULATION_API_KEY', None)
             if not api_key or api_key != expected_key:
                 return Response(
-                    {'error': {'code': 401, 'message': 'Invalid or missing X-API-KEY header'}},
-                    status=status.HTTP_401_UNAUTHORIZED
+                    {
+                        'error': {
+                            'code': 401,
+                            'message': 'Invalid or missing X-API-KEY header',
+                        }
+                    },
+                    status=status.HTTP_401_UNAUTHORIZED,
                 )
 
         serializer = SimulateAlertSerializer(data=request.data)
         if serializer.is_valid():
             alert = serializer.save()
             return Response(
-                serializer.to_representation(alert),
-                status=status.HTTP_201_CREATED
+                serializer.to_representation(alert), status=status.HTTP_201_CREATED
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -270,7 +282,7 @@ def simulate_form_view(request):
             'center_lon': request.POST.get('center_lon'),
             'radius_m': request.POST.get('radius_m'),
             'valid_minutes': request.POST.get('valid_minutes'),
-            'source': 'simulation_form'
+            'source': 'simulation_form',
         }
 
         serializer = SimulateAlertSerializer(data=form_data)
@@ -279,29 +291,32 @@ def simulate_form_view(request):
             context = {
                 'success': True,
                 'alert': alert,
-                'message': f'Alert created successfully! ID: {alert.id}'
+                'message': f'Alert created successfully! ID: {alert.id}',
             }
         else:
             context = {
                 'success': False,
                 'errors': serializer.errors,
-                'form_data': form_data
+                'form_data': form_data,
             }
     else:
         context = {}
 
     # Add choices for form
-    context.update({
-        'hazard_types': Alert.HAZARD_TYPE_CHOICES,
-        'severities': Alert.SEVERITY_CHOICES,
-        'debug_mode': settings.DEBUG,
-    })
+    context.update(
+        {
+            'hazard_types': Alert.HAZARD_TYPE_CHOICES,
+            'severities': Alert.SEVERITY_CHOICES,
+            'debug_mode': settings.DEBUG,
+        }
+    )
 
     return render(request, 'simulate.html', context)
 
 
 class SafetyInstructionsView(APIView):
     """Get safety instructions for specific hazard type and ETA."""
+
     throttle_classes = [AnonRateThrottle]
 
     @extend_schema(
@@ -313,14 +328,14 @@ class SafetyInstructionsView(APIView):
                 type=OpenApiTypes.STR,
                 location=OpenApiParameter.QUERY,
                 required=True,
-                description='Type of hazard (AIR_RAID, DRONE, MISSILE, FLOOD, FIRE, INDUSTRIAL)'
+                description='Type of hazard (AIR_RAID, DRONE, MISSILE, FLOOD, FIRE, INDUSTRIAL)',
             ),
             OpenApiParameter(
                 name='eta_seconds',
                 type=OpenApiTypes.INT,
                 location=OpenApiParameter.QUERY,
                 required=False,
-                description='Time to reach shelter in seconds (default: 0)'
+                description='Time to reach shelter in seconds (default: 0)',
             ),
         ],
         responses={
@@ -330,11 +345,11 @@ class SafetyInstructionsView(APIView):
                     'title': {'type': 'string'},
                     'steps': {'type': 'array', 'items': {'type': 'string'}},
                     'do_not': {'type': 'array', 'items': {'type': 'string'}},
-                    'eta_hint': {'type': 'string'}
-                }
+                    'eta_hint': {'type': 'string'},
+                },
             },
-            400: {'description': 'Invalid hazard_type or eta_seconds parameters'}
-        }
+            400: {'description': 'Invalid hazard_type or eta_seconds parameters'},
+        },
     )
     def get(self, request):
         hazard_type = request.query_params.get('hazard_type')
@@ -342,24 +357,39 @@ class SafetyInstructionsView(APIView):
 
         if not hazard_type:
             return Response(
-                {'error': {'code': 400, 'message': 'hazard_type parameter is required'}},
-                status=status.HTTP_400_BAD_REQUEST
+                {
+                    'error': {
+                        'code': 400,
+                        'message': 'hazard_type parameter is required',
+                    }
+                },
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         try:
             eta_seconds = int(eta_seconds or 0)
         except (TypeError, ValueError):
             return Response(
-                {'error': {'code': 400, 'message': 'eta_seconds must be a valid integer'}},
-                status=status.HTTP_400_BAD_REQUEST
+                {
+                    'error': {
+                        'code': 400,
+                        'message': 'eta_seconds must be a valid integer',
+                    }
+                },
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         # Validate hazard type
         valid_hazard_types = [choice[0] for choice in Alert.HAZARD_TYPE_CHOICES]
         if hazard_type not in valid_hazard_types:
             return Response(
-                {'error': {'code': 400, 'message': f'Invalid hazard_type. Valid options: {", ".join(valid_hazard_types)}'}},
-                status=status.HTTP_400_BAD_REQUEST
+                {
+                    'error': {
+                        'code': 400,
+                        'message': f'Invalid hazard_type. Valid options: {", ".join(valid_hazard_types)}',
+                    }
+                },
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         # Get safety instructions
@@ -367,3 +397,33 @@ class SafetyInstructionsView(APIView):
         instructions = advisor.get_instructions(hazard_type, eta_seconds)
 
         return Response(instructions)
+
+
+class EmergencyEducationView(APIView):
+    """Emergency education data for learning and preparation."""
+
+    throttle_classes = [AnonRateThrottle]
+
+    @extend_schema(
+        summary="Get Emergency Education Data",
+        description="Get comprehensive emergency education data including practical tips, warning signs, and preparation steps for all hazard types",
+        responses={
+            200: EmergencyEducationSerializer(many=True),
+        },
+    )
+    def get(self, request):
+        # Get all hazard types from Alert model
+        hazard_types = [choice[0] for choice in Alert.HAZARD_TYPE_CHOICES]
+        
+        # Get education data for each hazard type
+        advisor = SafetyAdvisor()
+        education_data = []
+        
+        for hazard_type in hazard_types:
+            data = advisor.get_education_data(hazard_type)
+            data['hazard_type'] = hazard_type
+            education_data.append(data)
+        
+        # Serialize the data
+        serializer = EmergencyEducationSerializer(education_data, many=True)
+        return Response(serializer.data)

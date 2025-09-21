@@ -15,6 +15,7 @@ export const queryKeys = {
   nearbyShelters: (params: NearbySheltersParams) => ['nearby-shelters', params] as const,
   activeAlerts: (params: ActiveAlertsParams) => ['active-alerts', params] as const,
   safetyInstructions: (params: SafetyInstructionsParams) => ['safety-instructions', params] as const,
+  emergencyEducation: ['emergency-education'] as const,
 };
 
 // Health Check Hook
@@ -97,6 +98,15 @@ export const useSimulateAlert = () => {
       // Invalidate health query to refresh alert counts
       queryClient.invalidateQueries({ queryKey: queryKeys.health });
     },
+  });
+};
+
+// Emergency Education Hook
+export const useEmergencyEducation = () => {
+  return useQuery({
+    queryKey: queryKeys.emergencyEducation,
+    queryFn: safeNowApi.getEmergencyEducation,
+    staleTime: 600000, // 10 minutes (education data doesn't change often)
   });
 };
 

@@ -10,6 +10,18 @@ class Alert(models.Model):
         ('FLOOD', 'Flood'),
         ('FIRE', 'Fire'),
         ('INDUSTRIAL', 'Industrial Accident'),
+        ('SHOOTING', 'Shooting'),
+        ('STORM', 'Storm'),
+        ('TSUNAMI', 'Tsunami'),
+        ('CHEMICAL WEAPON', 'Chemical Weapon'),
+        ('BIOHAZARD', 'Biohazard'),
+        ('NUCLEAR', 'Nuclear'),
+        ('UNMARKED SOLDIERS', 'Unmarked Soldiers'),
+        ('PANDEMIC', 'Pandemic'),
+        ('TERRORIST ATTACK', 'Terrorist Attack'),
+        ('MASS POISONING', 'Mass Poisoning'),
+        ('CYBER ATTACK', 'Cyber Attack'),
+        ('EARTHQUAKE', 'Earthquake'),
     ]
 
     SEVERITY_CHOICES = [

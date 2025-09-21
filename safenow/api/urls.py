@@ -9,4 +9,5 @@ urlpatterns = [
     path('status/', views.SafetyStatusView.as_view(), name='safety-status'),
     path('simulate-alert/', views.SimulateAlertView.as_view(), name='simulate-alert'),
     path('safety-instructions/', views.SafetyInstructionsView.as_view(), name='safety-instructions'),
+    path('emergency-education/', views.EmergencyEducationView.as_view(), name='emergency-education'),
 ]

@@ -1,6 +1,24 @@
 // API Types for SafeNow Backend Integration
 
-export type HazardType = 'AIR_RAID' | 'DRONE' | 'MISSILE' | 'FLOOD' | 'FIRE' | 'INDUSTRIAL';
+export type HazardType = 
+  | 'AIR_RAID' 
+  | 'DRONE' 
+  | 'MISSILE' 
+  | 'FLOOD' 
+  | 'FIRE' 
+  | 'INDUSTRIAL'
+  | 'SHOOTING'
+  | 'STORM'
+  | 'TSUNAMI'
+  | 'CHEMICAL WEAPON'
+  | 'BIOHAZARD'
+  | 'NUCLEAR'
+  | 'UNMARKED SOLDIERS'
+  | 'PANDEMIC'
+  | 'TERRORIST ATTACK'
+  | 'MASS POISONING'
+  | 'CYBER ATTACK'
+  | 'EARTHQUAKE';
 export type Severity = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 export type SafetyStatusType = 'OK' | 'NEEDS_HELP' | 'IN_SHELTER' | 'UNREACHABLE';
 
@@ -120,4 +138,16 @@ export interface ActiveAlertsParams {
 export interface SafetyInstructionsParams {
   hazard_type: HazardType;
   eta_seconds?: number;
+}
+
+// Emergency Education Types
+export interface EmergencyEducation {
+  hazard_type: HazardType;
+  title: string;
+  description: string;
+  priority: string;
+  icon: string;
+  practical_tips: string[];
+  warning_signs: string[];
+  preparation_steps: string[];
 }

@@ -50,6 +50,24 @@ class DeviceRegisterSerializer(serializers.Serializer):
         allow_null=True,
         help_text="Firebase Cloud Messaging push token for notifications"
     )
+    lat = serializers.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        required=False,
+        allow_null=True,
+        min_value=-90.0,
+        max_value=90.0,
+        help_text="Device latitude"
+    )
+    lon = serializers.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        required=False,
+        allow_null=True,
+        min_value=-180.0,
+        max_value=180.0,
+        help_text="Device longitude"
+    )
 
     def validate_device_id(self, value):
         if not value or value.isspace():
@@ -59,13 +77,24 @@ class DeviceRegisterSerializer(serializers.Serializer):
     def create(self, validated_data):
         device_id = validated_data['device_id']
         push_token = validated_data.get('push_token')
+        lat = validated_data.get('lat')
+        lon = validated_data.get('lon')
+
+        defaults = {
+            'push_token': push_token,
+            'last_seen_at': timezone.now()
+        }
+        
+        # Only update location if both lat and lon are provided
+        if lat is not None and lon is not None:
+            defaults.update({
+                'last_lat': lat,
+                'last_lon': lon
+            })
 
         device, created = Device.objects.update_or_create(
             device_id=device_id,
-            defaults={
-                'push_token': push_token,
-                'last_seen_at': timezone.now()
-            }
+            defaults=defaults
         )
         return device
 
@@ -200,3 +229,24 @@ class SimulateAlertSerializer(serializers.Serializer):
             'created_at': instance.created_at,
             'message': f'{instance.get_severity_display()} {instance.get_hazard_type_display()} alert created successfully'
         }
+
+
+class EmergencyEducationSerializer(serializers.Serializer):
+    """Emergency education data for learning and preparation."""
+    hazard_type = serializers.CharField(help_text="Hazard type identifier")
+    title = serializers.CharField(help_text="Emergency type title in Polish")
+    description = serializers.CharField(help_text="Brief description of the emergency")
+    priority = serializers.CharField(help_text="Priority level (low, medium, high, critical)")
+    icon = serializers.CharField(help_text="Emoji icon for the emergency type")
+    practical_tips = serializers.ListField(
+        child=serializers.CharField(),
+        help_text="Practical preparation tips"
+    )
+    warning_signs = serializers.ListField(
+        child=serializers.CharField(),
+        help_text="Warning signs to watch for"
+    )
+    preparation_steps = serializers.ListField(
+        child=serializers.CharField(),
+        help_text="Steps to prepare for this emergency"
+    )
