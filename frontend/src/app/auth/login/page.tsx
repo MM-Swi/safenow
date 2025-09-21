@@ -3,20 +3,40 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { useAuth } from '@/hooks/useAuth';
-import type { LoginRequest } from '@/types/api';
+
+// Validation schema
+const loginSchema = z.object({
+  username: z.string().min(1, 'Nazwa użytkownika lub email jest wymagana'),
+  password: z.string().min(1, 'Hasło jest wymagane'),
+  rememberMe: z.boolean().optional(),
+});
+
+type LoginFormData = z.infer<typeof loginSchema>;
 
 const LoginPage: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { login, isAuthenticated, isLoading, error, clearError } = useAuth();
   
-  const [formData, setFormData] = useState<LoginRequest>({
-    username: '',
-    password: '',
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    setError,
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      username: '',
+      password: '',
+      rememberMe: false,
+    },
+  });
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -26,40 +46,34 @@ const LoginPage: React.FC = () => {
     }
   }, [isAuthenticated, isLoading, router, searchParams]);
 
-  // Clear errors when component mounts or form data changes
+  // Clear errors when component mounts
   useEffect(() => {
     if (error) {
       clearError();
     }
-  }, [formData, clearError]);
+  }, [error, clearError]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (isSubmitting) return;
-    
-    setIsSubmitting(true);
-    
+  const onSubmit = async (data: LoginFormData) => {
     try {
-      await login(formData);
+      await login({
+        username: data.username,
+        password: data.password,
+      });
       // Redirect will be handled by useEffect
-    } catch (error) {
-      // Error is handled by the auth context
-      console.error('Login failed:', error);
-    } finally {
-      setIsSubmitting(false);
+    } catch (err: unknown) {
+      // Set form-specific errors
+      const errorResponse = err as any;
+      if (errorResponse.response?.data?.username) {
+        setError('username', { message: errorResponse.response.data.username[0] });
+      }
+      if (errorResponse.response?.data?.password) {
+        setError('password', { message: errorResponse.response.data.password[0] });
+      }
+      if (errorResponse.response?.data?.non_field_errors) {
+        setError('username', { message: errorResponse.response.data.non_field_errors[0] });
+      }
     }
   };
-
-  const isFormValid = formData.username.trim() && formData.password.trim();
 
   if (isLoading) {
     return (
@@ -105,70 +119,100 @@ const LoginPage: React.FC = () => {
           </p>
         </div>
         
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm -space-y-px">
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
+          <div className="space-y-4">
             <div>
-              <label htmlFor="username" className="sr-only">
+              <label htmlFor="username" className="block text-sm font-medium text-gray-700">
                 Nazwa użytkownika lub email
               </label>
               <input
+                {...register('username')}
                 id="username"
-                name="username"
                 type="text"
                 autoComplete="username"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Nazwa użytkownika lub email"
-                value={formData.username}
-                onChange={handleInputChange}
+                className={`mt-1 appearance-none relative block w-full px-3 py-2 border ${
+                  errors.username ? 'border-red-300' : 'border-gray-300'
+                } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm`}
+                placeholder="Wprowadź nazwę użytkownika lub email"
                 disabled={isSubmitting}
               />
+              {errors.username && (
+                <p className="mt-1 text-sm text-red-600">{errors.username.message}</p>
+              )}
             </div>
-            <div className="relative">
-              <label htmlFor="password" className="sr-only">
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                 Hasło
               </label>
-              <input
-                id="password"
-                name="password"
-                type={showPassword ? 'text' : 'password'}
-                autoComplete="current-password"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 pr-10 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Hasło"
-                value={formData.password}
-                onChange={handleInputChange}
-                disabled={isSubmitting}
-              />
-              <button
-                type="button"
-                className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                onClick={() => setShowPassword(!showPassword)}
-                disabled={isSubmitting}
-              >
-                <svg
-                  className="h-5 w-5 text-gray-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
+              <div className="mt-1 relative">
+                <input
+                  {...register('password')}
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="current-password"
+                  className={`appearance-none relative block w-full px-3 py-2 pr-10 border ${
+                    errors.password ? 'border-red-300' : 'border-gray-300'
+                  } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm`}
+                  placeholder="Wprowadź hasło"
+                  disabled={isSubmitting}
+                />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  onClick={() => setShowPassword(!showPassword)}
+                  disabled={isSubmitting}
                 >
-                  {showPassword ? (
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"
-                    />
-                  ) : (
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                  )}
-                </svg>
-              </button>
+                  <svg
+                    className="h-5 w-5 text-gray-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    {showPassword ? (
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"
+                      />
+                    ) : (
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                    )}
+                  </svg>
+                </button>
+              </div>
+              {errors.password && (
+                <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
+              )}
+            </div>
+
+            {/* Remember Me and Forgot Password */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <input
+                  {...register('rememberMe')}
+                  id="remember-me"
+                  type="checkbox"
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
+                  Zapamiętaj mnie
+                </label>
+              </div>
+
+              <div className="text-sm">
+                <Link
+                  href="#"
+                  className="font-medium text-blue-600 hover:text-blue-500"
+                >
+                  Zapomniałeś hasła?
+                </Link>
+              </div>
             </div>
           </div>
 
@@ -203,8 +247,8 @@ const LoginPage: React.FC = () => {
           <div>
             <button
               type="submit"
-              disabled={!isFormValid || isSubmitting}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={isSubmitting}
+              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
             >
               <span className="absolute left-0 inset-y-0 flex items-center pl-3">
                 {isSubmitting ? (

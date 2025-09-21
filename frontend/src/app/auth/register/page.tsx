@@ -3,27 +3,63 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { useAuth } from '@/hooks/useAuth';
-import type { RegisterRequest } from '@/types/api';
+
+// Validation schema
+const registerSchema = z.object({
+  username: z.string().min(3, 'Nazwa użytkownika musi mieć co najmniej 3 znaki'),
+  email: z.string().email('Nieprawidłowy format email'),
+  first_name: z.string().min(1, 'Imię jest wymagane'),
+  last_name: z.string().min(1, 'Nazwisko jest wymagane'),
+  password: z.string().min(8, 'Hasło musi mieć co najmniej 8 znaków'),
+  password2: z.string().min(1, 'Potwierdzenie hasła jest wymagane'),
+  phone_number: z.string().optional().refine((val) => {
+    if (!val) return true;
+    return /^\+?[1-9]\d{1,14}$/.test(val);
+  }, 'Nieprawidłowy format numeru telefonu'),
+  preferred_language: z.enum(['pl', 'en', 'uk']).optional(),
+  terms_accepted: z.boolean().refine((val) => val === true, 'Musisz zaakceptować regulamin'),
+}).refine((data) => data.password === data.password2, {
+  message: 'Hasła nie są identyczne',
+  path: ['password2'],
+});
+
+type RegisterFormData = z.infer<typeof registerSchema>;
 
 const RegisterPage: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { register, isAuthenticated, isLoading, error, clearError } = useAuth();
+  const { register: registerUser, isAuthenticated, isLoading, error, clearError } = useAuth();
   
-  const [formData, setFormData] = useState<RegisterRequest>({
-    username: '',
-    email: '',
-    first_name: '',
-    last_name: '',
-    password: '',
-    password2: '',
-    phone_number: '',
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showPassword2, setShowPassword2] = useState(false);
-  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [successMessage, setSuccessMessage] = useState('');
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    setError,
+    watch,
+  } = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      username: '',
+      email: '',
+      first_name: '',
+      last_name: '',
+      password: '',
+      password2: '',
+      phone_number: '',
+      preferred_language: 'pl',
+      terms_accepted: false,
+    },
+  });
+
+  const password = watch('password');
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -33,108 +69,78 @@ const RegisterPage: React.FC = () => {
     }
   }, [isAuthenticated, isLoading, router, searchParams]);
 
-  // Clear errors when component mounts or form data changes
+  // Clear errors when component mounts
   useEffect(() => {
     if (error) {
       clearError();
     }
-  }, [formData, error, clearError]);
+  }, [error, clearError]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value,
-    }));
-
-    // Clear validation error for this field
-    if (validationErrors[name]) {
-      setValidationErrors(prev => ({
-        ...prev,
-        [name]: '',
-      }));
-    }
-  };
-
-  const validateForm = (): boolean => {
-    const errors: Record<string, string> = {};
-
-    // Username validation
-    if (!formData.username.trim()) {
-      errors.username = 'Nazwa użytkownika jest wymagana';
-    } else if (formData.username.length < 3) {
-      errors.username = 'Nazwa użytkownika musi mieć co najmniej 3 znaki';
-    }
-
-    // Email validation
-    if (!formData.email.trim()) {
-      errors.email = 'Email jest wymagany';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      errors.email = 'Nieprawidłowy format email';
-    }
-
-    // First name validation
-    if (!formData.first_name.trim()) {
-      errors.first_name = 'Imię jest wymagane';
-    }
-
-    // Last name validation
-    if (!formData.last_name.trim()) {
-      errors.last_name = 'Nazwisko jest wymagane';
-    }
-
-    // Password validation
-    if (!formData.password) {
-      errors.password = 'Hasło jest wymagane';
-    } else if (formData.password.length < 8) {
-      errors.password = 'Hasło musi mieć co najmniej 8 znaków';
-    }
-
-    // Password confirmation validation
-    if (!formData.password2) {
-      errors.password2 = 'Potwierdzenie hasła jest wymagane';
-    } else if (formData.password !== formData.password2) {
-      errors.password2 = 'Hasła nie są identyczne';
-    }
-
-    // Phone number validation (optional)
-    if (formData.phone_number && !/^\+?[1-9]\d{1,14}$/.test(formData.phone_number)) {
-      errors.phone_number = 'Nieprawidłowy format numeru telefonu';
-    }
-
-    setValidationErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (isSubmitting) return;
-    
-    if (!validateForm()) {
-      return;
-    }
-    
-    setIsSubmitting(true);
-    
+  const onSubmit = async (data: RegisterFormData) => {
     try {
-      await register(formData);
-      // Redirect will be handled by useEffect
-    } catch (error) {
-      // Error is handled by the auth context
-      console.error('Registration failed:', error);
-    } finally {
-      setIsSubmitting(false);
+      await registerUser({
+        username: data.username,
+        email: data.email,
+        first_name: data.first_name,
+        last_name: data.last_name,
+        password: data.password,
+        password2: data.password2,
+        phone_number: data.phone_number || undefined,
+      });
+      
+      setSuccessMessage('Konto zostało utworzone pomyślnie! Zostaniesz przekierowany...');
+      
+      // Auto-redirect after success
+      setTimeout(() => {
+        const redirectTo = searchParams.get('redirect') || '/';
+        router.push(redirectTo);
+      }, 2000);
+    } catch (err: unknown) {
+      // Set form-specific errors
+      const errorResponse = err as any;
+      if (errorResponse.response?.data) {
+        const backendErrors = errorResponse.response.data;
+        Object.keys(backendErrors).forEach((field) => {
+          if (field in data) {
+            setError(field as keyof RegisterFormData, {
+              message: Array.isArray(backendErrors[field]) 
+                ? backendErrors[field][0] 
+                : backendErrors[field]
+            });
+          }
+        });
+      }
     }
   };
 
-  const isFormValid = formData.username.trim() && 
-                     formData.email.trim() && 
-                     formData.first_name.trim() && 
-                     formData.last_name.trim() && 
-                     formData.password.trim() && 
-                     formData.password2.trim() &&
-                     Object.keys(validationErrors).length === 0;
+  const languageOptions = [
+    { value: 'pl', label: 'Polski' },
+    { value: 'en', label: 'English' },
+    { value: 'uk', label: 'Українська' },
+  ];
+
+  // Password strength indicator
+  const getPasswordStrength = (password: string) => {
+    if (!password) return { strength: 0, label: '', color: '' };
+    
+    let strength = 0;
+    if (password.length >= 8) strength++;
+    if (/[a-z]/.test(password)) strength++;
+    if (/[A-Z]/.test(password)) strength++;
+    if (/\d/.test(password)) strength++;
+    if (/[^\w\s]/.test(password)) strength++;
+    
+    const labels = ['Bardzo słabe', 'Słabe', 'Średnie', 'Silne', 'Bardzo silne'];
+    const colors = ['bg-red-500', 'bg-orange-500', 'bg-yellow-500', 'bg-blue-500', 'bg-green-500'];
+    
+    return {
+      strength,
+      label: labels[strength - 1] || '',
+      color: colors[strength - 1] || 'bg-gray-300'
+    };
+  };
+
+  const passwordStrength = getPasswordStrength(password || '');
 
   if (isLoading) {
     return (
@@ -180,7 +186,7 @@ const RegisterPage: React.FC = () => {
           </p>
         </div>
         
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <div className="space-y-4">
             {/* Username */}
             <div>
@@ -188,21 +194,18 @@ const RegisterPage: React.FC = () => {
                 Nazwa użytkownika *
               </label>
               <input
+                {...register('username')}
                 id="username"
-                name="username"
                 type="text"
                 autoComplete="username"
-                required
                 className={`mt-1 appearance-none relative block w-full px-3 py-2 border ${
-                  validationErrors.username ? 'border-red-300' : 'border-gray-300'
+                  errors.username ? 'border-red-300' : 'border-gray-300'
                 } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm`}
                 placeholder="Wprowadź nazwę użytkownika"
-                value={formData.username}
-                onChange={handleInputChange}
                 disabled={isSubmitting}
               />
-              {validationErrors.username && (
-                <p className="mt-1 text-sm text-red-600">{validationErrors.username}</p>
+              {errors.username && (
+                <p className="mt-1 text-sm text-red-600">{errors.username.message}</p>
               )}
             </div>
 
@@ -212,21 +215,18 @@ const RegisterPage: React.FC = () => {
                 Email *
               </label>
               <input
+                {...register('email')}
                 id="email"
-                name="email"
                 type="email"
                 autoComplete="email"
-                required
                 className={`mt-1 appearance-none relative block w-full px-3 py-2 border ${
-                  validationErrors.email ? 'border-red-300' : 'border-gray-300'
+                  errors.email ? 'border-red-300' : 'border-gray-300'
                 } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm`}
                 placeholder="Wprowadź adres email"
-                value={formData.email}
-                onChange={handleInputChange}
                 disabled={isSubmitting}
               />
-              {validationErrors.email && (
-                <p className="mt-1 text-sm text-red-600">{validationErrors.email}</p>
+              {errors.email && (
+                <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
               )}
             </div>
 
@@ -237,21 +237,18 @@ const RegisterPage: React.FC = () => {
                   Imię *
                 </label>
                 <input
+                  {...register('first_name')}
                   id="first_name"
-                  name="first_name"
                   type="text"
                   autoComplete="given-name"
-                  required
                   className={`mt-1 appearance-none relative block w-full px-3 py-2 border ${
-                    validationErrors.first_name ? 'border-red-300' : 'border-gray-300'
+                    errors.first_name ? 'border-red-300' : 'border-gray-300'
                   } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm`}
                   placeholder="Imię"
-                  value={formData.first_name}
-                  onChange={handleInputChange}
                   disabled={isSubmitting}
                 />
-                {validationErrors.first_name && (
-                  <p className="mt-1 text-sm text-red-600">{validationErrors.first_name}</p>
+                {errors.first_name && (
+                  <p className="mt-1 text-sm text-red-600">{errors.first_name.message}</p>
                 )}
               </div>
               
@@ -260,21 +257,18 @@ const RegisterPage: React.FC = () => {
                   Nazwisko *
                 </label>
                 <input
+                  {...register('last_name')}
                   id="last_name"
-                  name="last_name"
                   type="text"
                   autoComplete="family-name"
-                  required
                   className={`mt-1 appearance-none relative block w-full px-3 py-2 border ${
-                    validationErrors.last_name ? 'border-red-300' : 'border-gray-300'
+                    errors.last_name ? 'border-red-300' : 'border-gray-300'
                   } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm`}
                   placeholder="Nazwisko"
-                  value={formData.last_name}
-                  onChange={handleInputChange}
                   disabled={isSubmitting}
                 />
-                {validationErrors.last_name && (
-                  <p className="mt-1 text-sm text-red-600">{validationErrors.last_name}</p>
+                {errors.last_name && (
+                  <p className="mt-1 text-sm text-red-600">{errors.last_name.message}</p>
                 )}
               </div>
             </div>
@@ -285,21 +279,38 @@ const RegisterPage: React.FC = () => {
                 Numer telefonu (opcjonalnie)
               </label>
               <input
+                {...register('phone_number')}
                 id="phone_number"
-                name="phone_number"
                 type="tel"
                 autoComplete="tel"
                 className={`mt-1 appearance-none relative block w-full px-3 py-2 border ${
-                  validationErrors.phone_number ? 'border-red-300' : 'border-gray-300'
+                  errors.phone_number ? 'border-red-300' : 'border-gray-300'
                 } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm`}
                 placeholder="+48 123 456 789"
-                value={formData.phone_number}
-                onChange={handleInputChange}
                 disabled={isSubmitting}
               />
-              {validationErrors.phone_number && (
-                <p className="mt-1 text-sm text-red-600">{validationErrors.phone_number}</p>
+              {errors.phone_number && (
+                <p className="mt-1 text-sm text-red-600">{errors.phone_number.message}</p>
               )}
+            </div>
+
+            {/* Language Preference */}
+            <div>
+              <label htmlFor="preferred_language" className="block text-sm font-medium text-gray-700">
+                Preferowany język
+              </label>
+              <select
+                {...register('preferred_language')}
+                id="preferred_language"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                disabled={isSubmitting}
+              >
+                {languageOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
             </div>
 
             {/* Password */}
@@ -309,17 +320,14 @@ const RegisterPage: React.FC = () => {
               </label>
               <div className="mt-1 relative">
                 <input
+                  {...register('password')}
                   id="password"
-                  name="password"
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="new-password"
-                  required
                   className={`appearance-none relative block w-full px-3 py-2 pr-10 border ${
-                    validationErrors.password ? 'border-red-300' : 'border-gray-300'
+                    errors.password ? 'border-red-300' : 'border-gray-300'
                   } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm`}
                   placeholder="Wprowadź hasło"
-                  value={formData.password}
-                  onChange={handleInputChange}
                   disabled={isSubmitting}
                 />
                 <button
@@ -352,8 +360,23 @@ const RegisterPage: React.FC = () => {
                   </svg>
                 </button>
               </div>
-              {validationErrors.password && (
-                <p className="mt-1 text-sm text-red-600">{validationErrors.password}</p>
+              {errors.password && (
+                <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
+              )}
+              
+              {/* Password Strength Indicator */}
+              {password && (
+                <div className="mt-2">
+                  <div className="flex items-center space-x-2">
+                    <div className="flex-1 bg-gray-200 rounded-full h-2">
+                      <div 
+                        className={`h-2 rounded-full transition-all duration-300 ${passwordStrength.color}`}
+                        style={{ width: `${(passwordStrength.strength / 5) * 100}%` }}
+                      />
+                    </div>
+                    <span className="text-xs text-gray-600">{passwordStrength.label}</span>
+                  </div>
+                </div>
               )}
             </div>
 
@@ -364,17 +387,14 @@ const RegisterPage: React.FC = () => {
               </label>
               <div className="mt-1 relative">
                 <input
+                  {...register('password2')}
                   id="password2"
-                  name="password2"
                   type={showPassword2 ? 'text' : 'password'}
                   autoComplete="new-password"
-                  required
                   className={`appearance-none relative block w-full px-3 py-2 pr-10 border ${
-                    validationErrors.password2 ? 'border-red-300' : 'border-gray-300'
+                    errors.password2 ? 'border-red-300' : 'border-gray-300'
                   } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm`}
                   placeholder="Potwierdź hasło"
-                  value={formData.password2}
-                  onChange={handleInputChange}
                   disabled={isSubmitting}
                 />
                 <button
@@ -407,11 +427,57 @@ const RegisterPage: React.FC = () => {
                   </svg>
                 </button>
               </div>
-              {validationErrors.password2 && (
-                <p className="mt-1 text-sm text-red-600">{validationErrors.password2}</p>
+              {errors.password2 && (
+                <p className="mt-1 text-sm text-red-600">{errors.password2.message}</p>
               )}
             </div>
+
+            {/* Terms of Service */}
+            <div className="flex items-center">
+              <input
+                {...register('terms_accepted')}
+                id="terms-accepted"
+                type="checkbox"
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              />
+              <label htmlFor="terms-accepted" className="ml-2 block text-sm text-gray-900">
+                Akceptuję{' '}
+                <Link href="#" className="text-blue-600 hover:text-blue-500">
+                  regulamin i politykę prywatności
+                </Link>
+                {' '}*
+              </label>
+            </div>
+            {errors.terms_accepted && (
+              <p className="mt-1 text-sm text-red-600">{errors.terms_accepted.message}</p>
+            )}
           </div>
+
+          {/* Success Message */}
+          {successMessage && (
+            <div className="rounded-md bg-green-50 p-4">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <svg
+                    className="h-5 w-5 text-green-400"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm font-medium text-green-800">
+                    {successMessage}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           {error && (
             <div className="rounded-md bg-red-50 p-4">
@@ -444,8 +510,8 @@ const RegisterPage: React.FC = () => {
           <div>
             <button
               type="submit"
-              disabled={!isFormValid || isSubmitting}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={isSubmitting}
+              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
             >
               <span className="absolute left-0 inset-y-0 flex items-center pl-3">
                 {isSubmitting ? (
