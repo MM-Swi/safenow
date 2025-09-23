@@ -12,3 +12,238 @@ University of Rzeszów Emergency Shelter,Aleja Rejtana 16C Rzeszów,50.0412,22.0
 Rzeszów Central Hospital Bunker,Szopena 2 Rzeszów,50.0352,22.0031,true,200,true,medical
 Podkarpackie Cultural Center Basement,Plac Farny 2 Rzeszów,50.0392,21.9971,false,180,true,cultural
 Rzeszów Sports Arena Underground,Hetmańska 69 Rzeszów,50.0432,22.0051,true,350,true,sports
+Krakow Main Square Underground,Rynek Główny 1 Krakow,50.0616,19.9373,true,600,true,municipal
+Wawel Castle Emergency Bunker,Wawel 5 Krakow,50.0544,19.9356,true,200,true,heritage
+Gdansk Shipyard Shelter,Plac Solidarności 1 Gdansk,54.3520,18.6466,true,800,true,industrial
+Wroclaw University Basement,Plac Uniwersytecki 1 Wroclaw,51.1079,17.0385,false,300,true,university
+Berlin Brandenburg Gate Bunker,Pariser Platz Berlin,52.5163,13.3777,true,1000,true,municipal
+Munich Olympic Stadium Shelter,Spiridon-Louis-Ring 21 Munich,48.1755,11.5448,true,2000,true,sports
+Hamburg Port Authority Bunker,Bei St. Annen 1 Hamburg,53.5488,9.9872,true,500,true,port
+Frankfurt Airport Emergency Center,Hugo-Eckener-Ring 1 Frankfurt,50.0379,8.5622,true,1500,true,airport
+Vienna State Opera Basement,Opernring 2 Vienna,48.2025,16.3691,false,400,true,cultural
+Zurich Central Station Shelter,Bahnhofplatz 15 Zurich,47.3781,8.5400,true,800,true,municipal
+Geneva UN Headquarters Bunker,Avenue de la Paix 14 Geneva,46.2267,6.1400,true,600,true,international
+Prague Castle Emergency Facility,Hradčany Prague,50.0910,14.4016,true,300,true,heritage
+Amsterdam Central Station Shelter,Stationsplein 9 Amsterdam,52.3791,4.9003,true,700,true,municipal
+Brussels EU Parliament Bunker,Rue Wiertz 60 Brussels,50.8429,4.3747,true,1200,true,government
+Stockholm City Hall Basement,Hantverkargatan 1 Stockholm,59.3275,18.0548,true,500,true,municipal
+Copenhagen Metro Emergency Shelter,Kongens Nytorv 13 Copenhagen,55.6805,12.5851,true,400,true,municipal
+Oslo Government Quarter Bunker,Akersgata 42 Oslo,59.9127,10.7461,true,800,true,government
+Helsinki Senate Square Shelter,Senaatintori 3 Helsinki,60.1699,24.9384,true,300,true,municipal
+London Underground Emergency Shelter,Westminster Bridge Road London,51.5014,-0.1419,true,2000,true,municipal
+Manchester Emergency Services HQ,Oxford Road Manchester,53.4722,-2.2374,true,600,true,emergency
+Edinburgh Castle Emergency Bunker,Castlehill Edinburgh,55.9486,-3.1999,true,400,true,heritage
+Dublin Trinity College Shelter,College Green Dublin,53.3441,-6.2675,false,500,true,university
+Paris Louvre Museum Basement,Rue de Rivoli 75001 Paris,48.8606,2.3376,true,1000,true,cultural
+Lyon Part-Dieu Emergency Center,Place Charles Béraudier Lyon,45.7640,4.8357,true,800,true,municipal
+Marseille Old Port Shelter,Quai du Port Marseille,43.2951,5.3656,true,600,true,port
+Madrid Royal Palace Bunker,Calle de Bailén Madrid,40.4180,-3.7142,true,700,true,heritage
+Barcelona Sagrada Familia Shelter,Carrer de Mallorca 401 Barcelona,41.4036,2.1744,false,500,true,cultural
+Rome Colosseum Underground,Piazza del Colosseo 1 Rome,41.8902,12.4922,true,800,true,heritage
+Milan Cathedral Emergency Shelter,Piazza del Duomo Milan,45.4642,9.1900,true,600,true,cultural
+Naples Port Authority Bunker,Via Marina Naples,40.8518,14.2681,true,400,true,port
+Moscow Red Square Bunker,Red Square 1 Moscow,55.7539,37.6208,true,1500,true,government
+St Petersburg Hermitage Shelter,Palace Embankment 34 St Petersburg,59.9398,30.3146,true,800,true,cultural
+Kiev Independence Square Shelter,Maidan Nezalezhnosti Kiev,50.4501,30.5234,true,1000,true,municipal
+Minsk Government House Bunker,House of Government Minsk,53.8948,27.5569,true,600,true,government
+Vilnius Cathedral Square Shelter,Katedros aikštė 1 Vilnius,54.6872,25.2797,true,300,true,municipal
+Riga Central Market Shelter,Nēģu iela 7 Riga,56.9436,24.0859,true,500,true,municipal
+Tallinn Old Town Shelter,Raekoja plats 1 Tallinn,59.4370,24.7453,true,200,true,heritage
+Budapest Parliament Building Bunker,Kossuth Lajos tér 1-3 Budapest,47.5070,19.0458,true,800,true,government
+Bucharest Palace of Parliament Shelter,Strada Izvor 2-4 Bucharest,44.4268,26.0873,true,1200,true,government
+Sofia Alexander Nevsky Cathedral Shelter,pl. Alexander Nevsky Sofia,42.6977,23.3219,true,400,true,cultural
+Belgrade Fortress Emergency Bunker,Kalemegdan Belgrade,44.8206,20.4489,true,500,true,heritage
+Zagreb Cathedral Emergency Shelter,Kaptol 31 Zagreb,45.8144,15.9798,true,300,true,cultural
+Ljubljana Castle Emergency Facility,Grajska planota 1 Ljubljana,46.0569,14.5058,true,200,true,heritage
+Sarajevo City Hall Shelter,Obala Kulina bana Sarajevo,43.8563,18.4131,false,400,true,municipal
+Skopje Macedonia Square Shelter,Macedonia Square Skopje,41.9973,21.4280,true,300,true,municipal
+Tirana Skanderbeg Square Shelter,Sheshi Skënderbej Tirana,41.3275,19.8187,true,250,true,municipal
+Podgorica Government Building Bunker,Bulevar Svetog Petra Cetinjskog Podgorica,42.4304,19.2594,true,200,true,government
+Istanbul Hagia Sophia Emergency Shelter,Ayasofya Meydanı 1 Istanbul,41.0086,28.9802,true,1000,true,cultural
+Ankara Government Quarter Bunker,Atatürk Bulvarı Ankara,39.9334,32.8597,true,800,true,government
+Athens Acropolis Emergency Bunker,Acropolis Athens,37.9715,23.7267,true,600,true,heritage
+Thessaloniki White Tower Shelter,Leoforos Nikis Thessaloniki,40.6264,22.9485,true,300,true,heritage
+Nicosia UN Buffer Zone Shelter,UN Buffer Zone Nicosia,35.1856,33.3823,true,400,true,international
+Tel Aviv City Hall Bunker,Rabin Square Tel Aviv,32.0804,34.7806,true,800,true,municipal
+Jerusalem Western Wall Shelter,Western Wall Plaza Jerusalem,31.7767,35.2345,true,500,true,heritage
+Beirut Government Palace Bunker,Place de l'Étoile Beirut,33.8938,35.5018,false,400,true,government
+Damascus Umayyad Mosque Shelter,Umayyad Mosque Damascus,33.5138,36.3017,false,600,true,cultural
+Amman Roman Theatre Shelter,Al-Hashemi Street Amman,31.9515,35.9316,true,300,true,heritage
+Cairo Egyptian Museum Bunker,Tahrir Square Cairo,30.0475,31.2336,true,1000,true,cultural
+Alexandria Library Emergency Shelter,El-Shatby Alexandria,31.2001,29.9187,true,500,true,cultural
+Casablanca Hassan II Mosque Shelter,Boulevard Sidi Mohammed Ben Abdallah Casablanca,33.6084,-7.6325,true,800,true,cultural
+Tunis Medina Emergency Shelter,Avenue Habib Bourguiba Tunis,36.8065,10.1815,true,400,true,heritage
+Algiers Casbah Emergency Bunker,Rue Ben M'hidi Larbi Algiers,36.7831,3.0586,true,500,true,heritage
+Rabat Royal Palace Emergency Shelter,Avenue Mohammed V Rabat,34.0209,-6.8326,true,600,true,government
+Lagos National Theatre Shelter,Iganmu Lagos,6.4641,3.3194,true,1000,true,cultural
+Accra Independence Square Shelter,Independence Square Accra,5.5502,-0.2175,true,500,true,municipal
+Nairobi City Hall Emergency Bunker,City Hall Way Nairobi,-1.2864,36.8172,true,600,true,municipal
+Addis Ababa AU Headquarters Shelter,Roosevelt Street Addis Ababa,9.0054,38.7636,true,800,true,international
+Cape Town City Hall Shelter,Grand Parade Cape Town,-33.9249,18.4241,true,700,true,municipal
+Johannesburg Carlton Centre Bunker,Commissioner Street Johannesburg,-26.2041,28.0473,true,500,true,municipal
+New York UN Headquarters Bunker,First Avenue New York,40.7489,-73.9680,true,2000,true,international
+Washington DC Capitol Building Shelter,East Capitol Street Washington,38.8899,-77.0091,true,1500,true,government
+Los Angeles City Hall Bunker,Spring Street Los Angeles,34.0522,-118.2437,true,1000,true,municipal
+Chicago Willis Tower Emergency Shelter,Wacker Drive Chicago,41.8789,-87.6359,true,1200,true,municipal
+Toronto CN Tower Emergency Bunker,Front Street West Toronto,43.6426,-79.3871,true,800,true,municipal
+Vancouver City Hall Shelter,Cambie Street Vancouver,49.2827,-123.1207,true,600,true,municipal
+Mexico City Zocalo Emergency Shelter,Plaza de la Constitución Mexico City,19.4326,-99.1332,true,1500,true,municipal
+Havana Capitol Building Shelter,Paseo de Martí Havana,23.1136,-82.3666,false,500,true,government
+São Paulo Cathedral Emergency Shelter,Praça da Sé São Paulo,-23.5505,-46.6333,true,1000,true,cultural
+Rio de Janeiro Christ the Redeemer Shelter,Parque Nacional da Tijuca Rio de Janeiro,-22.9519,-43.2105,true,400,true,heritage
+Buenos Aires Casa Rosada Bunker,Balcarce 50 Buenos Aires,-34.6118,-58.3960,true,800,true,government
+Lima Government Palace Shelter,Jr. de la Unión 1 Lima,-12.0464,-77.0428,true,600,true,government
+Bogotá Bolívar Square Shelter,Carrera 8 Bogotá,4.5981,-74.0758,true,500,true,municipal
+Caracas Miraflores Palace Bunker,Avenida Urdaneta Caracas,10.5060,-66.9146,false,400,true,government
+Quito Historic Center Shelter,Plaza de la Independencia Quito,-0.2201,-78.5123,true,300,true,heritage
+La Paz Government Palace Shelter,Plaza Murillo La Paz,-16.4955,-68.1336,true,400,true,government
+Santiago La Moneda Palace Bunker,Moneda 1 Santiago,-33.4489,-70.6693,true,600,true,government
+Tokyo Imperial Palace Emergency Bunker,Chiyoda Tokyo,35.6852,139.7528,true,2000,true,government
+Osaka Castle Emergency Shelter,Osaka-jo Osaka,34.6873,135.5262,true,800,true,heritage
+Beijing Forbidden City Bunker,Dongcheng District Beijing,39.9163,116.3972,true,1500,true,heritage
+Shanghai Bund Emergency Shelter,Zhongshan East 1st Road Shanghai,31.2397,121.4916,true,1000,true,municipal
+Hong Kong Central Government Offices Bunker,Tamar Admiralty Hong Kong,22.2783,114.1747,true,800,true,government
+Seoul Gyeongbokgung Palace Shelter,Jongno-gu Seoul,37.5796,126.9770,true,600,true,heritage
+Pyongyang Kim Il-sung Square Shelter,Kim Il-sung Square Pyongyang,39.0194,125.7547,false,1000,true,government
+Taipei Presidential Office Bunker,Zhongzheng District Taipei,25.0408,121.5598,true,500,true,government
+Manila Malacañang Palace Shelter,San Miguel Manila,14.5995,120.9842,true,400,true,government
+Bangkok Grand Palace Emergency Shelter,Phra Nakhon Bangkok,13.7563,100.4928,true,800,true,heritage
+Kuala Lumpur Petronas Towers Bunker,KLCC Kuala Lumpur,3.1578,101.7118,true,1000,true,municipal
+Singapore Marina Bay Emergency Shelter,Marina Bay Singapore,1.2868,103.8545,true,600,true,municipal
+Jakarta National Monument Shelter,Monas Jakarta,-6.1751,106.8250,true,800,true,municipal
+Ho Chi Minh City Reunification Palace Shelter,Nam Kỳ Khởi Nghĩa Ho Chi Minh City,10.7769,106.6951,true,500,true,government
+Hanoi Ho Chi Minh Mausoleum Shelter,Ba Đình Hanoi,21.0361,105.8342,true,600,true,heritage
+Vientiane That Luang Emergency Shelter,That Luang Vientiane,17.9757,102.6331,true,200,true,cultural
+Phnom Penh Royal Palace Shelter,Sothearos Boulevard Phnom Penh,11.5564,104.9282,true,300,true,heritage
+Yangon Shwedagon Pagoda Shelter,Yangon Hill Yangon,16.7982,96.1496,true,400,true,cultural
+Dhaka National Parliament House Bunker,Sher-e-Bangla Nagar Dhaka,23.7629,90.3776,true,800,true,government
+Colombo Independence Memorial Hall Shelter,Independence Avenue Colombo,6.9271,79.8612,true,300,true,heritage
+Kathmandu Durbar Square Shelter,Basantapur Kathmandu,27.7044,85.3206,false,200,true,heritage
+New Delhi Red Fort Emergency Bunker,Netaji Subhash Marg New Delhi,28.6562,77.2410,true,1000,true,heritage
+Mumbai Gateway of India Shelter,Apollo Bandar Mumbai,18.9220,72.8347,true,800,true,heritage
+Kolkata Victoria Memorial Shelter,Queen's Way Kolkata,22.5448,88.3426,true,500,true,heritage
+Chennai Marina Beach Emergency Shelter,Marina Beach Road Chennai,13.0475,80.2824,true,400,true,municipal
+Islamabad Parliament House Bunker,Constitution Avenue Islamabad,33.7294,73.0931,true,600,true,government
+Karachi Quaid-e-Azam Mausoleum Shelter,M.A. Jinnah Road Karachi,24.8607,67.0011,true,500,true,heritage
+Lahore Badshahi Mosque Emergency Shelter,Fort Road Lahore,31.5881,74.3094,true,400,true,cultural
+Kabul Presidential Palace Bunker,Arg Kabul,34.5289,69.1776,false,300,true,government
+Tehran Azadi Tower Emergency Shelter,Azadi Square Tehran,35.6997,51.3379,true,800,true,municipal
+Isfahan Imam Square Shelter,Naqsh-e Jahan Square Isfahan,32.6546,51.6746,true,400,true,heritage
+Dubai Burj Khalifa Emergency Bunker,Downtown Dubai,25.1972,55.2744,true,1000,true,municipal
+Abu Dhabi Presidential Palace Shelter,Al Ras Al Akhdar Abu Dhabi,24.4539,54.3773,true,600,true,government
+Doha Museum of Islamic Art Shelter,Corniche Doha,25.2948,51.5397,true,400,true,cultural
+Kuwait City Liberation Tower Bunker,Arabian Gulf Street Kuwait City,29.3759,47.9774,true,300,true,municipal
+Riyadh King Abdulaziz Conference Center Bunker,King Fahd Road Riyadh,24.7136,46.6753,true,800,true,government
+Muscat Sultan Qaboos Grand Mosque Shelter,Sultan Qaboos Street Muscat,23.5859,58.3829,true,500,true,cultural
+Manama Bahrain World Trade Center Bunker,King Faisal Highway Manama,26.2361,50.5831,true,400,true,municipal
+Baku Flame Towers Emergency Shelter,Mehdi Huseyn Street Baku,40.3755,49.8384,true,600,true,municipal
+Tbilisi Freedom Square Shelter,Rustaveli Avenue Tbilisi,41.6941,44.8337,true,300,true,municipal
+Yerevan Republic Square Shelter,Republic Square Yerevan,40.1776,44.5126,true,400,true,municipal
+Sydney Opera House Emergency Bunker,Bennelong Point Sydney,-33.8568,151.2153,true,1000,true,cultural
+Melbourne Federation Square Shelter,Flinders Street Melbourne,-37.8176,144.9685,true,800,true,municipal
+Brisbane City Hall Emergency Shelter,King George Square Brisbane,-27.4698,153.0251,true,500,true,municipal
+Perth Kings Park Emergency Bunker,Fraser Avenue Perth,-31.9505,115.8605,true,400,true,municipal
+Adelaide Festival Centre Shelter,King William Road Adelaide,-34.9205,138.5986,true,300,true,cultural
+Auckland Sky Tower Emergency Bunker,Federal Street Auckland,-36.8485,174.7633,true,600,true,municipal
+Wellington Parliament Buildings Shelter,Molesworth Street Wellington,-41.2765,174.7762,true,400,true,government
+Christchurch Cathedral Square Shelter,Cathedral Square Christchurch,-43.5321,172.6362,false,200,true,heritage
+Suva Government Buildings Shelter,Victoria Parade Suva,-18.1248,178.4501,true,200,true,government
+Port Moresby Parliament House Bunker,Independence Drive Port Moresby,-9.4438,147.1803,true,300,true,government
+Łódź City Hall Emergency Bunker,Plac Wolności 1 Łódź,51.7592,19.4560,true,800,true,municipal
+University of Łódź Emergency Shelter,Narutowicza 68 Łódź,51.7687,19.4569,true,600,true,university
+Łódź Central Station Shelter,Aleja Unii Lubelskiej 1 Łódź,51.7284,19.4569,true,1000,true,municipal
+Manufaktura Shopping Center Bunker,Karskiego 5 Łódź,51.7818,19.4479,true,1500,true,commercial
+Łódź Medical University Hospital Bunker,Kopcińskiego 22 Łódź,51.7592,19.4324,true,400,true,medical
+Atlas Arena Emergency Shelter,al. Politechniki 6 Łódź,51.7477,19.4497,true,2000,true,sports
+Łódź Fabryczna Station Underground,Składowa 35 Łódź,51.7284,19.4569,true,800,true,municipal
+Piotrkowska Street Emergency Center,Piotrkowska 104 Łódź,51.7687,19.4569,true,500,true,municipal
+Boston City Hall Emergency Bunker,City Hall Plaza Boston,42.3601,-71.0589,true,1200,true,municipal
+Harvard University Emergency Shelter,Harvard Yard Cambridge,42.3744,-71.1169,true,800,true,university
+MIT Emergency Response Center,77 Massachusetts Avenue Cambridge,42.3601,-71.0942,true,600,true,university
+Fenway Park Emergency Shelter,4 Yawkey Way Boston,42.3467,-71.0972,true,1500,true,sports
+Logan Airport Emergency Center,1 Harborside Drive Boston,42.3656,-71.0096,true,2000,true,airport
+Philadelphia City Hall Bunker,1401 John F Kennedy Boulevard Philadelphia,39.9526,-75.1652,true,1000,true,municipal
+Independence Hall Emergency Shelter,520 Chestnut Street Philadelphia,39.9496,-75.1503,true,400,true,heritage
+University of Pennsylvania Emergency Center,3451 Walnut Street Philadelphia,39.9522,-75.1932,true,700,true,university
+Philadelphia International Airport Bunker,8000 Essington Avenue Philadelphia,39.8719,-75.2411,true,1800,true,airport
+Lincoln Financial Field Emergency Shelter,1 Lincoln Financial Field Way Philadelphia,39.9008,-75.1675,true,2500,true,sports
+Miami City Hall Emergency Bunker,3500 Pan American Drive Miami,25.7617,-80.1918,true,800,true,municipal
+Miami International Airport Emergency Center,2100 NW 42nd Avenue Miami,25.7932,-80.2906,true,2500,true,airport
+University of Miami Emergency Shelter,1320 South Dixie Highway Coral Gables,25.7219,-80.2789,true,600,true,university
+American Airlines Arena Emergency Bunker,601 Biscayne Boulevard Miami,25.7814,-80.1870,true,2000,true,sports
+Port of Miami Emergency Center,1015 North America Way Miami,25.7753,-80.1669,true,1000,true,port
+Atlanta City Hall Emergency Bunker,55 Trinity Avenue Atlanta,33.7490,-84.3880,true,1000,true,municipal
+Hartsfield-Jackson Airport Emergency Center,6000 North Terminal Parkway Atlanta,33.6407,-84.4277,true,3000,true,airport
+Georgia Tech Emergency Shelter,225 North Avenue Atlanta,33.7756,-84.3963,true,800,true,university
+Mercedes-Benz Stadium Emergency Bunker,1 AMB Drive Atlanta,33.7553,-84.4006,true,3000,true,sports
+CDC Emergency Operations Center,1600 Clifton Road Atlanta,33.7980,-84.3963,true,500,true,government
+Houston City Hall Emergency Bunker,901 Bagby Street Houston,29.7604,-95.3698,true,1200,true,municipal
+NASA Johnson Space Center Bunker,2101 E NASA Parkway Houston,29.5586,-95.0890,true,800,true,government
+University of Houston Emergency Shelter,4800 Calhoun Road Houston,29.7199,-95.3422,true,1000,true,university
+NRG Stadium Emergency Center,NRG Parkway Houston,29.6847,-95.4107,true,2500,true,sports
+Houston Ship Channel Emergency Bunker,7300 Clinton Drive Houston,29.7342,-95.2480,true,600,true,port
+Dallas City Hall Emergency Bunker,1500 Marilla Street Dallas,32.7767,-96.7970,true,1000,true,municipal
+Dallas/Fort Worth Airport Emergency Center,2400 Aviation Drive Dallas,32.8998,-97.0403,true,2800,true,airport
+University of Texas Dallas Emergency Shelter,800 West Campbell Road Richardson,32.9857,-96.7489,true,700,true,university
+AT&T Stadium Emergency Bunker,1 AT&T Way Arlington,32.7473,-97.0945,true,3500,true,sports
+Dallas Love Field Emergency Center,8008 Herb Kelleher Way Dallas,32.8472,-96.8518,true,1200,true,airport
+Phoenix City Hall Emergency Bunker,200 West Washington Street Phoenix,33.4484,-112.0740,true,1000,true,municipal
+Sky Harbor Airport Emergency Center,3400 East Sky Harbor Boulevard Phoenix,33.4343,-112.0116,true,2200,true,airport
+Arizona State University Emergency Shelter,411 North Central Avenue Phoenix,33.4534,-112.0685,true,900,true,university
+Chase Field Emergency Bunker,401 East Jefferson Street Phoenix,33.4453,-112.0667,true,2000,true,sports
+Phoenix VA Medical Center Bunker,650 East Indian School Road Phoenix,33.4942,-112.0573,true,800,true,medical
+San Antonio City Hall Emergency Bunker,114 West Commerce Street San Antonio,29.4241,-98.4936,true,900,true,municipal
+San Antonio International Airport Emergency Center,9800 Airport Boulevard San Antonio,29.5337,-98.4698,true,1800,true,airport
+University of Texas San Antonio Emergency Shelter,1 UTSA Circle San Antonio,29.5841,-98.6198,true,800,true,university
+Alamodome Emergency Center,100 Montana Street San Antonio,29.4197,-98.4747,true,2500,true,sports
+Fort Sam Houston Emergency Bunker,2808 Stanley Road San Antonio,29.4544,-98.4344,true,1000,true,military
+San Diego City Hall Emergency Bunker,202 C Street San Diego,32.7157,-117.1611,true,800,true,municipal
+San Diego International Airport Emergency Center,3225 North Harbor Drive San Diego,32.7336,-117.1897,true,2000,true,airport
+UC San Diego Emergency Shelter,9500 Gilman Drive La Jolla,32.8801,-117.2340,true,1000,true,university
+Petco Park Emergency Bunker,100 Park Boulevard San Diego,32.7073,-117.1566,true,2200,true,sports
+Naval Base San Diego Emergency Center,3455 Senn Street San Diego,32.6969,-117.1394,true,1500,true,military
+Denver City Hall Emergency Bunker,1437 Bannock Street Denver,39.7392,-104.9903,true,900,true,municipal
+Denver International Airport Emergency Center,8500 Peña Boulevard Denver,39.8561,-104.6737,true,2500,true,airport
+University of Colorado Denver Emergency Shelter,1380 Lawrence Street Denver,39.7469,-104.9961,true,700,true,university
+Coors Field Emergency Bunker,2001 Blake Street Denver,39.7559,-104.9942,true,2000,true,sports
+Denver Health Medical Center Bunker,777 Bannock Street Denver,39.7297,-104.9903,true,600,true,medical
+Las Vegas City Hall Emergency Bunker,495 South Main Street Las Vegas,36.1699,-115.1398,true,800,true,municipal
+McCarran Airport Emergency Center,5757 Wayne Newton Boulevard Las Vegas,36.0840,-115.1537,true,2200,true,airport
+UNLV Emergency Shelter,4505 South Maryland Parkway Las Vegas,36.1077,-115.1370,true,800,true,university
+T-Mobile Arena Emergency Bunker,3780 Las Vegas Boulevard Las Vegas,36.1028,-115.1781,true,2500,true,sports
+Nellis Air Force Base Emergency Center,4430 Grissom Avenue Las Vegas,36.2361,-115.0347,true,1200,true,military
+Portland City Hall Emergency Bunker,1221 SW 4th Avenue Portland,45.5152,-122.6784,true,700,true,municipal
+Portland International Airport Emergency Center,7000 NE Airport Way Portland,45.5898,-122.5951,true,1800,true,airport
+Portland State University Emergency Shelter,1825 SW Broadway Portland,45.5118,-122.6867,true,600,true,university
+Moda Center Emergency Bunker,1 North Center Court Street Portland,45.5316,-122.6668,true,2000,true,sports
+Oregon Health & Science University Bunker,3181 SW Sam Jackson Park Road Portland,45.4993,-122.6856,true,500,true,medical
+Seattle City Hall Emergency Bunker,600 4th Avenue Seattle,47.6062,-122.3321,true,800,true,municipal
+Seattle-Tacoma Airport Emergency Center,17801 International Boulevard Seattle,47.4502,-122.3088,true,2300,true,airport
+University of Washington Emergency Shelter,1410 NE Campus Parkway Seattle,47.6587,-122.3139,true,900,true,university
+T-Mobile Park Emergency Bunker,1250 1st Avenue South Seattle,47.5914,-122.3326,true,2200,true,sports
+Harborview Medical Center Emergency Bunker,325 9th Avenue Seattle,47.6061,-122.3250,true,700,true,medical
+Salt Lake City Hall Emergency Bunker,451 South State Street Salt Lake City,40.7608,-111.8910,true,600,true,municipal
+Salt Lake City Airport Emergency Center,776 North Terminal Drive Salt Lake City,40.7899,-111.9791,true,1500,true,airport
+University of Utah Emergency Shelter,201 Presidents Circle Salt Lake City,40.7649,-111.8421,true,700,true,university
+Vivint Arena Emergency Bunker,301 West South Temple Salt Lake City,40.7683,-111.9011,true,2000,true,sports
+LDS Conference Center Emergency Shelter,60 West North Temple Salt Lake City,40.7701,-111.8930,true,1500,true,cultural
+Kansas City Hall Emergency Bunker,414 East 12th Street Kansas City,39.1012,-94.5783,true,700,true,municipal
+Kansas City Airport Emergency Center,601 Brasilia Avenue Kansas City,39.2976,-94.7139,true,1600,true,airport
+University of Missouri Kansas City Emergency Shelter,5100 Rockhill Road Kansas City,39.0353,-94.5786,true,600,true,university
+Arrowhead Stadium Emergency Bunker,1 Arrowhead Drive Kansas City,39.0489,-94.4839,true,3000,true,sports
+Truman Medical Center Emergency Bunker,2301 Holmes Street Kansas City,39.0865,-94.5786,true,500,true,medical
+Nashville City Hall Emergency Bunker,1 Public Square Nashville,36.1627,-86.7816,true,700,true,municipal
+Nashville Airport Emergency Center,1 Terminal Drive Nashville,36.1245,-86.6782,true,1700,true,airport
+Vanderbilt University Emergency Shelter,2201 West End Avenue Nashville,36.1447,-86.8027,true,800,true,university
+Nissan Stadium Emergency Bunker,1 Titans Way Nashville,36.1665,-86.7713,true,2500,true,sports
+Vanderbilt University Medical Center Bunker,1211 Medical Center Drive Nashville,36.1447,-86.8027,true,600,true,medical
+Columbus City Hall Emergency Bunker,90 West Broad Street Columbus,39.9612,-82.9988,true,800,true,municipal
+John Glenn Airport Emergency Center,4600 International Gateway Columbus,39.9980,-82.8919,true,1500,true,airport
+Ohio State University Emergency Shelter,281 West Lane Avenue Columbus,40.0067,-83.0305,true,1200,true,university
+Ohio Stadium Emergency Bunker,411 Woody Hayes Drive Columbus,40.0017,-83.0197,true,3500,true,sports
+Ohio State Wexner Medical Center Bunker,370 West 9th Avenue Columbus,39.9995,-83.0183,true,800,true,medical
+Indianapolis City Hall Emergency Bunker,200 East Washington Street Indianapolis,39.7684,-86.1581,true,700,true,municipal
+Indianapolis Airport Emergency Center,7800 Col H Weir Cook Memorial Drive Indianapolis,39.7173,-86.2944,true,1600,true,airport
+Indiana University Emergency Shelter,420 University Boulevard Indianapolis,39.7747,-86.1669,true,700,true,university
+Lucas Oil Stadium Emergency Bunker,500 South Capitol Avenue Indianapolis,39.7601,-86.1639,true,2800,true,sports
+Indiana University Health Emergency Bunker,550 University Boulevard Indianapolis,39.7747,-86.1669,true,600,true,medical

@@ -227,6 +227,7 @@ export const safeNowApi = {
 				lat: params.lat,
 				lon: params.lon,
 				limit: params.limit || 3,
+				radius: params.radius, // Optional radius parameter
 			},
 		});
 		return response.data;
@@ -238,6 +239,7 @@ export const safeNowApi = {
 			params: {
 				lat: params.lat,
 				lon: params.lon,
+				...(params.search_radius !== undefined && { search_radius: params.search_radius }),
 			},
 		});
 		return response.data;

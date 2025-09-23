@@ -86,6 +86,13 @@ class NearbySheltersView(APIView):
                 required=False,
                 description='Maximum number of shelters to return (default: 3)',
             ),
+            OpenApiParameter(
+                name='radius',
+                type=OpenApiTypes.FLOAT,
+                location=OpenApiParameter.QUERY,
+                required=False,
+                description='Search radius in kilometers (default: 50, max: 500)',
+            ),
         ],
         responses={
             200: NearbyShelterSerializer(many=True),
@@ -97,12 +104,13 @@ class NearbySheltersView(APIView):
             user_lat = float(request.query_params.get('lat'))
             user_lon = float(request.query_params.get('lon'))
             limit = int(request.query_params.get('limit', 3))
+            radius = float(request.query_params.get('radius', 50.0))  # Default 50km
         except (TypeError, ValueError):
             return Response(
                 {
                     'error': {
                         'code': 400,
-                        'message': 'Invalid lat, lon, or limit parameters',
+                        'message': 'Invalid lat, lon, limit, or radius parameters',
                     }
                 },
                 status=status.HTTP_400_BAD_REQUEST,
@@ -111,9 +119,13 @@ class NearbySheltersView(APIView):
         # Clamp limit to maximum of 20
         MAX_LIMIT = 20
         limit = min(limit, MAX_LIMIT)
+        
+        # Clamp radius to maximum of 500km for performance
+        MAX_RADIUS = 500.0
+        radius = min(radius, MAX_RADIUS)
 
-        # Calculate bounding box for prefiltering (~10km radius)
-        min_lat, max_lat, min_lon, max_lon = bounding_box(user_lat, user_lon, 10.0)
+        # Calculate bounding box for prefiltering using specified radius
+        min_lat, max_lat, min_lon, max_lon = bounding_box(user_lat, user_lon, radius)
 
         # Query shelters within bounding box first (uses indexes)
         shelters = Shelter.objects.filter(
@@ -126,12 +138,15 @@ class NearbySheltersView(APIView):
             distance_km = haversine_km(
                 user_lat, user_lon, float(shelter.lat), float(shelter.lon)
             )
-            eta_seconds = eta_walk_seconds(distance_km)
+            
+            # Only include shelters within the specified radius
+            if distance_km <= radius:
+                eta_seconds = eta_walk_seconds(distance_km)
 
-            # Add calculated fields to shelter object
-            shelter.distance_km = round(distance_km, 3)
-            shelter.eta_seconds = eta_seconds
-            shelter_distances.append((distance_km, shelter))
+                # Add calculated fields to shelter object
+                shelter.distance_km = round(distance_km, 3)
+                shelter.eta_seconds = eta_seconds
+                shelter_distances.append((distance_km, shelter))
 
         # Sort by distance and limit results
         shelter_distances.sort(key=lambda x: x[0])
@@ -148,7 +163,7 @@ class ActiveAlertsView(APIView):
 
     @extend_schema(
         summary="Get Active Alerts",
-        description="Get emergency alerts that affect the user's location (within alert radius and still valid)",
+        description="Get emergency alerts that affect the user's location (within alert radius and still valid) or within user's search radius",
         parameters=[
             OpenApiParameter(
                 name='lat',
@@ -164,21 +179,33 @@ class ActiveAlertsView(APIView):
                 required=True,
                 description='User longitude (-180 to 180)',
             ),
+            OpenApiParameter(
+                name='search_radius',
+                type=OpenApiTypes.FLOAT,
+                location=OpenApiParameter.QUERY,
+                required=False,
+                description='Search radius in kilometers to find nearby alerts (default: 0, max: 500). If 0, only shows alerts where user is within alert radius.',
+            ),
         ],
         responses={
             200: ActiveAlertSerializer(many=True),
-            400: {'description': 'Invalid lat or lon parameters'},
+            400: {'description': 'Invalid lat, lon, or search_radius parameters'},
         },
     )
     def get(self, request):
         try:
             user_lat = float(request.query_params.get('lat'))
             user_lon = float(request.query_params.get('lon'))
+            search_radius = float(request.query_params.get('search_radius', 0.0))  # Default 0km
         except (TypeError, ValueError):
             return Response(
-                {'error': {'code': 400, 'message': 'Invalid lat or lon parameters'}},
+                {'error': {'code': 400, 'message': 'Invalid lat, lon, or search_radius parameters'}},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+        # Clamp search radius to maximum of 500km for performance
+        MAX_SEARCH_RADIUS = 500.0
+        search_radius = min(search_radius, MAX_SEARCH_RADIUS)
 
         # Get all active alerts (only verified and active status)
         active_alerts = Alert.objects.filter(
@@ -186,7 +213,9 @@ class ActiveAlertsView(APIView):
             status__in=['VERIFIED', 'ACTIVE']
         )
 
-        # Filter alerts where user is within radius
+        # Filter alerts based on two criteria:
+        # 1. User is within alert radius (original behavior)
+        # 2. Alert is within user's search radius (new feature)
         relevant_alerts = []
         for alert in active_alerts:
             distance_km = haversine_km(
@@ -194,9 +223,18 @@ class ActiveAlertsView(APIView):
             )
             distance_m = distance_km * 1000
 
-            if distance_m <= alert.radius_m:
+            # Check if user is within alert radius (original behavior)
+            within_alert_radius = distance_m <= alert.radius_m
+            
+            # Check if alert is within user's search radius (new feature)
+            within_search_radius = search_radius > 0 and distance_km <= search_radius
+            
+            if within_alert_radius or within_search_radius:
                 # Add distance to alert object for serialization
                 alert.distance_km = round(distance_km, 3)
+                # Add flag to indicate why this alert is relevant
+                alert.within_alert_radius = within_alert_radius
+                alert.within_search_radius = within_search_radius
                 relevant_alerts.append(alert)
 
         # Sort by severity (CRITICAL first) and then by distance

@@ -29,13 +29,16 @@ class ActiveAlertSerializer(serializers.ModelSerializer):
     distance_km = serializers.FloatField(read_only=True, help_text="Distance from user to alert center in kilometers")
     created_by_username = serializers.CharField(source='created_by.username', read_only=True, help_text="Username of alert creator")
     vote_summary = serializers.SerializerMethodField(help_text="Vote summary for this alert")
+    within_alert_radius = serializers.BooleanField(read_only=True, help_text="True if user is within alert's radius")
+    within_search_radius = serializers.BooleanField(read_only=True, help_text="True if alert is within user's search radius")
 
     class Meta:
         model = Alert
         fields = [
             'id', 'hazard_type', 'severity', 'center_lat', 'center_lon',
             'radius_m', 'distance_km', 'valid_until', 'source', 'description', 'created_at',
-            'status', 'verification_score', 'is_official', 'created_by_username', 'vote_summary'
+            'status', 'verification_score', 'is_official', 'created_by_username', 'vote_summary',
+            'within_alert_radius', 'within_search_radius'
         ]
     
     def get_vote_summary(self, obj):

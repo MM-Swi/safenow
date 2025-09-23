@@ -70,6 +70,8 @@ export interface Alert {
     total: number;
     user_vote?: 'UPVOTE' | 'DOWNVOTE' | null;
   };
+  within_alert_radius?: boolean; // True if user is within alert's radius
+  within_search_radius?: boolean; // True if alert is within user's search radius
 }
 
 // Device Types
@@ -128,11 +130,13 @@ export interface NearbySheltersParams {
   lat: number;
   lon: number;
   limit?: number;
+  radius?: number; // Search radius in kilometers (default: 50, max: 500)
 }
 
 export interface ActiveAlertsParams {
   lat: number;
   lon: number;
+  search_radius?: number; // Search radius in kilometers (default: 0, max: 500). If 0, only shows alerts where user is within alert radius.
 }
 
 // Safety Instructions Types
@@ -151,12 +155,6 @@ export interface ApiError {
   };
 }
 
-// Query Parameters
-export interface NearbySheltersParams {
-  lat: number;
-  lon: number;
-  limit?: number;
-}
 
 export interface ActiveAlertsParams {
   lat: number;

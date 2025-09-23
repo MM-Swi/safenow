@@ -15,18 +15,26 @@ import { AlertTriangle, MapPin, Clock, Shield, Smartphone } from 'lucide-react';
 interface EmergencyDashboardProps {
   lat?: number;
   lon?: number;
+  shelterRadius?: number;
+  shelterLimit?: number;
 }
 
-export function EmergencyDashboard({ lat, lon }: EmergencyDashboardProps) {
+export function EmergencyDashboard({ 
+  lat, 
+  lon, 
+  shelterRadius = 50, 
+  shelterLimit = 5 
+}: EmergencyDashboardProps) {
   const [location, setLocation] = useState<{ lat: number; lon: number } | null>(
     lat && lon ? { lat, lon } : null
   );
   const [deviceRegistered, setDeviceRegistered] = useState(false);
 
-  const { alerts, shelters, isLoading, isError, refetch } = useEmergencyData(
+  const { alerts, shelters, isLoading, error, refetch } = useEmergencyData(
     location?.lat || 0,
     location?.lon || 0,
-    !!location
+    !!location,
+    { shelterRadius, shelterLimit }
   );
 
   const registerDeviceMutation = useRegisterDevice();
@@ -93,7 +101,7 @@ export function EmergencyDashboard({ lat, lon }: EmergencyDashboardProps) {
     );
   }
 
-  if (isError) {
+  if (error) {
     return (
       <div className="p-4">
         <Card className="border-red-200 bg-red-50">

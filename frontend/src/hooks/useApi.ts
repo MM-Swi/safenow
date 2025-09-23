@@ -7,14 +7,15 @@ import type {
   DeviceRegisterRequest,
   SafetyStatusRequest,
   SimulateAlertRequest,
+  UserAlert,
 } from '@/types/api';
 
 // Query Keys
 const queryKeys = {
   health: ['health'] as const,
-  nearbyShelters: (params: any) => ['nearby-shelters', params] as const,
-  activeAlerts: (params: any) => ['active-alerts', params] as const,
-  safetyInstructions: (params: any) => ['safety-instructions', params] as const,
+  nearbyShelters: (params: NearbySheltersParams) => ['nearby-shelters', params] as const,
+  activeAlerts: (params: ActiveAlertsParams) => ['active-alerts', params] as const,
+  safetyInstructions: (params: SafetyInstructionsParams) => ['safety-instructions', params] as const,
   emergencyEducation: ['emergency-education'] as const,
   dashboardStats: ['dashboard-stats'] as const,
   userAlerts: ['user-alerts'] as const,
@@ -173,7 +174,7 @@ export const useUpdateAlert = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: ({ alertId, data }: { alertId: number; data: Partial<any> }) => 
+    mutationFn: ({ alertId, data }: { alertId: number; data: Partial<UserAlert> }) => 
       safeNowApi.dashboard.updateAlert(alertId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.userAlerts });
@@ -235,9 +236,27 @@ export const useVoteSummary = (alertId: number, enabled = true) => {
 };
 
 // Combined hook for emergency data (alerts + shelters)
-export const useEmergencyData = (lat: number, lon: number, enabled = true) => {
-  const alertsQuery = useActiveAlerts({ lat, lon }, enabled);
-  const sheltersQuery = useNearbyShelters({ lat, lon }, enabled);
+export const useEmergencyData = (
+  lat: number, 
+  lon: number, 
+  enabled = true, 
+  options?: { 
+    shelterRadius?: number; 
+    shelterLimit?: number;
+    alertSearchRadius?: number; // New parameter for alert search radius
+  }
+) => {
+  const alertsQuery = useActiveAlerts({ 
+    lat, 
+    lon, 
+    search_radius: options?.alertSearchRadius 
+  }, enabled);
+  const sheltersQuery = useNearbyShelters({ 
+    lat, 
+    lon, 
+    limit: options?.shelterLimit,
+    radius: options?.shelterRadius 
+  }, enabled);
 
   return {
     alerts: alertsQuery.data || [],
