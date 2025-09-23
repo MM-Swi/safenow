@@ -21,7 +21,7 @@ class NearbyShelterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Shelter
-        fields = ['id', 'name', 'address', 'distance_km', 'eta_seconds', 'is_open_now']
+        fields = ['id', 'name', 'address', 'lat', 'lon', 'distance_km', 'eta_seconds', 'is_open_now']
 
 
 class ActiveAlertSerializer(serializers.ModelSerializer):
