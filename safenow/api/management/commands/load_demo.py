@@ -36,30 +36,13 @@ class Command(BaseCommand):
 
         # 3. Create demo alerts
         self.stdout.write('3. Creating demo alerts...')
+        
+        # Clear existing alerts first
+        Alert.objects.all().delete()
+        self.stdout.write('   🧹 Cleared existing alerts')
 
-        # Alert 1: Critical missile alert (active)
-        alert1 = Alert.objects.create(
-            hazard_type='MISSILE',
-            severity='CRITICAL',
-            center_lat=Decimal('52.2297'),
-            center_lon=Decimal('21.0122'),
-            radius_m=5000,
-            valid_until=timezone.now() + timedelta(hours=1),
-            source='demo_load'
-        )
-        self.stdout.write(f'   ✓ Created CRITICAL MISSILE alert (ID: {alert1.id})')
-
-        # Alert 2: Medium fire alert (active)
-        alert2 = Alert.objects.create(
-            hazard_type='FIRE',
-            severity='MEDIUM',
-            center_lat=Decimal('52.2319'),
-            center_lon=Decimal('20.9957'),
-            radius_m=2000,
-            valid_until=timezone.now() + timedelta(minutes=30),
-            source='demo_load'
-        )
-        self.stdout.write(f'   ✓ Created MEDIUM FIRE alert (ID: {alert2.id})')
+        # Create comprehensive demo alerts for all hazard types
+        self.create_comprehensive_alerts()
 
         # 4. Summary
         self.stdout.write()
@@ -85,3 +68,53 @@ class Command(BaseCommand):
         self.stdout.write('  • API: http://localhost:8000/api/health/')
         self.stdout.write('  • Admin: http://localhost:8000/admin/')
         self.stdout.write('  • Docs: http://localhost:8000/api/docs/')
+
+    def create_comprehensive_alerts(self):
+        """Create comprehensive demo alerts for all hazard types."""
+        # Warsaw coordinates for demo
+        center_lat = Decimal('52.2297')
+        center_lon = Decimal('21.0122')
+        
+        # All 18 hazard types from the model
+        hazard_types = [
+            'AIR_RAID', 'DRONE', 'MISSILE', 'FLOOD', 'FIRE', 'INDUSTRIAL',
+            'SHOOTING', 'STORM', 'TSUNAMI', 'CHEMICAL_WEAPON', 'BIOHAZARD',
+            'NUCLEAR', 'UNMARKED_SOLDIERS', 'PANDEMIC', 'TERRORIST_ATTACK',
+            'MASS_POISONING', 'CYBER_ATTACK', 'EARTHQUAKE'
+        ]
+        
+        # All severity levels for comprehensive testing
+        severity_levels = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']
+        
+        alerts_created = []
+        
+        # Create one CRITICAL alert for each hazard type
+        for hazard_type in hazard_types:
+            alert = Alert.objects.create(
+                hazard_type=hazard_type,
+                severity='CRITICAL',
+                center_lat=center_lat,
+                center_lon=center_lon,
+                radius_m=20000,  # 20km radius
+                valid_until=timezone.now() + timedelta(hours=2),
+                source='demo_load'
+            )
+            alerts_created.append(alert)
+            self.stdout.write(f'   ✓ Created {hazard_type} alert with CRITICAL severity (ID: {alert.id})')
+
+        # Create additional severity examples using MISSILE as example
+        for severity in severity_levels:
+            if severity != 'CRITICAL':  # We already created CRITICAL alerts above
+                alert = Alert.objects.create(
+                    hazard_type='MISSILE',
+                    severity=severity,
+                    center_lat=center_lat,
+                    center_lon=center_lon,
+                    radius_m=15000,  # 15km radius for examples
+                    valid_until=timezone.now() + timedelta(hours=2),
+                    source=f'demo_load_{severity.lower()}_example'
+                )
+                alerts_created.append(alert)
+                self.stdout.write(f'   ✓ Created MISSILE alert with {severity} severity (ID: {alert.id})')
+        
+        self.stdout.write(f'   📊 Total alerts created: {len(alerts_created)}')

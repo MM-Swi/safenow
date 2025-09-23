@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 
 
 class Command(BaseCommand):
-    help = 'Create test alerts for all hazard types'
+    help = 'DEPRECATED: Create test alerts for all hazard types. Use "create_alerts" command instead.'
 
     def add_arguments(self, parser):
         parser.add_argument('--lat', type=float, default=50.0564, help='Latitude')
@@ -13,6 +13,23 @@ class Command(BaseCommand):
         parser.add_argument('--clear', action='store_true', help='Clear existing alerts first')
 
     def handle(self, *args, **options):
+        # Deprecation warning
+        self.stdout.write(
+            self.style.WARNING(
+                '⚠️  DEPRECATION WARNING: This command is deprecated.\n'
+                '   Please use "python manage.py create_alerts" instead.\n'
+                '   The new command supports:\n'
+                '   - All 18 hazard types (vs 6 in this old command)\n'
+                '   - Geolocation support (IP-based, GPS, manual input)\n'
+                '   - Better error handling and validation\n'
+                '   - Dry-run mode\n'
+                '   - Individual hazard type creation\n'
+                '   - Configurable severity and validity\n'
+                '\n'
+                '   Example: python manage.py create_alerts --lat 50.0564 --lon 22.0004 --clear\n'
+            )
+        )
+        
         lat = options['lat']
         lon = options['lon']
         radius = options['radius']
