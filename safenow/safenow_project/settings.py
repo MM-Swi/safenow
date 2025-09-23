@@ -176,18 +176,19 @@ REST_FRAMEWORK = {
     'COERCE_DECIMAL_TO_STRING': False,
     # Always define throttle rates (even for testing) to avoid scope errors
     'DEFAULT_THROTTLE_RATES': {
-        'anon': '10000/min' if TESTING else '10/min',
-        'simulate': '10000/min' if TESTING else '3/min',
+        'anon': '10000/min' if TESTING else '100/min',  # Increased for development
+        'simulate': '10000/min' if TESTING else '10/min',  # Increased for development
     },
 }
 
 # Only enable throttling classes when not testing
-if not TESTING:
-    REST_FRAMEWORK.update({
-        'DEFAULT_THROTTLE_CLASSES': [
-            'rest_framework.throttling.AnonRateThrottle',
-        ],
-    })
+# Temporarily disabled for development
+# if not TESTING:
+#     REST_FRAMEWORK.update({
+#         'DEFAULT_THROTTLE_CLASSES': [
+#             'rest_framework.throttling.AnonRateThrottle',
+#         ],
+#     })
 
 # JWT Settings
 from datetime import timedelta

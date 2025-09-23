@@ -1,6 +1,7 @@
 import os
 import random
-from django.core.management.base import BaseCommand
+import requests
+from django.core.management.base import BaseCommand, CommandError
 from django.core.management import call_command
 from django.utils import timezone
 from datetime import timedelta
@@ -13,6 +14,44 @@ from authentication.models import User
 
 class Command(BaseCommand):
     help = 'Load comprehensive demo data for SafeNow'
+
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--lat',
+            type=float,
+            help='Latitude for alert center'
+        )
+        parser.add_argument(
+            '--lon', 
+            type=float,
+            help='Longitude for alert center'
+        )
+        parser.add_argument(
+            '--location',
+            type=str,
+            help='Location description'
+        )
+        parser.add_argument(
+            '--radius',
+            type=int,
+            default=20000,
+            help='Alert radius in meters (default: 20000)'
+        )
+        parser.add_argument(
+            '--ip',
+            action='store_true', 
+            help='Force IP geolocation only'
+        )
+        parser.add_argument(
+            '--auto',
+            action='store_true',
+            help='Auto-detect location without prompts'
+        )
+        parser.add_argument(
+            '--fallback',
+            action='store_true',
+            help='Use hardcoded fallback coordinates (Warsaw, Poland)'
+        )
 
     def handle(self, *args, **options):
         self.stdout.write(self.style.SUCCESS('Loading SafeNow demo data...'))
@@ -40,15 +79,18 @@ class Command(BaseCommand):
         self.stdout.write('3. Creating demo users...')
         regular_user, admin_user = self.create_demo_users()
 
-        # 4. Create demo alerts
-        self.stdout.write('4. Creating demo alerts...')
+        # 4. Create comprehensive alerts
+        self.stdout.write('4. Creating comprehensive alerts...')
         
-        # Clear existing alerts first
-        Alert.objects.all().delete()
-        self.stdout.write('   🧹 Cleared existing alerts')
-
-        # Create comprehensive demo alerts for all hazard types
-        self.create_comprehensive_alerts(regular_user, admin_user)
+        # Determine coordinates for alerts
+        try:
+            center_lat, center_lon, location_description = self.get_coordinates(options)
+        except CommandError:
+            raise
+        except Exception as e:
+            raise CommandError(f'Failed to determine coordinates: {str(e)}')
+            
+        self.create_comprehensive_alerts(regular_user, admin_user, center_lat, center_lon, options['radius'])
 
         # 5. Summary
         self.stdout.write()
@@ -125,11 +167,125 @@ class Command(BaseCommand):
 
         return regular_user, admin_user
 
-    def create_comprehensive_alerts(self, regular_user, admin_user):
+    def get_coordinates(self, options):
+        """Get coordinates using multiple methods in order of preference."""
+        
+        # Method 1: Command-line arguments
+        if options['lat'] is not None and options['lon'] is not None:
+            lat, lon = options['lat'], options['lon']
+            location = options['location'] or f"Command line ({lat:.4f}, {lon:.4f})"
+            self.stdout.write(f"📍 Using command-line coordinates: {location}")
+            return lat, lon, location
+
+        # Method 2: Environment variables
+        env_lat = os.getenv('ALERT_LAT')
+        env_lon = os.getenv('ALERT_LON')
+        if env_lat and env_lon:
+            try:
+                lat, lon = float(env_lat), float(env_lon)
+                location = os.getenv('ALERT_LOCATION', f"Environment ({lat:.4f}, {lon:.4f})")
+                self.stdout.write(f"📍 Using environment coordinates: {location}")
+                return lat, lon, location
+            except ValueError:
+                self.stdout.write(self.style.WARNING("⚠️  Invalid environment coordinates, trying other methods..."))
+
+        # Method 3: Hardcoded fallback (if explicitly requested)
+        if options['fallback']:
+            lat, lon = 52.2297, 21.0122
+            location = "Warsaw, Poland (fallback)"
+            self.stdout.write(f"📍 Using fallback coordinates: {location}")
+            return lat, lon, location
+
+        # Method 4: IP-based geolocation
+        if options['ip'] or options['auto'] or not any([options.get('gps', False)]):
+            self.stdout.write("🌐 Attempting IP-based geolocation...")
+            ip_result = self.get_ip_geolocation()
+            if ip_result:
+                lat, lon, city = ip_result
+                if options['auto']:
+                    return lat, lon, city
+                else:
+                    # Interactive confirmation
+                    try:
+                        response = input(f"Use detected location '{city}'? (y/n, default: y): ").strip().lower()
+                        if response in ['', 'y', 'yes']:
+                            return lat, lon, city
+                    except (EOFError, KeyboardInterrupt):
+                        self.stdout.write("\n❌ Input cancelled")
+
+        # Method 5: Manual input (interactive mode only)
+        if not options['auto'] and not options['ip']:
+            manual_result = self.get_manual_coordinates()
+            if manual_result:
+                return manual_result
+
+        # Method 6: Final fallback
+        lat, lon = 52.2297, 21.0122
+        location = "Warsaw, Poland (final fallback)"
+        self.stdout.write(f"📍 Using final fallback coordinates: {location}")
+        return lat, lon, location
+
+    def get_ip_geolocation(self):
+        """Get current location based on IP address."""
+        try:
+            response = requests.get('https://ipapi.co/json/', timeout=5)
+            if response.status_code == 200:
+                data = response.json()
+                lat = float(data.get('latitude', 0))
+                lon = float(data.get('longitude', 0))
+                city = data.get('city', 'Unknown')
+                country = data.get('country_name', 'Unknown')
+                
+                if lat != 0 and lon != 0:
+                    location = f"{city}, {country} ({lat:.4f}, {lon:.4f})"
+                    self.stdout.write(f"📍 Detected location: {location}")
+                    return lat, lon, location
+        except Exception as e:
+            self.stdout.write(self.style.WARNING(f"⚠️  IP geolocation failed: {e}"))
+        
+        return None
+
+    def get_manual_coordinates(self):
+        """Get coordinates through manual input with validation."""
+        try:
+            self.stdout.write("\n📍 Manual coordinate input:")
+            lat_input = input("Enter latitude (-90 to 90): ").strip()
+            if not lat_input:
+                return None
+                
+            lon_input = input("Enter longitude (-180 to 180): ").strip()
+            if not lon_input:
+                return None
+                
+            lat = float(lat_input)
+            lon = float(lon_input)
+            
+            # Validate coordinates
+            if not (-90 <= lat <= 90):
+                self.stdout.write(self.style.ERROR("❌ Invalid latitude. Must be between -90 and 90."))
+                return None
+            if not (-180 <= lon <= 180):
+                self.stdout.write(self.style.ERROR("❌ Invalid longitude. Must be between -180 and 180."))
+                return None
+                
+            description = input("Enter location description (optional): ").strip()
+            if not description:
+                description = f"Manual ({lat:.4f}, {lon:.4f})"
+                
+            return lat, lon, description
+            
+        except ValueError:
+            self.stdout.write(self.style.ERROR("❌ Invalid coordinate format. Please enter numeric values."))
+            return None
+        except (EOFError, KeyboardInterrupt):
+            self.stdout.write("\n❌ Input cancelled.")
+            return None
+
+    def create_comprehensive_alerts(self, regular_user, admin_user, center_lat, center_lon, radius_m):
         """Create comprehensive demo alerts for all hazard types."""
-        # Warsaw coordinates for demo
-        center_lat = Decimal('52.2297')
-        center_lon = Decimal('21.0122')
+        # Convert coordinates to Decimal for database storage
+        center_lat = Decimal(str(center_lat))
+        center_lon = Decimal(str(center_lon))
         
         # Random descriptions for different hazard types
         alert_descriptions = {
@@ -241,10 +397,10 @@ class Command(BaseCommand):
         # Create one alert for each hazard type with random severity, alternating between users
         for i, hazard_type in enumerate(hazard_types):
             # Alternate between users: even indices = regular_user, odd indices = admin_user
-            # Some alerts will be created by admin (official), others by regular user (pending)
+            # All alerts will have VERIFIED status for demo purposes
             creator = regular_user if i % 2 == 0 else admin_user
             is_official = creator == admin_user
-            status = 'ACTIVE' if is_official else 'PENDING'
+            status = 'VERIFIED'  # All demo alerts are verified
             
             # Get random severity for this alert
             severity = random.choice(severity_levels)
@@ -257,7 +413,7 @@ class Command(BaseCommand):
                 severity=severity,
                 center_lat=center_lat,
                 center_lon=center_lon,
-                radius_m=20000,  # 20km radius
+                radius_m=radius_m,
                 valid_until=timezone.now() + timedelta(hours=2),
                 source='demo_load',
                 description=description,
@@ -267,7 +423,7 @@ class Command(BaseCommand):
             )
             alerts_created.append(alert)
             creator_name = 'admin' if creator == admin_user else 'user'
-            self.stdout.write(f'   ✓ Created {hazard_type} alert with {severity} severity by {creator_name} (ID: {alert.id}, Status: {status})')
+            self.stdout.write(f'   ✓ Created {hazard_type} alert with {severity} severity by {creator_name} (ID: {alert.id}, Status: VERIFIED)')
 
         # Create additional alerts with random hazard types and severities for more variety
         additional_hazards = ['MISSILE', 'FIRE', 'FLOOD']  # Popular hazard types for additional examples
@@ -283,15 +439,15 @@ class Command(BaseCommand):
                 severity=severity,
                 center_lat=center_lat,
                 center_lon=center_lon,
-                radius_m=15000,  # 15km radius for examples
+                radius_m=radius_m,
                 valid_until=timezone.now() + timedelta(hours=2),
                 source=f'demo_load_additional_{hazard_type.lower()}',
                 description=description,
                 created_by=regular_user,
                 is_official=False,
-                status='PENDING'
+                status='VERIFIED'  # All demo alerts are verified
             )
             alerts_created.append(alert)
-            self.stdout.write(f'   ✓ Created additional {hazard_type} alert with {severity} severity by user (ID: {alert.id}, Status: PENDING)')
+            self.stdout.write(f'   ✓ Created additional {hazard_type} alert with {severity} severity by user (ID: {alert.id}, Status: VERIFIED)')
         
         self.stdout.write(f'   📊 Total alerts created: {len(alerts_created)}')
