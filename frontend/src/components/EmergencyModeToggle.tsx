@@ -10,7 +10,7 @@ interface EmergencyModeToggleProps {
 
 export function EmergencyModeToggle({ isEmergencyMode, onToggle }: EmergencyModeToggleProps) {
   return (
-    <div className="fixed top-6 right-6 z-50">
+    <div className="fixed top-20 right-6 z-40">
       <div className="relative">
         {/* Glow effect */}
         <div className={`absolute inset-0 rounded-2xl blur-lg opacity-60 ${

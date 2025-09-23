@@ -128,11 +128,26 @@ python manage.py reset_demo
 
 ### Create All Alert Types
 
-For comprehensive testing of all hazard types, use the `create_alerts.py` script to generate alerts for every supported hazard type:
+For comprehensive testing of all hazard types, use the `create_alerts` Django management command to generate alerts for every supported hazard type:
 
 ```bash
-# Create alerts for all hazard types (AIR_RAID, DRONE, MISSILE, FLOOD, FIRE, INDUSTRIAL)
-python create_alerts.py
+# Create alerts for all 18 hazard types with geolocation support
+python manage.py create_alerts
+
+# Create alerts with specific coordinates
+python manage.py create_alerts --lat 50.0564 --lon 22.0004
+
+# Create alerts with automatic IP-based geolocation (no prompts)
+python manage.py create_alerts --auto
+
+# Create specific hazard type only
+python manage.py create_alerts --hazard-type MISSILE --severity HIGH
+
+# Clear existing alerts and create new ones
+python manage.py create_alerts --clear --fallback
+
+# Preview what would be created (dry run)
+python manage.py create_alerts --dry-run --auto
 ```
 
 

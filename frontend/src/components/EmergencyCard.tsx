@@ -5,8 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/Button';
 import { EmergencyData } from '@/types/emergency';
 import { Alert } from '@/types/api';
-import { useSafetyInstructions } from '@/hooks/useApi';
-import { AlertTriangle, Navigation, ChevronDown, ChevronUp, Info, Loader2, AlertCircle } from 'lucide-react';
+import { useSafetyInstructions, useVoteOnAlert } from '@/hooks/useApi';
+import { AlertTriangle, Navigation, ChevronDown, ChevronUp, Info, Loader2, AlertCircle, ThumbsUp, ThumbsDown, Users } from 'lucide-react';
 import { 
   getHazardTypeDisplay, 
   getSeverityDisplay, 
@@ -29,6 +29,26 @@ export function EmergencyCard({ emergency, alert, onFindShelter, nearestShelterE
   // Use alert data if provided, otherwise fall back to emergency data
   const isAlertMode = !!alert;
   const hazardType = alert?.hazard_type;
+  
+  // Voting functionality
+  const voteOnAlertMutation = useVoteOnAlert();
+  
+  const handleVote = (voteType: 'UPVOTE' | 'DOWNVOTE') => {
+    if (!alert?.id) return;
+    
+    voteOnAlertMutation.mutate(
+      { alertId: alert.id, voteType },
+      {
+        onSuccess: () => {
+          // Vote submitted successfully
+        },
+        onError: (error) => {
+          console.error('Failed to vote:', error);
+          // You could show a toast notification here
+        }
+      }
+    );
+  };
   
   // Fetch safety instructions when expanded and in alert mode
   const { 
@@ -262,6 +282,75 @@ export function EmergencyCard({ emergency, alert, onFindShelter, nearestShelterE
                     <span className="text-lg">Znajdź najbliższe schronienie</span>
                   </div>
                 </Button>
+              )}
+              
+              {/* Voting Section - Only for alerts */}
+              {isAlertMode && alert && (
+                <div className="p-4 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20">
+                  <div className="space-y-4">
+                    <div className="text-center">
+                      <h4 className="text-white font-semibold mb-2 flex items-center justify-center gap-2">
+                        <Users className="w-4 h-4" />
+                        Czy to prawdziwe zagrożenie?
+                      </h4>
+                      <p className="text-white/70 text-sm mb-4">
+                        Pomóż innym użytkownikom weryfikując ten alert
+                      </p>
+                    </div>
+                    
+                    {/* Vote Buttons */}
+                    <div className="flex gap-3">
+                      <Button
+                        onClick={() => handleVote('UPVOTE')}
+                        disabled={voteOnAlertMutation.isPending}
+                        className={`flex-1 ${
+                          alert.vote_summary?.user_vote === 'UPVOTE'
+                            ? 'bg-green-600 hover:bg-green-700'
+                            : 'bg-white/20 hover:bg-green-600/30'
+                        } backdrop-blur-sm border border-white/30 text-white font-medium py-3 rounded-xl transition-all duration-300`}
+                      >
+                        <div className="flex items-center justify-center gap-2">
+                          <ThumbsUp className="w-4 h-4" />
+                          <span>Prawda</span>
+                          <span className="bg-white/20 px-2 py-1 rounded-full text-xs">
+                            {alert.vote_summary?.upvotes || 0}
+                          </span>
+                        </div>
+                      </Button>
+                      
+                      <Button
+                        onClick={() => handleVote('DOWNVOTE')}
+                        disabled={voteOnAlertMutation.isPending}
+                        className={`flex-1 ${
+                          alert.vote_summary?.user_vote === 'DOWNVOTE'
+                            ? 'bg-red-600 hover:bg-red-700'
+                            : 'bg-white/20 hover:bg-red-600/30'
+                        } backdrop-blur-sm border border-white/30 text-white font-medium py-3 rounded-xl transition-all duration-300`}
+                      >
+                        <div className="flex items-center justify-center gap-2">
+                          <ThumbsDown className="w-4 h-4" />
+                          <span>Fałsz</span>
+                          <span className="bg-white/20 px-2 py-1 rounded-full text-xs">
+                            {alert.vote_summary?.downvotes || 0}
+                          </span>
+                        </div>
+                      </Button>
+                    </div>
+                    
+                    {/* Vote Summary */}
+                    <div className="text-center text-white/70 text-sm">
+                      <p>
+                        Łącznie głosów: {alert.vote_summary?.total || 0} | 
+                        Wynik weryfikacji: {alert.verification_score || 0}
+                      </p>
+                      {alert.is_official && (
+                        <p className="text-yellow-300 font-medium mt-1">
+                          ⭐ Alert oficjalny
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
               )}
               
               {/* Emergency contact reminder */}

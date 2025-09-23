@@ -39,47 +39,47 @@ class TestSafetyAdvisor:
         """Test specific content for MISSILE hazard type."""
         result = self.advisor.get_instructions("MISSILE", 80)
 
-        assert "Incoming Missile" in result['title']
-        assert "Drop to ground" in result['steps'][0]
-        assert "Do not run in open areas" in result['do_not'][0]
-        assert "1 minutes" in result['eta_hint']  # 80 seconds = 1 minute
+        assert "Nadlatujący pocisk" in result['title']
+        assert "Natychmiast upadnij na ziemię" in result['steps'][0]
+        assert "Nie biegnij po otwartych przestrzeniach" in result['do_not'][0]
+        assert "1 minut" in result['eta_hint']  # 80 seconds = 1 minute
 
     def test_get_instructions_air_raid_content(self):
         """Test specific content for AIR_RAID hazard type."""
         result = self.advisor.get_instructions("AIR_RAID", 300)
 
-        assert "Air Raid" in result['title']
-        assert "Drop everything" in result['steps'][0]
-        assert "Do not use elevators" in result['do_not'][0]
-        assert "5 minutes" in result['eta_hint']  # 300 seconds = 5 minutes
+        assert "Alert lotniczy" in result['title']
+        assert "Porzuć wszystko" in result['steps'][0]
+        assert "Nie używaj wind" in result['do_not'][0]
+        assert "5 minut" in result['eta_hint']  # 300 seconds = 5 minutes
 
     def test_get_instructions_eta_hint_conversion(self):
         """Test ETA hint time conversion."""
-        # Test seconds
+        # Test seconds (45 seconds = 0 minutes in integer division)
         result = self.advisor.get_instructions("MISSILE", 45)
-        assert "45 seconds" in result['eta_hint'] or "0 minutes" in result['eta_hint']
+        assert "0 minut" in result['eta_hint']
 
         # Test minutes
         result = self.advisor.get_instructions("MISSILE", 180)
-        assert "3 minutes" in result['eta_hint']
+        assert "3 minut" in result['eta_hint']
 
         # Test large time (65 minutes)
         result = self.advisor.get_instructions("MISSILE", 3900)  # 65 minutes
-        assert "65 minutes" in result['eta_hint']
+        assert "65 minut" in result['eta_hint']
 
     def test_get_instructions_unknown_hazard_type(self):
         """Test fallback for unknown hazard types."""
         result = self.advisor.get_instructions("UNKNOWN_HAZARD", 120)
 
-        assert result['title'] == "Emergency Alert - Seek Safety"
+        assert result['title'] == "Alert alarmowy - Szukaj bezpieczeństwa"
         assert len(result['steps']) > 0
         assert len(result['do_not']) > 0
-        assert "2 minutes" in result['eta_hint']
+        assert "2 minut" in result['eta_hint']
 
     def test_get_instructions_zero_eta(self):
         """Test with zero ETA seconds."""
         result = self.advisor.get_instructions("MISSILE", 0)
-        assert "0 minutes" in result['eta_hint']
+        assert "0 minut" in result['eta_hint']
 
     def test_get_instructions_steps_not_empty(self):
         """Test that all hazard types have non-empty steps."""

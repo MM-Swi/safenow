@@ -2,33 +2,516 @@
 	"info": {
 		"_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
 		"name": "SafeNow API",
-		"description": "Complete API collection for SafeNow civilian safety platform. Tests all core endpoints for emergency alerts, shelter location, device management, and safety status tracking.",
+		"description": "Complete API collection for SafeNow civilian safety platform. Tests all core endpoints including JWT authentication, emergency alerts, shelter location, device management, safety status tracking, and emergency education. Includes comprehensive authentication flow with user registration, login, profile management, and JWT token handling.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "12345678"
 	},
 	"item": [
 		{
-			"name": "Health Check",
-			"event": [
+			"name": "Authentication",
+			"item": [
 				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Status code is 200\", function () {",
-							"    pm.response.to.have.status(200);",
-							"});",
-							"",
-							"pm.test(\"Response has status 'ok'\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    pm.expect(jsonData.status).to.eql('ok');",
-							"});",
-							"",
-							"pm.test(\"Response includes counts\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    pm.expect(jsonData.counts).to.be.an('object');",
-							"    pm.expect(jsonData.counts.shelters).to.be.a('number');",
-							"    pm.expect(jsonData.counts.active_alerts).to.be.a('number');",
-							"});"
+					"name": "Register User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"User registered successfully\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.message).to.include('registered successfully');",
+									"    pm.expect(jsonData.user).to.have.property('id');",
+									"    pm.expect(jsonData.user).to.have.property('username');",
+									"    pm.expect(jsonData.user).to.have.property('email');",
+									"    pm.expect(jsonData.user).to.have.property('profile');",
+									"});",
+									"",
+									"pm.test(\"JWT tokens provided\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.tokens).to.have.property('access');",
+									"    pm.expect(jsonData.tokens).to.have.property('refresh');",
+									"    ",
+									"    // Store tokens for other requests",
+									"    pm.environment.set('accessToken', jsonData.tokens.access);",
+									"    pm.environment.set('refreshToken', jsonData.tokens.refresh);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"postman_user\",\n  \"email\": \"postman@safenow.com\",\n  \"password\": \"postmantest123\",\n  \"password2\": \"postmantest123\",\n  \"first_name\": \"Postman\",\n  \"last_name\": \"Test\",\n  \"phone_number\": \"+48123456789\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/register/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Login successful\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.message).to.include('Login successful');",
+									"    pm.expect(jsonData.user).to.have.property('username');",
+									"    pm.expect(jsonData.user).to.have.property('email');",
+									"});",
+									"",
+									"pm.test(\"JWT tokens provided\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.tokens).to.have.property('access');",
+									"    pm.expect(jsonData.tokens).to.have.property('refresh');",
+									"    ",
+									"    // Store tokens for other requests",
+									"    pm.environment.set('accessToken', jsonData.tokens.access);",
+									"    pm.environment.set('refreshToken', jsonData.tokens.refresh);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"postman_user\",\n  \"password\": \"postmantest123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Profile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Profile data returned\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('id');",
+									"    pm.expect(jsonData).to.have.property('username');",
+									"    pm.expect(jsonData).to.have.property('email');",
+									"    pm.expect(jsonData).to.have.property('profile');",
+									"    pm.expect(jsonData.profile).to.have.property('preferred_language');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/me/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"me",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update User Profile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Profile updated successfully\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.first_name).to.eql('Updated');",
+									"    pm.expect(jsonData.last_name).to.eql('Name');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"first_name\": \"Updated\",\n  \"last_name\": \"Name\",\n  \"phone_number\": \"+48987654321\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/me/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"me",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Preferences",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Preferences data returned\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('preferred_language');",
+									"    pm.expect(jsonData).to.have.property('email_notifications');",
+									"    pm.expect(jsonData).to.have.property('push_notifications');",
+									"    pm.expect(jsonData).to.have.property('alert_radius');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/preferences/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"preferences",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update User Preferences",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Preferences updated successfully\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.preferred_language).to.eql('en');",
+									"    pm.expect(jsonData.email_notifications).to.eql(false);",
+									"    pm.expect(jsonData.alert_radius).to.eql(25);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"preferred_language\": \"en\",\n  \"email_notifications\": false,\n  \"alert_radius\": 25\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/preferences/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"preferences",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Change Password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Password changed successfully\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.message).to.include('Password changed successfully');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"old_password\": \"postmantest123\",\n  \"new_password\": \"newpostmantest456\",\n  \"new_password2\": \"newpostmantest456\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/change-password/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"change-password",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"New access token provided\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('access');",
+									"    ",
+									"    // Update stored access token",
+									"    pm.environment.set('accessToken', jsonData.access);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"refresh\": \"{{refreshToken}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/token/refresh/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"token",
+								"refresh",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Logout successful\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.message).to.include('Logout successful');",
+									"    ",
+									"    // Clear stored tokens",
+									"    pm.environment.unset('accessToken');",
+									"    pm.environment.unset('refreshToken');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"refresh\": \"{{refreshToken}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/logout/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"logout",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Emergency Services",
+			"item": [
+				{
+					"name": "Health Check",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has status 'ok'\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.status).to.eql('ok');",
+									"});",
+									"",
+									"pm.test(\"Response includes counts\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.counts).to.be.an('object');",
+									"    pm.expect(jsonData.counts.shelters).to.be.a('number');",
+									"    pm.expect(jsonData.counts.active_alerts).to.be.a('number');",
+									"});"
 						],
 						"type": "text/javascript"
 					}
@@ -428,6 +911,424 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "Get Emergency Education",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Education data is array\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.be.an('array');",
+							"});",
+							"",
+							"pm.test(\"Education items have required fields\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    if (jsonData.length > 0) {",
+							"        pm.expect(jsonData[0]).to.have.property('hazard_type');",
+							"        pm.expect(jsonData[0]).to.have.property('title');",
+							"        pm.expect(jsonData[0]).to.have.property('description');",
+							"        pm.expect(jsonData[0]).to.have.property('priority');",
+							"        pm.expect(jsonData[0]).to.have.property('practical_tips');",
+							"        pm.expect(jsonData[0]).to.have.property('warning_signs');",
+							"        pm.expect(jsonData[0]).to.have.property('preparation_steps');",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/emergency-education/",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"emergency-education",
+						""
+					]
+				}
+			},
+			"response": []
+		}
+	]
+		},
+		{
+			"name": "Alert Management",
+			"item": [
+				{
+					"name": "Create User Alert",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Alert created successfully\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.be.a('number');",
+									"    pm.expect(jsonData.hazard_type).to.eql('FLOOD');",
+									"    pm.expect(jsonData.status).to.eql('PENDING');",
+									"    pm.expect(jsonData.created_by_username).to.be.a('string');",
+									"    pm.expect(jsonData.is_official).to.eql(false);",
+									"});",
+									"",
+									"// Store alert ID for voting tests",
+									"if (pm.response.code === 201) {",
+									"    var responseJson = pm.response.json();",
+									"    pm.environment.set('userAlertId', responseJson.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"hazard_type\": \"FLOOD\",\n  \"severity\": \"HIGH\",\n  \"center_lat\": 52.2297,\n  \"center_lon\": 21.0122,\n  \"radius_m\": 3000,\n  \"valid_minutes\": 120,\n  \"source\": \"User Report - Postman Test\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/alerts/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"alerts",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List All Alerts",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has pagination structure\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('count');",
+									"    pm.expect(jsonData).to.have.property('results');",
+									"    pm.expect(jsonData.results).to.be.an('array');",
+									"});",
+									"",
+									"pm.test(\"Alerts have required fields\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.results.length > 0) {",
+									"        var alert = jsonData.results[0];",
+									"        pm.expect(alert).to.have.property('id');",
+									"        pm.expect(alert).to.have.property('hazard_type');",
+									"        pm.expect(alert).to.have.property('status');",
+									"        pm.expect(alert).to.have.property('verification_score');",
+									"        pm.expect(alert).to.have.property('is_official');",
+									"        pm.expect(alert).to.have.property('vote_summary');",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/alerts/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"alerts",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Alert Details",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Alert details returned\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('id');",
+									"    pm.expect(jsonData).to.have.property('hazard_type');",
+									"    pm.expect(jsonData).to.have.property('status');",
+									"    pm.expect(jsonData).to.have.property('verification_score');",
+									"    pm.expect(jsonData).to.have.property('vote_summary');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/alerts/{{userAlertId}}/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"alerts",
+								"{{userAlertId}}",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Own Alert",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Alert updated successfully\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.severity).to.eql('CRITICAL');",
+									"    pm.expect(jsonData.radius_m).to.eql(5000);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"severity\": \"CRITICAL\",\n  \"radius_m\": 5000\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/alerts/{{userAlertId}}/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"alerts",
+								"{{userAlertId}}",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Vote on Alert (Upvote)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201 or 200\", function () {",
+									"    pm.expect([200, 201]).to.include(pm.response.code);",
+									"});",
+									"",
+									"pm.test(\"Vote cast successfully\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.message).to.include('Vote');",
+									"    pm.expect(jsonData.vote_type).to.eql('UPVOTE');",
+									"    pm.expect(jsonData.verification_score).to.be.a('number');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"vote_type\": \"UPVOTE\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/alerts/21/vote/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"alerts",
+								"21",
+								"vote",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Vote on Alert (Downvote)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Vote updated successfully\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.message).to.include('Vote');",
+									"    pm.expect(jsonData.vote_type).to.eql('DOWNVOTE');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"vote_type\": \"DOWNVOTE\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/alerts/21/vote/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"alerts",
+								"21",
+								"vote",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Vote Summary",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Vote summary returned\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('upvotes');",
+									"    pm.expect(jsonData).to.have.property('downvotes');",
+									"    pm.expect(jsonData).to.have.property('total_votes');",
+									"    pm.expect(jsonData).to.have.property('verification_score');",
+									"    pm.expect(jsonData).to.have.property('user_vote');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/alerts/21/votes/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"alerts",
+								"21",
+								"votes",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	],
 	"event": [
@@ -464,6 +1365,16 @@
 		{
 			"key": "userLon",
 			"value": "21.0122",
+			"type": "string"
+		},
+		{
+			"key": "accessToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "refreshToken",
+			"value": "",
 			"type": "string"
 		}
 	]

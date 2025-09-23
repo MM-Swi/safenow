@@ -1,6 +1,18 @@
 #!/usr/bin/env python3
 """
-Script to create all possible alert types with geolocation support.
+DEPRECATED: This standalone script is deprecated.
+Please use the Django management command instead:
+
+    python manage.py create_alerts --help
+
+The new command provides:
+- Better Django integration
+- All 18 hazard types support
+- Enhanced geolocation features
+- Dry-run mode
+- Better error handling
+
+Legacy script to create all possible alert types with geolocation support.
 Supports multiple methods to determine coordinates:
 1. IP-based geolocation (automatic)
 2. Manual coordinate input
@@ -132,6 +144,14 @@ def get_coordinates():
 
 def main():
     """Main function with command-line argument parsing."""
+    print("⚠️  DEPRECATION WARNING: This standalone script is deprecated.")
+    print("   Please use the Django management command instead:")
+    print("   python manage.py create_alerts --help")
+    print("   ")
+    print("   The new command provides better integration and more features.")
+    print("   Continuing with legacy script...")
+    print()
+    
     parser = argparse.ArgumentParser(
         description='Create emergency alerts with geolocation support',
         formatter_class=argparse.RawDescriptionHelpFormatter,

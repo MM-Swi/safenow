@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardContent } from '@/components/ui/Card';
 import { EmergencyModeToggle } from '@/components/EmergencyModeToggle';
 import { EmergencyEducationCard } from '@/components/EmergencyEducationCard';
+import Navigation from '@/components/Navigation';
 import { useEmergencyEducation } from '@/hooks/useApi';
 import { HazardType } from '@/types/api';
 import { ArrowLeft, BookOpen, Shield, AlertTriangle, Loader2 } from 'lucide-react';
@@ -17,6 +18,13 @@ export default function EducationPage() {
   
   // Fetch emergency education data from backend
   const { data: educationData, isLoading, error } = useEmergencyEducation();
+
+  // Debug logging
+  console.log('Education Page Debug:', {
+    educationData: educationData?.length,
+    isLoading,
+    error
+  });
 
   const handleEmergencyToggle = (isEmergency: boolean) => {
     setIsEmergencyMode(isEmergency);
@@ -63,6 +71,8 @@ export default function EducationPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden">
+      <Navigation />
+      
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-600/20 rounded-full blur-3xl animate-pulse" />
@@ -74,7 +84,7 @@ export default function EducationPage() {
         onToggle={handleEmergencyToggle} 
       />
       
-      <div className="relative z-10 container mx-auto px-4 py-8">
+      <div className="relative z-10 container mx-auto px-4 pt-24 pb-8">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <Button 

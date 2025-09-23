@@ -4,8 +4,11 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { EmergencyCard } from '@/components/EmergencyCard';
 import { EmergencyModeToggle } from '@/components/EmergencyModeToggle';
+import { ShelterSearchControls } from '@/components/ShelterSearchControls';
+import { AlertSearchControls } from '@/components/AlertSearchControls';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import Navigation from '@/components/Navigation';
 import { useEmergencyData, useUpdateSafetyStatus } from '@/hooks/useApi';
 import { generateDeviceId } from '@/lib/utils/api';
 import { AlertTriangle, ArrowLeft, Phone, Shield, MapPin, Clock } from 'lucide-react';
@@ -16,11 +19,30 @@ export default function EmergencyPage() {
   const [selectedShelterId, setSelectedShelterId] = useState<number | null>(null);
   const router = useRouter();
 
-  const { alerts, shelters, isLoading } = useEmergencyData(
+  const [shelterRadius, setShelterRadius] = useState(50); // Default 50km radius
+  const [alertSearchRadius, setAlertSearchRadius] = useState(75); // Default 75km (regional awareness)
+  
+  const { alerts, shelters, isLoading, error } = useEmergencyData(
     location?.lat || 0,
     location?.lon || 0,
-    !!location
+    !!location,
+    { 
+      shelterRadius, 
+      shelterLimit: 10,
+      alertSearchRadius 
+    }
   );
+
+  // Debug logging
+  console.log('Emergency Page Debug:', {
+    location,
+    alerts: alerts?.length,
+    shelters: shelters?.length,
+    isLoading,
+    error,
+    shelterRadius,
+    alertSearchRadius
+  });
 
   const updateSafetyStatusMutation = useUpdateSafetyStatus();
 
@@ -101,12 +123,13 @@ export default function EmergencyPage() {
 
   return (
     <div className="min-h-screen bg-red-50">
+      <Navigation />
       <EmergencyModeToggle 
         isEmergencyMode={true} 
         onToggle={handleEmergencyToggle} 
       />
       
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 pt-24 pb-8">
         {/* Header */}
         <div className="flex items-center gap-4 mb-6">
           <Button 
@@ -140,6 +163,16 @@ export default function EmergencyPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Alert Search Controls - Prominent */}
+        <div className="mb-6">
+          <AlertSearchControls
+            currentSearchRadius={alertSearchRadius}
+            onSearchRadiusChange={setAlertSearchRadius}
+            alertCount={alerts.length}
+            isLoading={isLoading}
+          />
+        </div>
 
         {/* Active Alerts with First One Expanded */}
         {alerts.length > 0 && (
@@ -190,6 +223,16 @@ export default function EmergencyPage() {
             </CardContent>
           </Card>
         )}
+
+        {/* Shelter Search Controls - Prominent */}
+        <div className="mb-6">
+          <ShelterSearchControls
+            currentRadius={shelterRadius}
+            onRadiusChange={setShelterRadius}
+            shelterCount={shelters.length}
+            isLoading={isLoading}
+          />
+        </div>
 
         {/* Nearby Shelters */}
         {shelters.length > 0 && (

@@ -3,7 +3,7 @@ from django.utils import timezone
 from datetime import timedelta
 from drf_spectacular.utils import extend_schema_field
 from shelters.models import Shelter
-from alerts.models import Alert
+from alerts.models import Alert, AlertVote
 from devices.models import Device, SafetyStatus
 
 
@@ -27,13 +27,29 @@ class NearbyShelterSerializer(serializers.ModelSerializer):
 class ActiveAlertSerializer(serializers.ModelSerializer):
     """Active emergency alert with distance from user location."""
     distance_km = serializers.FloatField(read_only=True, help_text="Distance from user to alert center in kilometers")
+    created_by_username = serializers.CharField(source='created_by.username', read_only=True, help_text="Username of alert creator")
+    vote_summary = serializers.SerializerMethodField(help_text="Vote summary for this alert")
+    within_alert_radius = serializers.BooleanField(read_only=True, help_text="True if user is within alert's radius")
+    within_search_radius = serializers.BooleanField(read_only=True, help_text="True if alert is within user's search radius")
 
     class Meta:
         model = Alert
         fields = [
             'id', 'hazard_type', 'severity', 'center_lat', 'center_lon',
-            'radius_m', 'distance_km', 'valid_until', 'source', 'created_at'
+            'radius_m', 'distance_km', 'valid_until', 'source', 'description', 'created_at',
+            'status', 'verification_score', 'is_official', 'created_by_username', 'vote_summary',
+            'within_alert_radius', 'within_search_radius'
         ]
+    
+    def get_vote_summary(self, obj):
+        """Get vote summary for the alert"""
+        upvotes = obj.votes.filter(vote_type='UPVOTE').count()
+        downvotes = obj.votes.filter(vote_type='DOWNVOTE').count()
+        return {
+            'upvotes': upvotes,
+            'downvotes': downvotes,
+            'total': upvotes + downvotes
+        }
 
 
 class DeviceRegisterSerializer(serializers.Serializer):
@@ -250,3 +266,222 @@ class EmergencyEducationSerializer(serializers.Serializer):
         child=serializers.CharField(),
         help_text="Steps to prepare for this emergency"
     )
+
+
+class AlertCreateSerializer(serializers.ModelSerializer):
+    """Serializer for creating new alerts by authenticated users."""
+    valid_minutes = serializers.IntegerField(
+        min_value=1, 
+        max_value=1440, 
+        default=60,
+        help_text="Alert validity duration in minutes (max 24 hours)"
+    )
+
+    class Meta:
+        model = Alert
+        fields = [
+            'hazard_type', 'severity', 'center_lat', 'center_lon',
+            'radius_m', 'source', 'description', 'valid_minutes'
+        ]
+        extra_kwargs = {
+            'source': {'required': True, 'allow_blank': False}
+        }
+
+    def validate_center_lat(self, value):
+        if not (-90 <= value <= 90):
+            raise serializers.ValidationError("Latitude must be between -90 and 90")
+        return value
+
+    def validate_center_lon(self, value):
+        if not (-180 <= value <= 180):
+            raise serializers.ValidationError("Longitude must be between -180 and 180")
+        return value
+
+    def validate_radius_m(self, value):
+        if value < 1 or value > 50000:  # Max 50km radius
+            raise serializers.ValidationError("Radius must be between 1 and 50000 meters")
+        return value
+
+    def create(self, validated_data):
+        valid_minutes = validated_data.pop('valid_minutes')
+        valid_until = timezone.now() + timedelta(minutes=valid_minutes)
+        
+        # Set user as creator and default status
+        alert = Alert.objects.create(
+            **validated_data,
+            valid_until=valid_until,
+            created_by=self.context['request'].user,
+            status='PENDING',  # User-created alerts start as pending
+            is_official=False
+        )
+        return alert
+
+
+class AlertUpdateSerializer(serializers.ModelSerializer):
+    """Serializer for updating existing alerts by owners or admins."""
+    valid_minutes = serializers.IntegerField(
+        min_value=1, 
+        max_value=1440,
+        required=False,
+        help_text="Update alert validity duration in minutes"
+    )
+
+    class Meta:
+        model = Alert
+        fields = [
+            'hazard_type', 'severity', 'center_lat', 'center_lon',
+            'radius_m', 'source', 'valid_minutes', 'status', 'is_official'
+        ]
+
+    def validate_status(self, value):
+        user = self.context['request'].user
+        # Only admins can change status directly
+        if not (hasattr(user, 'role') and user.role == 'ADMIN') and not user.is_staff:
+            if 'status' in self.initial_data:
+                raise serializers.ValidationError("Only admins can change alert status")
+        return value
+    
+    def validate_is_official(self, value):
+        user = self.context['request'].user
+        # Only admins can mark alerts as official
+        if not (hasattr(user, 'role') and user.role == 'ADMIN') and not user.is_staff:
+            if 'is_official' in self.initial_data:
+                raise serializers.ValidationError("Only admins can mark alerts as official")
+        return value
+
+    def update(self, instance, validated_data):
+        valid_minutes = validated_data.pop('valid_minutes', None)
+        
+        if valid_minutes:
+            validated_data['valid_until'] = timezone.now() + timedelta(minutes=valid_minutes)
+        
+        return super().update(instance, validated_data)
+
+
+class AlertVoteSerializer(serializers.ModelSerializer):
+    """Serializer for voting on alerts."""
+    
+    class Meta:
+        model = AlertVote
+        fields = ['vote_type']
+
+    def validate(self, data):
+        user = self.context['request'].user
+        alert = self.context['alert']
+        
+        # Users cannot vote on their own alerts
+        if alert.created_by == user:
+            raise serializers.ValidationError("You cannot vote on your own alert")
+        
+        # Users can only vote on pending, verified, or active alerts
+        if alert.status not in ['PENDING', 'VERIFIED', 'ACTIVE']:
+            raise serializers.ValidationError("You can only vote on pending, verified, or active alerts")
+        
+        return data
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        alert = self.context['alert']
+        
+        # Update or create vote
+        vote, created = AlertVote.objects.update_or_create(
+            user=user,
+            alert=alert,
+            defaults={'vote_type': validated_data['vote_type']}
+        )
+        return vote
+
+
+class AlertVoteSummarySerializer(serializers.Serializer):
+    """Serializer for alert vote summary."""
+    upvotes = serializers.IntegerField(help_text="Number of upvotes")
+    downvotes = serializers.IntegerField(help_text="Number of downvotes")
+    total_votes = serializers.IntegerField(help_text="Total number of votes")
+    verification_score = serializers.IntegerField(help_text="Current verification score")
+    user_vote = serializers.CharField(
+        allow_null=True, 
+        help_text="Current user's vote (UPVOTE/DOWNVOTE/null)"
+    )
+
+
+# Dashboard Serializers
+class UserAlertSerializer(serializers.ModelSerializer):
+    """Serializer for user's own alerts with full details."""
+    vote_summary = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Alert
+        fields = [
+            'id', 'hazard_type', 'center_lat', 'center_lon', 'radius_m', 
+            'severity', 'status', 'source', 'description', 'valid_until', 'created_at',
+            'created_by', 'verification_score', 'is_official', 'vote_summary'
+        ]
+    
+    def get_vote_summary(self, obj):
+        """Get vote summary for the alert"""
+        upvotes = obj.votes.filter(vote_type='UPVOTE').count()
+        downvotes = obj.votes.filter(vote_type='DOWNVOTE').count()
+        user_vote = None
+        
+        # Get current user's vote if authenticated
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            try:
+                user_vote_obj = obj.votes.get(user=request.user)
+                user_vote = user_vote_obj.vote_type
+            except AlertVote.DoesNotExist:
+                pass
+        
+        return {
+            'upvotes': upvotes,
+            'downvotes': downvotes,
+            'total': upvotes + downvotes,
+            'user_vote': user_vote
+        }
+
+
+class DashboardStatsSerializer(serializers.Serializer):
+    """Serializer for user dashboard statistics."""
+    alerts_created = serializers.IntegerField(help_text="Number of alerts created by user")
+    votes_cast = serializers.IntegerField(help_text="Number of votes cast by user")
+    verified_alerts = serializers.IntegerField(help_text="Number of user's alerts that were verified")
+    total_score = serializers.IntegerField(help_text="Total verification score of user's alerts")
+    profile_completion = serializers.IntegerField(help_text="Profile completion percentage")
+
+
+class VoteHistorySerializer(serializers.ModelSerializer):
+    """Serializer for user's voting history."""
+    alert = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = AlertVote
+        fields = ['id', 'alert', 'vote_type', 'created_at']
+    
+    def get_alert(self, obj):
+        """Get basic alert information"""
+        return {
+            'id': obj.alert.id,
+            'title': f"{obj.alert.hazard_type} Alert",
+            'hazard_type': obj.alert.hazard_type,
+            'status': obj.alert.status
+        }
+
+
+class UserActivitySerializer(serializers.Serializer):
+    """Serializer for user activity log."""
+    id = serializers.IntegerField()
+    type = serializers.CharField()
+    message = serializers.CharField()
+    timestamp = serializers.DateTimeField()
+    related_alert_id = serializers.IntegerField(allow_null=True)
+
+
+class NotificationSerializer(serializers.Serializer):
+    """Serializer for user notifications."""
+    id = serializers.IntegerField()
+    type = serializers.CharField()
+    title = serializers.CharField()
+    message = serializers.CharField()
+    read = serializers.BooleanField()
+    created_at = serializers.DateTimeField()
+    related_alert_id = serializers.IntegerField(allow_null=True)
