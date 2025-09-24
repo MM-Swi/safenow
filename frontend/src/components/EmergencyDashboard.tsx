@@ -131,10 +131,10 @@ export function EmergencyDashboard({
       {/* Device Status */}
       {deviceRegistered && (
         <Card className="border-green-200 bg-green-50">
-          <CardContent className="p-4">
+          <CardContent className="p-3 sm:p-4">
             <div className="flex items-center gap-2">
-              <Smartphone className="w-5 h-5 text-green-600" />
-              <span className="text-green-800 font-medium">
+              <Smartphone className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 flex-shrink-0" />
+              <span className="text-green-800 font-medium text-sm sm:text-base">
                 Urządzenie zarejestrowane - otrzymujesz powiadomienia push
               </span>
             </div>
@@ -145,9 +145,9 @@ export function EmergencyDashboard({
       {/* Active Alerts */}
       {alerts.length > 0 && (
         <div className="space-y-4">
-          <h2 className="text-xl font-bold text-red-900 flex items-center gap-2">
-            <AlertTriangle className="w-6 h-6" />
-            Aktywne zagrożenia ({alerts.length})
+          <h2 className="text-lg sm:text-xl font-bold text-red-900 flex items-center gap-2">
+            <AlertTriangle className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
+            <span>Aktywne zagrożenia ({alerts.length})</span>
           </h2>
           {alerts.map((alert) => {
             // Find the nearest shelter ETA for safety instructions context
@@ -191,32 +191,32 @@ export function EmergencyDashboard({
 
       {/* Nearby Shelters */}
       <div className="space-y-4" data-shelters-section>
-        <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-          <Shield className="w-6 h-6" />
-          Najbliższe schrony ({shelters.length})
+        <h2 className="text-lg sm:text-xl font-bold text-gray-900 flex items-center gap-2">
+          <Shield className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
+          <span>Najbliższe schrony ({shelters.length})</span>
         </h2>
 
         {shelters.length > 0 ? (
           <div className="grid gap-4">
             {shelters.map((shelter) => (
               <Card key={shelter.id} className="hover:shadow-md transition-shadow">
-                <CardHeader>
-                  <CardTitle className="text-lg">{shelter.name}</CardTitle>
-                  <CardDescription>{shelter.address}</CardDescription>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base sm:text-lg">{shelter.name}</CardTitle>
+                  <CardDescription className="text-sm">{shelter.address}</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4 text-sm text-gray-600">
+                <CardContent className="pt-0">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-gray-600">
                       <div className="flex items-center gap-1">
-                        <MapPin className="w-4 h-4" />
-                        {formatDistance(shelter.distance_km)}
+                        <MapPin className="w-4 h-4 flex-shrink-0" />
+                        <span>{formatDistance(shelter.distance_km)}</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <Clock className="w-4 h-4" />
-                        {formatETA(shelter.eta_seconds)} pieszo
+                        <Clock className="w-4 h-4 flex-shrink-0" />
+                        <span>{formatETA(shelter.eta_seconds)} pieszo</span>
                       </div>
                     </div>
-                    <div className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    <div className={`px-3 py-1 rounded-full text-xs font-medium self-start sm:self-auto ${
                       shelter.is_open_now
                         ? 'bg-green-100 text-green-800'
                         : 'bg-red-100 text-red-800'

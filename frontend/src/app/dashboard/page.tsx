@@ -232,24 +232,24 @@ const Dashboard: React.FC = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {/* Header */}
             <div className="mb-8">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div className="flex-1 min-w-0">
+                  <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent">
                     Panel użytkownika
                   </h1>
-                  <p className="text-gray-600 mt-2">
+                  <p className="text-gray-600 mt-2 text-sm sm:text-base">
                     Witaj ponownie, {user?.first_name || user?.username}! 
-                    {user?.role === 'ADMIN' && <span className="ml-2 px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-medium">Administrator</span>}
+                    {user?.role === 'ADMIN' && <span className="block sm:inline ml-0 sm:ml-2 mt-1 sm:mt-0 px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-medium">Administrator</span>}
                   </p>
                 </div>
                 <button 
                   onClick={() => setIsCreateModalOpen(true)}
-                  className="group relative bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                  className="group relative bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-4 sm:px-6 py-3 rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 w-full sm:w-auto"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 rounded-xl blur opacity-60 group-hover:opacity-80 transition-opacity duration-300"></div>
-                  <div className="relative flex items-center space-x-2">
+                  <div className="relative flex items-center justify-center space-x-2">
                     <Plus className="w-5 h-5" />
-                    <span>Nowy alert</span>
+                    <span className="text-sm sm:text-base">Nowy alert</span>
                   </div>
                 </button>
               </div>
@@ -342,22 +342,22 @@ const Dashboard: React.FC = () => {
             {/* Tabs */}
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden">
               <div className="border-b border-gray-200">
-                <nav className="flex space-x-8 px-6">
+                <nav className="flex overflow-x-auto scrollbar-hide px-4 sm:px-6">
                   {tabs.map((tab) => {
                     const Icon = tab.icon;
                     return (
                       <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
-                        className={`py-4 px-1 border-b-2 font-medium text-sm transition-all duration-300 ${
+                        className={`flex-shrink-0 py-4 px-2 sm:px-4 border-b-2 font-medium text-xs sm:text-sm transition-all duration-300 ${
                           activeTab === tab.id
                             ? 'border-blue-500 text-blue-600'
                             : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                         }`}
                       >
-                        <div className="flex items-center space-x-2">
+                        <div className="flex flex-col sm:flex-row items-center space-y-1 sm:space-y-0 sm:space-x-2">
                           <Icon className="w-4 h-4" />
-                          <span>{tab.name}</span>
+                          <span className="whitespace-nowrap">{tab.name}</span>
                         </div>
                       </button>
                     );
