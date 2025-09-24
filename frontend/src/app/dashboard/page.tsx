@@ -9,13 +9,11 @@ import {
   useVotingHistory, 
   useRecentActivity, 
   useNotifications,
-  useDeleteAlert,
-  useUpdateAlert,
   useCreateAlert
 } from '@/hooks/useApi';
 import Navigation from '@/components/Navigation';
 import ProtectedRoute from '@/components/ProtectedRoute';
-import AlertManagementModal from '@/components/AlertManagementModal';
+
 import AlertCreationModal, { type AlertFormData } from '@/components/AlertCreationModal';
 import AdminAlertPanel from '@/components/AdminAlertPanel';
 import { 
@@ -29,8 +27,6 @@ import {
   Eye,
   ThumbsUp,
   ThumbsDown,
-  Edit,
-  Trash2,
   Plus,
   Loader2
 } from 'lucide-react';
@@ -38,8 +34,7 @@ import {
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
-  const [selectedAlert, setSelectedAlert] = useState<UserAlert | null>(null);
-  const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
+
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   // API hooks
@@ -50,8 +45,6 @@ const Dashboard: React.FC = () => {
   const { data: notifications = [], isLoading: notificationsLoading, error: notificationsError } = useNotifications();
 
   // Mutations
-  const deleteAlertMutation = useDeleteAlert();
-  const updateAlertMutation = useUpdateAlert();
   const createAlertMutation = useCreateAlert();
 
   // Mock data fallback for development
@@ -59,15 +52,15 @@ const Dashboard: React.FC = () => {
     {
       id: 1,
       hazard_type: 'FIRE',
-      title: 'Pożar w centrum miasta',
-      description: 'Duży pożar w centrum miasta, ewakuacja w toku',
-      latitude: 50.0647,
-      longitude: 19.9450,
-      radius: 1000,
+      center_lat: 50.0647,
+      center_lon: 19.9450,
+      radius_m: 1000,
       severity: 'HIGH',
       status: 'VERIFIED',
+      source: 'Pożar w centrum miasta',
+      description: 'Duży pożar w centrum miasta, ewakuacja w toku',
+      valid_until: '2025-01-20T12:30:00Z',
       created_at: '2025-01-20T10:30:00Z',
-      updated_at: '2025-01-20T10:30:00Z',
       created_by: 1,
       verification_score: 5,
       is_official: false,
@@ -76,15 +69,15 @@ const Dashboard: React.FC = () => {
     {
       id: 2,
       hazard_type: 'FLOOD',
-      title: 'Podtopienia na ul. Głównej',
-      description: 'Podtopienia po intensywnych opadach deszczu',
-      latitude: 50.0647,
-      longitude: 19.9450,
-      radius: 500,
+      center_lat: 50.0647,
+      center_lon: 19.9450,
+      radius_m: 500,
       severity: 'MEDIUM',
       status: 'PENDING',
+      source: 'Podtopienia na ul. Głównej',
+      description: 'Podtopienia po intensywnych opadach deszczu',
+      valid_until: '2025-01-21T10:15:00Z',
       created_at: '2025-01-21T08:15:00Z',
-      updated_at: '2025-01-21T08:15:00Z',
       created_by: 1,
       verification_score: 1,
       is_official: false,
@@ -137,20 +130,9 @@ const Dashboard: React.FC = () => {
   };
 
   // Handlers
-  const handleEditAlert = (alert: UserAlert) => {
-    setSelectedAlert(alert);
-    setIsAlertModalOpen(true);
-  };
 
-  const handleSaveAlert = async (alertId: number, data: Partial<UserAlert>) => {
-    await updateAlertMutation.mutateAsync({ alertId, data });
-    setIsAlertModalOpen(false);
-  };
 
-  const handleDeleteAlert = async (alertId: number) => {
-    await deleteAlertMutation.mutateAsync(alertId);
-    setIsAlertModalOpen(false);
-  };
+
 
   const handleCreateAlert = async (data: AlertFormData) => {
     try {
@@ -232,24 +214,24 @@ const Dashboard: React.FC = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {/* Header */}
             <div className="mb-8">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div className="flex-1 min-w-0">
+                  <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent">
                     Panel użytkownika
                   </h1>
-                  <p className="text-gray-600 mt-2">
+                  <p className="text-gray-600 mt-2 text-sm sm:text-base">
                     Witaj ponownie, {user?.first_name || user?.username}! 
-                    {user?.role === 'ADMIN' && <span className="ml-2 px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-medium">Administrator</span>}
+                    {user?.role === 'ADMIN' && <span className="block sm:inline ml-0 sm:ml-2 mt-1 sm:mt-0 px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-medium">Administrator</span>}
                   </p>
                 </div>
                 <button 
                   onClick={() => setIsCreateModalOpen(true)}
-                  className="group relative bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                  className="group relative bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-4 sm:px-6 py-3 rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 w-full sm:w-auto"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 rounded-xl blur opacity-60 group-hover:opacity-80 transition-opacity duration-300"></div>
-                  <div className="relative flex items-center space-x-2">
+                  <div className="relative flex items-center justify-center space-x-2">
                     <Plus className="w-5 h-5" />
-                    <span>Nowy alert</span>
+                    <span className="text-sm sm:text-base">Nowy alert</span>
                   </div>
                 </button>
               </div>
@@ -342,22 +324,22 @@ const Dashboard: React.FC = () => {
             {/* Tabs */}
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden">
               <div className="border-b border-gray-200">
-                <nav className="flex space-x-8 px-6">
+                <nav className="flex overflow-x-auto scrollbar-hide px-4 sm:px-6">
                   {tabs.map((tab) => {
                     const Icon = tab.icon;
                     return (
                       <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
-                        className={`py-4 px-1 border-b-2 font-medium text-sm transition-all duration-300 ${
+                        className={`flex-shrink-0 py-4 px-2 sm:px-4 border-b-2 font-medium text-xs sm:text-sm transition-all duration-300 ${
                           activeTab === tab.id
                             ? 'border-blue-500 text-blue-600'
                             : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                         }`}
                       >
-                        <div className="flex items-center space-x-2">
+                        <div className="flex flex-col sm:flex-row items-center space-y-1 sm:space-y-0 sm:space-x-2">
                           <Icon className="w-4 h-4" />
-                          <span>{tab.name}</span>
+                          <span className="whitespace-nowrap">{tab.name}</span>
                         </div>
                       </button>
                     );
@@ -444,44 +426,61 @@ const Dashboard: React.FC = () => {
                         </button>
                       </div>
                     ) : (
-                      <div className="space-y-4">
+                      <div className="space-y-6">
                         {displayAlerts.map((alert) => (
-                        <div key={alert.id} className="border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-all duration-300">
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1">
-                              <div className="flex items-center space-x-3 mb-2">
-                                <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(alert.status)}`}>
+                        <div key={alert.id} className="group relative bg-white border border-gray-100 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:border-gray-200 transition-all duration-300 transform hover:-translate-y-1">
+                          {/* Background gradient overlay */}
+                          <div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 via-transparent to-purple-50/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                          
+                          <div className="relative">
+                            {/* Header with status and hazard type */}
+                            <div className="flex items-center justify-between mb-4">
+                              <div className="flex items-center space-x-3">
+                                <span className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold border-2 ${getStatusColor(alert.status)} shadow-sm`}>
                                   {getStatusIcon(alert.status)}
-                                  <span className="ml-1">{alert.status}</span>
+                                  <span className="ml-2">{alert.status}</span>
                                 </span>
-                                <span className="text-xs text-gray-500">{alert.hazard_type}</span>
+                                <div className="flex items-center space-x-2 px-3 py-1 bg-gray-100 rounded-full">
+                                  <AlertTriangle className="w-4 h-4 text-gray-600" />
+                                  <span className="text-sm font-medium text-gray-700">{alert.hazard_type}</span>
+                                </div>
                               </div>
-                              <h4 className="text-lg font-medium text-gray-900 mb-2">{alert.title}</h4>
-                              <div className="flex items-center space-x-4 text-sm text-gray-600">
-                                <span>Utworzono: {formatDate(alert.created_at)}</span>
-                                <span className="flex items-center space-x-1">
-                                  <ThumbsUp className="w-4 h-4 text-green-600" />
-                                  <span>{alert.vote_summary.upvotes}</span>
-                                </span>
-                                <span className="flex items-center space-x-1">
-                                  <ThumbsDown className="w-4 h-4 text-red-600" />
-                                  <span>{alert.vote_summary.downvotes}</span>
-                                </span>
+                              
+                              {/* Verification score indicator */}
+                              <div className="flex items-center space-x-2">
+                                <div className="flex items-center space-x-1 px-3 py-1 bg-blue-50 rounded-full">
+                                  <Shield className="w-4 h-4 text-blue-600" />
+                                  <span className="text-sm font-medium text-blue-700">{alert.verification_score}</span>
+                                </div>
                               </div>
                             </div>
-                            <div className="flex items-center space-x-2 ml-4">
-                              <button 
-                                onClick={() => handleEditAlert(alert)}
-                                className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
-                              >
-                                <Edit className="w-4 h-4" />
-                              </button>
-                              <button 
-                                onClick={() => handleDeleteAlert(alert.id)}
-                                className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
+                            
+                            {/* Alert title and description */}
+                            <div className="mb-4">
+                              <h4 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-900 transition-colors duration-200">{alert.source}</h4>
+                              {alert.description && (
+                                <p className="text-gray-600 leading-relaxed">{alert.description}</p>
+                              )}
+                            </div>
+                            
+                            {/* Metadata and voting */}
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                              <div className="flex items-center space-x-1 text-sm text-gray-500">
+                                <Clock className="w-4 h-4 flex-shrink-0" />
+                                <span className="truncate">{formatDate(alert.created_at)}</span>
+                              </div>
+                              
+                              {/* Voting summary */}
+                              <div className="flex items-center space-x-3">
+                                <div className="flex items-center space-x-2 px-3 py-2 bg-green-50 rounded-lg border border-green-100">
+                                  <ThumbsUp className="w-4 h-4 text-green-600" />
+                                  <span className="font-semibold text-green-700">{alert.vote_summary.upvotes}</span>
+                                </div>
+                                <div className="flex items-center space-x-2 px-3 py-2 bg-red-50 rounded-lg border border-red-100">
+                                  <ThumbsDown className="w-4 h-4 text-red-600" />
+                                  <span className="font-semibold text-red-700">{alert.vote_summary.downvotes}</span>
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -530,7 +529,7 @@ const Dashboard: React.FC = () => {
                               <p className="font-medium text-gray-900">
                                 {'alert_title' in vote ? vote.alert_title : vote.alert.title}
                               </p>
-                              <p className="text-sm text-gray-600">{formatDate(vote.voted_at)}</p>
+                              <p className="text-sm text-gray-600">{formatDate('voted_at' in vote ? vote.voted_at : vote.created_at)}</p>
                             </div>
                           </div>
                           <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor('alert_status' in vote ? vote.alert_status : vote.alert.status)}`}>
@@ -595,19 +594,7 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Alert Management Modal */}
-        {selectedAlert && (
-          <AlertManagementModal
-            alert={selectedAlert}
-            isOpen={isAlertModalOpen}
-            onClose={() => {
-              setIsAlertModalOpen(false);
-              setSelectedAlert(null);
-            }}
-            onSave={handleSaveAlert}
-            onDelete={handleDeleteAlert}
-          />
-        )}
+
 
         {/* Alert Creation Modal */}
         <AlertCreationModal

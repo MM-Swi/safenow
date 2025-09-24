@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { X, AlertTriangle, MapPin, Clock, Users } from 'lucide-react';
+import { X, AlertTriangle, MapPin, Users } from 'lucide-react';
 import type { UserAlert, HazardType } from '@/types/api';
 
 interface AlertManagementModalProps {
@@ -39,7 +39,6 @@ const AlertManagementModal: React.FC<AlertManagementModalProps> = ({
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-    reset,
   } = useForm<AlertFormData>({
     resolver: zodResolver(alertSchema),
     defaultValues: {
@@ -281,7 +280,7 @@ const AlertManagementModal: React.FC<AlertManagementModalProps> = ({
               <span className="font-medium">Lokalizacja</span>
             </div>
             <p className="text-sm text-blue-700">
-              Szerokość: {alert.center_lat.toFixed(6)}, Długość: {alert.center_lon.toFixed(6)}
+              Szerokość: {alert.center_lat?.toFixed(6) || 'N/A'}, Długość: {alert.center_lon?.toFixed(6) || 'N/A'}
             </p>
             <p className="text-xs text-blue-600 mt-1">
               Lokalizacja nie może być zmieniona po utworzeniu alertu

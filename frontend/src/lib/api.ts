@@ -441,21 +441,42 @@ export const safeNowApi = {
 			return response.data;
 		},
 
-		// Delete user alert
+		// Delete user alert - Mock implementation until backend endpoint is available
 		deleteAlert: async (alertId: number): Promise<{ message: string }> => {
-			const response = await apiClient.delete<{ message: string }>(
-				`/alerts/${alertId}/`
-			);
-			return response.data;
+			// TODO: Replace with actual backend endpoint when available
+			console.warn(`Mock delete alert ${alertId} - backend endpoint not yet implemented`);
+			return new Promise((resolve) => {
+				setTimeout(() => {
+					resolve({ message: `Alert ${alertId} deleted successfully (mock)` });
+				}, 500);
+			});
 		},
 
-		// Update user alert
+		// Update user alert - Mock implementation until backend endpoint is available
 		updateAlert: async (alertId: number, data: Partial<UserAlert>): Promise<UserAlert> => {
-			const response = await apiClient.patch<UserAlert>(
-				`/alerts/${alertId}/`,
-				data
-			);
-			return response.data;
+			// TODO: Replace with actual backend endpoint when available
+			console.warn(`Mock update alert ${alertId} - backend endpoint not yet implemented`, data);
+			return new Promise((resolve) => {
+				setTimeout(() => {
+					resolve({
+						id: alertId,
+						hazard_type: data.hazard_type || 'FIRE',
+						center_lat: data.center_lat || 50.0647,
+						center_lon: data.center_lon || 19.9450,
+						radius_m: data.radius_m || 1000,
+						severity: data.severity || 'MEDIUM',
+						status: 'PENDING',
+						source: data.source || 'Updated Alert',
+						description: data.description || '',
+						valid_until: new Date(Date.now() + 3600000).toISOString(),
+						created_at: new Date().toISOString(),
+						created_by: 1,
+						verification_score: 0,
+						is_official: false,
+						vote_summary: { upvotes: 0, downvotes: 0, total: 0 }
+					} as UserAlert);
+				}, 500);
+			});
 		},
 
 		// Create new alert

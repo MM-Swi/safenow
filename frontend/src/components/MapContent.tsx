@@ -32,7 +32,7 @@ function MapControls({
   currentLayer: 'street' | 'satellite';
 }) {
   return (
-    <div className="absolute top-3 right-3 z-[1000] flex flex-col gap-2">
+    <div className="absolute top-3 right-3 z-40 flex flex-col gap-2">
       <button
         onClick={onCenterUser}
         disabled={!userLocation}
@@ -386,11 +386,11 @@ export default function MapContent({
   }
 
   return (
-    <div className="relative h-full w-full">
+    <div className="relative h-full w-full z-10">
       <MapContainer
         center={mapCenter}
         zoom={userLocation ? 13 : 10}
-        style={{ height: '100%', width: '100%' }}
+        style={{ height: '100%', width: '100%', zIndex: 10 }}
         zoomControl={false}
       >
         <TileLayer

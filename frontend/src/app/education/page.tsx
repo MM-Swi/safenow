@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent } from '@/components/ui/Card';
-import { EmergencyModeToggle } from '@/components/EmergencyModeToggle';
+
 import { EmergencyEducationCard } from '@/components/EmergencyEducationCard';
 import Navigation from '@/components/Navigation';
 import { useEmergencyEducation } from '@/hooks/useApi';
@@ -13,7 +13,6 @@ import { ArrowLeft, BookOpen, Shield, AlertTriangle, Loader2 } from 'lucide-reac
 
 
 export default function EducationPage() {
-  const [isEmergencyMode, setIsEmergencyMode] = useState(false);
   const router = useRouter();
   
   // Fetch emergency education data from backend
@@ -25,13 +24,6 @@ export default function EducationPage() {
     isLoading,
     error
   });
-
-  const handleEmergencyToggle = (isEmergency: boolean) => {
-    setIsEmergencyMode(isEmergency);
-    if (isEmergency) {
-      router.push('/emergency');
-    }
-  };
 
   const handleBackToHome = () => {
     router.push('/');
@@ -73,16 +65,7 @@ export default function EducationPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden">
       <Navigation />
       
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-600/20 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-indigo-400/20 to-pink-600/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '2s'}} />
-      </div>
-      
-      <EmergencyModeToggle 
-        isEmergencyMode={isEmergencyMode} 
-        onToggle={handleEmergencyToggle} 
-      />
+
       
       <div className="relative z-10 container mx-auto px-4 pt-24 pb-8">
         {/* Header */}

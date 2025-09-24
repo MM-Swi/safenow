@@ -87,12 +87,13 @@ const LoginPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <div className="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-blue-100">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md mx-auto">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="mx-auto h-16 w-16 flex items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 shadow-lg mb-6">
             <svg
-              className="h-8 w-8 text-blue-600"
+              className="h-10 w-10 text-white"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -105,24 +106,27 @@ const LoginPage: React.FC = () => {
               />
             </svg>
           </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Zaloguj się do SafeNow
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          </h1>
+          <p className="text-gray-600">
             Lub{' '}
             <Link
               href="/auth/register"
-              className="font-medium text-blue-600 hover:text-blue-500"
+              className="font-semibold text-blue-600 hover:text-blue-700 transition-colors"
             >
               utwórz nowe konto
             </Link>
           </p>
         </div>
+
+        {/* Form Card */}
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8">
         
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
+        <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <div className="space-y-4">
-            <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+            <div className="space-y-2">
+              <label htmlFor="username" className="block text-sm font-semibold text-gray-700">
                 Nazwa użytkownika lub email
               </label>
               <input
@@ -130,40 +134,37 @@ const LoginPage: React.FC = () => {
                 id="username"
                 type="text"
                 autoComplete="username"
-                className={`mt-1 appearance-none relative block w-full px-3 py-2 border ${
-                  errors.username ? 'border-red-300' : 'border-gray-300'
-                } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm`}
+                className="w-full px-4 py-4 text-base border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 bg-gray-50 focus:bg-white"
                 placeholder="Wprowadź nazwę użytkownika lub email"
                 disabled={isSubmitting}
               />
               {errors.username && (
-                <p className="mt-1 text-sm text-red-600">{errors.username.message}</p>
+                <p className="text-sm text-red-600 font-medium">{errors.username.message}</p>
               )}
             </div>
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+
+            <div className="space-y-2">
+              <label htmlFor="password" className="block text-sm font-semibold text-gray-700">
                 Hasło
               </label>
-              <div className="mt-1 relative">
+              <div className="relative">
                 <input
                   {...register('password')}
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="current-password"
-                  className={`appearance-none relative block w-full px-3 py-2 pr-10 border ${
-                    errors.password ? 'border-red-300' : 'border-gray-300'
-                  } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm`}
+                  className="w-full px-4 py-4 pr-12 text-base border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 bg-gray-50 focus:bg-white"
                   placeholder="Wprowadź hasło"
                   disabled={isSubmitting}
                 />
                 <button
                   type="button"
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
                   onClick={() => setShowPassword(!showPassword)}
                   disabled={isSubmitting}
                 >
                   <svg
-                    className="h-5 w-5 text-gray-400"
+                    className="h-5 w-5"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -173,7 +174,7 @@ const LoginPage: React.FC = () => {
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         strokeWidth={2}
-                        d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"
+                        d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L8.464 8.464m1.414 1.414L8.464 8.464m5.656 5.656l1.415 1.415m-1.415-1.415l1.415 1.415M14.828 14.828L16.243 16.243"
                       />
                     ) : (
                       <path
@@ -187,20 +188,20 @@ const LoginPage: React.FC = () => {
                 </button>
               </div>
               {errors.password && (
-                <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
+                <p className="text-sm text-red-600 font-medium">{errors.password.message}</p>
               )}
             </div>
 
             {/* Remember Me and Forgot Password */}
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between pt-2">
               <div className="flex items-center">
                 <input
                   {...register('rememberMe')}
                   id="remember-me"
                   type="checkbox"
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded-md transition-colors"
                 />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
+                <label htmlFor="remember-me" className="ml-3 block text-sm font-medium text-gray-700">
                   Zapamiętaj mnie
                 </label>
               </div>
@@ -208,7 +209,7 @@ const LoginPage: React.FC = () => {
               <div className="text-sm">
                 <Link
                   href="#"
-                  className="font-medium text-blue-600 hover:text-blue-500"
+                  className="font-semibold text-blue-600 hover:text-blue-700 transition-colors"
                 >
                   Zapomniałeś hasła?
                 </Link>
@@ -244,18 +245,18 @@ const LoginPage: React.FC = () => {
             </div>
           )}
 
-          <div>
+            {/* Submit Button */}
             <button
               type="submit"
               disabled={isSubmitting}
-              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+              className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-semibold py-4 px-6 rounded-xl shadow-lg transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
-              <span className="absolute left-0 inset-y-0 flex items-center pl-3">
+              <div className="flex items-center justify-center space-x-2">
                 {isSubmitting ? (
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
                 ) : (
                   <svg
-                    className="h-5 w-5 text-blue-500 group-hover:text-blue-400"
+                    className="h-5 w-5"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
@@ -266,20 +267,24 @@ const LoginPage: React.FC = () => {
                     />
                   </svg>
                 )}
-              </span>
-              {isSubmitting ? 'Logowanie...' : 'Zaloguj się'}
+                <span>{isSubmitting ? 'Logowanie...' : 'Zaloguj się'}</span>
+              </div>
             </button>
-          </div>
 
-          <div className="text-center">
-            <Link
-              href="/"
-              className="font-medium text-blue-600 hover:text-blue-500"
-            >
-              ← Powrót do strony głównej
-            </Link>
-          </div>
-        </form>
+            {/* Back Link */}
+            <div className="text-center mt-6">
+              <Link
+                href="/"
+                className="inline-flex items-center font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Powrót do strony głównej
+              </Link>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );
