@@ -59,15 +59,15 @@ const Dashboard: React.FC = () => {
     {
       id: 1,
       hazard_type: 'FIRE',
-      title: 'Pożar w centrum miasta',
-      description: 'Duży pożar w centrum miasta, ewakuacja w toku',
-      latitude: 50.0647,
-      longitude: 19.9450,
-      radius: 1000,
+      center_lat: 50.0647,
+      center_lon: 19.9450,
+      radius_m: 1000,
       severity: 'HIGH',
       status: 'VERIFIED',
+      source: 'Pożar w centrum miasta',
+      description: 'Duży pożar w centrum miasta, ewakuacja w toku',
+      valid_until: '2025-01-20T12:30:00Z',
       created_at: '2025-01-20T10:30:00Z',
-      updated_at: '2025-01-20T10:30:00Z',
       created_by: 1,
       verification_score: 5,
       is_official: false,
@@ -76,15 +76,15 @@ const Dashboard: React.FC = () => {
     {
       id: 2,
       hazard_type: 'FLOOD',
-      title: 'Podtopienia na ul. Głównej',
-      description: 'Podtopienia po intensywnych opadach deszczu',
-      latitude: 50.0647,
-      longitude: 19.9450,
-      radius: 500,
+      center_lat: 50.0647,
+      center_lon: 19.9450,
+      radius_m: 500,
       severity: 'MEDIUM',
       status: 'PENDING',
+      source: 'Podtopienia na ul. Głównej',
+      description: 'Podtopienia po intensywnych opadach deszczu',
+      valid_until: '2025-01-21T10:15:00Z',
       created_at: '2025-01-21T08:15:00Z',
-      updated_at: '2025-01-21T08:15:00Z',
       created_by: 1,
       verification_score: 1,
       is_official: false,
@@ -456,7 +456,7 @@ const Dashboard: React.FC = () => {
                                 </span>
                                 <span className="text-xs text-gray-500">{alert.hazard_type}</span>
                               </div>
-                              <h4 className="text-lg font-medium text-gray-900 mb-2">{alert.title}</h4>
+                              <h4 className="text-lg font-medium text-gray-900 mb-2">{alert.source}</h4>
                               <div className="flex items-center space-x-4 text-sm text-gray-600">
                                 <span>Utworzono: {formatDate(alert.created_at)}</span>
                                 <span className="flex items-center space-x-1">
@@ -530,7 +530,7 @@ const Dashboard: React.FC = () => {
                               <p className="font-medium text-gray-900">
                                 {'alert_title' in vote ? vote.alert_title : vote.alert.title}
                               </p>
-                              <p className="text-sm text-gray-600">{formatDate(vote.voted_at)}</p>
+                              <p className="text-sm text-gray-600">{formatDate('voted_at' in vote ? vote.voted_at : vote.created_at)}</p>
                             </div>
                           </div>
                           <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor('alert_status' in vote ? vote.alert_status : vote.alert.status)}`}>
