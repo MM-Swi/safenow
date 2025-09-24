@@ -271,13 +271,13 @@ export function EmergencyCard({ emergency, alert, onFindShelter, nearestShelterE
               </div>
 
               {displayData.shouldEvacuate && (
-                <Button 
+                <Button
                   onClick={onFindShelter}
-                  className="w-full bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30 text-white font-bold py-4 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 group"
+                  className="w-full bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30 text-white font-bold px-6 py-5 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 group"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-white/20 rounded-xl group-hover:bg-white/30 transition-colors duration-300">
-                      <Navigation className="w-6 h-6" />
+                  <div className="flex items-center gap-4">
+                    <div className="p-2.5 bg-white/20 rounded-xl group-hover:bg-white/30 transition-colors duration-300 flex items-center justify-center">
+                      <Navigation className="w-5 h-5" />
                     </div>
                     <span className="text-lg">Znajdź najbliższe schronienie</span>
                   </div>
