@@ -28,8 +28,8 @@ export function ShelterSearchControls({
   };
 
   const handleReset = () => {
-    setTempRadius(50); // Default radius
-    onRadiusChange(50);
+    setTempRadius(500); // Default maximum radius
+    onRadiusChange(500);
     setIsExpanded(false);
   };
 
@@ -72,7 +72,7 @@ export function ShelterSearchControls({
             </Button>
           </div>
         </div>
-        
+
         <div className="text-sm text-blue-700">
           <div className="font-medium">{getRadiusDescription(currentRadius)}</div>
           <div className="text-xs">{getEmergencyScenario(currentRadius)}</div>
@@ -91,7 +91,7 @@ export function ShelterSearchControls({
                   {tempRadius}km
                 </span>
               </div>
-              
+
               <Slider
                 value={[tempRadius]}
                 onValueChange={(value: number[]) => setTempRadius(value[0])}
@@ -100,7 +100,7 @@ export function ShelterSearchControls({
                 step={5}
                 className="mb-2"
               />
-              
+
               <div className="flex justify-between text-xs text-blue-600">
                 <span>5km</span>
                 <span>100km</span>

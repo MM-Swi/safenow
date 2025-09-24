@@ -28,8 +28,8 @@ export function AlertSearchControls({
   };
 
   const handleReset = () => {
-    setTempRadius(75); // Default: regional awareness
-    onSearchRadiusChange(75);
+    setTempRadius(500); // Default: maximum range
+    onSearchRadiusChange(500);
     setIsExpanded(false);
   };
 
@@ -59,7 +59,7 @@ export function AlertSearchControls({
             <AlertTriangle className="w-6 h-6 text-orange-600" />
             🔍 Zasięg wyszukiwania alertów
           </CardTitle>
-          
+
           <div className="flex items-center gap-2">
             <div className="text-sm font-semibold text-orange-800 bg-orange-100 px-3 py-1 rounded-full">
               {currentSearchRadius === 0 ? '🎯 Bezpośrednie' : `📍 ${currentSearchRadius}km`} • {alertCount} alertów
@@ -75,7 +75,7 @@ export function AlertSearchControls({
             </Button>
           </div>
         </div>
-        
+
         <div className="text-sm text-orange-700">
           <div className="font-medium">{getRadiusDescription(currentSearchRadius)}</div>
           <div className="text-xs">{getSearchMode(currentSearchRadius)}</div>
@@ -94,7 +94,7 @@ export function AlertSearchControls({
                 {tempRadius === 0 ? 'Bezpośrednie' : `${tempRadius}km`}
               </span>
             </div>
-            
+
             <Slider
               value={[tempRadius]}
               onValueChange={(value: number[]) => setTempRadius(value[0])}
@@ -103,7 +103,7 @@ export function AlertSearchControls({
               step={5}
               className="mb-2"
             />
-            
+
             <div className="flex justify-between text-xs text-orange-600">
               <span>Bezpośrednie</span>
               <span>100km</span>

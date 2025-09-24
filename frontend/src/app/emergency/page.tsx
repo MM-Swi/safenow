@@ -20,17 +20,17 @@ export default function EmergencyPage() {
   const [selectedShelterId, setSelectedShelterId] = useState<number | null>(null);
   const router = useRouter();
 
-  const [shelterRadius, setShelterRadius] = useState(50); // Default 50km radius
-  const [alertSearchRadius, setAlertSearchRadius] = useState(75); // Default 75km (regional awareness)
-  
+  const [shelterRadius, setShelterRadius] = useState(500); // Default 500km radius (max range)
+  const [alertSearchRadius, setAlertSearchRadius] = useState(500); // Default 500km (max range)
+
   const { alerts, shelters, isLoading, error } = useEmergencyData(
     location?.lat || 0,
     location?.lon || 0,
     !!location,
-    { 
-      shelterRadius, 
+    {
+      shelterRadius,
       shelterLimit: 10,
-      alertSearchRadius 
+      alertSearchRadius
     }
   );
 
@@ -125,15 +125,15 @@ export default function EmergencyPage() {
   return (
     <div className="min-h-screen bg-red-50">
       <Navigation />
-      <EmergencyModeToggle 
-        isEmergencyMode={true} 
-        onToggle={handleEmergencyToggle} 
+      <EmergencyModeToggle
+        isEmergencyMode={true}
+        onToggle={handleEmergencyToggle}
       />
-      
+
       <div className="container mx-auto px-4 pt-24 pb-8">
         {/* Header */}
         <div className="flex items-center gap-4 mb-6">
-          <Button 
+          <Button
             onClick={handleBackToHome}
             variant="outline"
             size="sm"
@@ -187,9 +187,9 @@ export default function EmergencyPage() {
                 // Find the nearest shelter ETA for safety instructions context
                 const nearestShelter = shelters.find(shelter => shelter.is_open_now) || shelters[0];
                 const nearestShelterETA = nearestShelter?.eta_seconds;
-                
+
                 return (
-                  <EmergencyCard 
+                  <EmergencyCard
                     key={alert.id}
                     alert={alert}
                     nearestShelterETA={nearestShelterETA}
@@ -207,7 +207,7 @@ export default function EmergencyPage() {
             </div>
           </div>
         )}
-        
+
         {/* No Active Alerts */}
         {alerts.length === 0 && (
           <Card className="border-green-200 bg-green-50 mb-6">
@@ -269,7 +269,7 @@ export default function EmergencyPage() {
               <Shield className="w-6 h-6" />
               Najbliższe schrony ({shelters.length})
             </h2>
-            
+
             <div className="grid gap-4">
               {shelters.map((shelter) => (
                 <Card key={shelter.id} className="hover:shadow-md transition-shadow">
@@ -290,8 +290,8 @@ export default function EmergencyPage() {
                         </div>
                       </div>
                       <div className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        shelter.is_open_now 
-                          ? 'bg-green-100 text-green-800' 
+                        shelter.is_open_now
+                          ? 'bg-green-100 text-green-800'
                           : 'bg-red-100 text-red-800'
                       }`}>
                         {shelter.is_open_now ? 'Otwarty' : 'Zamknięty'}

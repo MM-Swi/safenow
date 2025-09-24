@@ -5,10 +5,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/Button';
 import { EmergencyCard } from '@/components/EmergencyCard';
 import { useEmergencyData, useRegisterDevice } from '@/hooks/useApi';
-import { 
-  formatDistance, 
-  formatETA, 
-  generateDeviceId 
+import {
+  formatDistance,
+  formatETA,
+  generateDeviceId
 } from '@/lib/utils/api';
 import { AlertTriangle, MapPin, Clock, Shield, Smartphone } from 'lucide-react';
 
@@ -20,12 +20,12 @@ interface EmergencyDashboardProps {
   alertSearchRadius?: number;
 }
 
-export function EmergencyDashboard({ 
-  lat, 
-  lon, 
-  shelterRadius = 50, 
+export function EmergencyDashboard({
+  lat,
+  lon,
+  shelterRadius = 500,
   shelterLimit = 5,
-  alertSearchRadius = 75 
+  alertSearchRadius = 500
 }: EmergencyDashboardProps) {
   const [location, setLocation] = useState<{ lat: number; lon: number } | null>(
     lat && lon ? { lat, lon } : null
@@ -153,9 +153,9 @@ export function EmergencyDashboard({
             // Find the nearest shelter ETA for safety instructions context
             const nearestShelter = shelters.find(shelter => shelter.is_open_now) || shelters[0];
             const nearestShelterETA = nearestShelter?.eta_seconds;
-            
+
             return (
-              <EmergencyCard 
+              <EmergencyCard
                 key={alert.id}
                 alert={alert}
                 nearestShelterETA={nearestShelterETA}
@@ -195,7 +195,7 @@ export function EmergencyDashboard({
           <Shield className="w-6 h-6" />
           Najbliższe schrony ({shelters.length})
         </h2>
-        
+
         {shelters.length > 0 ? (
           <div className="grid gap-4">
             {shelters.map((shelter) => (
@@ -217,8 +217,8 @@ export function EmergencyDashboard({
                       </div>
                     </div>
                     <div className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      shelter.is_open_now 
-                        ? 'bg-green-100 text-green-800' 
+                      shelter.is_open_now
+                        ? 'bg-green-100 text-green-800'
                         : 'bg-red-100 text-red-800'
                     }`}>
                       {shelter.is_open_now ? 'Otwarty' : 'Zamknięty'}

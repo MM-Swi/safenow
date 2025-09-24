@@ -146,12 +146,12 @@ export const generateDeviceId = (): string => {
 
   // Generate new device ID
   const deviceId = `safenow_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  
+
   // Store in localStorage
   if (typeof window !== 'undefined') {
     localStorage.setItem('safenow_device_id', deviceId);
   }
-  
+
   return deviceId;
 };
 
@@ -170,14 +170,14 @@ export const getTimeUntilExpiry = (validUntil: string): number => {
 // Format time until expiry
 export const formatTimeUntilExpiry = (validUntil: string): string => {
   const timeLeft = getTimeUntilExpiry(validUntil);
-  
+
   if (timeLeft === 0) {
     return 'Wygasł';
   }
-  
+
   const minutes = Math.floor(timeLeft / (1000 * 60));
   const hours = Math.floor(minutes / 60);
-  
+
   if (hours > 0) {
     const remainingMinutes = minutes % 60;
     return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}min` : `${hours}h`;

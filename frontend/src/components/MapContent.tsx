@@ -20,11 +20,11 @@ interface MapContentProps {
 }
 
 // Map controls component
-function MapControls({ 
-  userLocation, 
-  onCenterUser, 
-  onToggleLayer, 
-  currentLayer 
+function MapControls({
+  userLocation,
+  onCenterUser,
+  onToggleLayer,
+  currentLayer
 }: {
   userLocation: { lat: number; lon: number } | null;
   onCenterUser: () => void;
@@ -53,21 +53,21 @@ function MapControls({
 }
 
 // Component to handle map centering
-function MapCenterController({ 
-  center, 
-  shouldCenter 
-}: { 
-  center: LatLngExpression | null; 
+function MapCenterController({
+  center,
+  shouldCenter
+}: {
+  center: LatLngExpression | null;
   shouldCenter: boolean;
 }) {
   const map = useMap();
-  
+
   useEffect(() => {
     if (center && shouldCenter) {
       map.setView(center, 13);
     }
   }, [map, center, shouldCenter]);
-  
+
   return null;
 }
 
@@ -75,12 +75,12 @@ function MapCenterController({
 function UserLocationMarker({ location }: { location: { lat: number; lon: number } }) {
   const userIcon = useMemo(() => {
     if (typeof window === 'undefined') return null;
-    
+
     const svgString = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
       <circle cx="12" cy="12" r="8" fill="#3b82f6" stroke="#fff" stroke-width="3"/>
       <circle cx="12" cy="12" r="3" fill="#fff"/>
     </svg>`;
-    
+
     return new Icon({
       iconUrl: 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgString),
       iconSize: [24, 24],
@@ -124,7 +124,7 @@ function AlertMarker({ alert }: { alert: Alert }) {
   const getHazardSymbol = (hazardType: string) => {
     // Normalize hazard type to handle both space and underscore formats
     const normalizedType = hazardType.replace(/ /g, '_');
-    
+
     const symbolMap: Record<string, string> = {
       'AIR_RAID': 'A',
       'DRONE': 'D',
@@ -150,12 +150,12 @@ function AlertMarker({ alert }: { alert: Alert }) {
 
   const alertIcon = useMemo(() => {
     if (typeof window === 'undefined') return null;
-    
+
     const svgString = `<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
       <circle cx="16" cy="16" r="14" fill="${getSeverityColor(alert.severity)}" stroke="#fff" stroke-width="3"/>
       <text x="16" y="20" text-anchor="middle" fill="#fff" font-size="16" font-weight="bold">${getHazardSymbol(alert.hazard_type)}</text>
     </svg>`;
-    
+
     return new Icon({
       iconUrl: 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgString),
       iconSize: [32, 32],
@@ -167,7 +167,7 @@ function AlertMarker({ alert }: { alert: Alert }) {
   const getSeverityLabel = (severity: string) => {
     const labels = {
       'LOW': 'Niskie',
-      'MEDIUM': 'Średnie', 
+      'MEDIUM': 'Średnie',
       'HIGH': 'Wysokie',
       'CRITICAL': 'Krytyczne'
     };
@@ -177,7 +177,7 @@ function AlertMarker({ alert }: { alert: Alert }) {
   const getHazardLabel = (hazardType: string) => {
     // Normalize hazard type to handle both space and underscore formats
     const normalizedType = hazardType.replace(/ /g, '_');
-    
+
     const labels = {
       'AIR_RAID': 'Alert lotniczy',
       'DRONE': 'Zagrożenie dronami',
@@ -216,42 +216,42 @@ function AlertMarker({ alert }: { alert: Alert }) {
           <div className="min-w-[250px]">
             <div className="flex items-center gap-2 mb-3">
               <AlertTriangle className={`w-5 h-5 ${
-                alert.severity === 'CRITICAL' ? 'text-red-800' : 
+                alert.severity === 'CRITICAL' ? 'text-red-800' :
                 alert.severity === 'HIGH' ? 'text-red-600' :
                 alert.severity === 'MEDIUM' ? 'text-orange-500' : 'text-yellow-500'
               }`} />
               <strong className="text-lg">{getHazardLabel(alert.hazard_type)}</strong>
             </div>
-            
+
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-600">Poziom zagrożenia:</span>
                 <span className={`font-semibold ${
-                  alert.severity === 'CRITICAL' ? 'text-red-800' : 
+                  alert.severity === 'CRITICAL' ? 'text-red-800' :
                   alert.severity === 'HIGH' ? 'text-red-600' :
                   alert.severity === 'MEDIUM' ? 'text-orange-500' : 'text-yellow-600'
                 }`}>
                   {getSeverityLabel(alert.severity)}
                 </span>
               </div>
-              
+
               <div className="flex justify-between">
                 <span className="text-gray-600">Odległość:</span>
                 <span className="font-medium">{formatDistance(alert.distance_km)}</span>
               </div>
-              
+
               <div className="flex justify-between">
                 <span className="text-gray-600">Zasięg alertu:</span>
                 <span className="font-medium">{(alert.radius_m / 1000).toFixed(1)}km</span>
               </div>
-              
+
               {alert.description && (
                 <div className="mt-3 p-2 bg-gray-50 rounded text-sm">
                   <strong>Opis:</strong><br />
                   {alert.description}
                 </div>
               )}
-              
+
               <div className="mt-3 pt-2 border-t text-xs text-gray-500">
                 <div>Utworzono: {new Date(alert.created_at).toLocaleString('pl-PL')}</div>
                 <div>Ważne do: {new Date(alert.valid_until).toLocaleString('pl-PL')}</div>
@@ -266,7 +266,7 @@ function AlertMarker({ alert }: { alert: Alert }) {
           </div>
         </Popup>
       </Marker>
-      
+
       {/* Alert radius circle */}
       <Circle
         center={[alert.center_lat, alert.center_lon]}
@@ -287,12 +287,12 @@ function AlertMarker({ alert }: { alert: Alert }) {
 function ShelterMarker({ shelter }: { shelter: Shelter }) {
   const shelterIcon = useMemo(() => {
     if (typeof window === 'undefined') return null;
-    
+
     const svgString = `<svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect x="2" y="2" width="24" height="24" rx="4" fill="${shelter.is_open_now ? '#10b981' : '#6b7280'}" stroke="#fff" stroke-width="3"/>
       <text x="14" y="18" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">S</text>
     </svg>`;
-    
+
     return new Icon({
       iconUrl: 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgString),
       iconSize: [28, 28],
@@ -317,23 +317,23 @@ function ShelterMarker({ shelter }: { shelter: Shelter }) {
             <Shield className={`w-5 h-5 ${shelter.is_open_now ? 'text-green-600' : 'text-gray-500'}`} />
             <strong className="text-lg">{shelter.name}</strong>
           </div>
-          
+
           <div className="space-y-2 text-sm">
             <div>
               <span className="text-gray-600">Adres:</span><br />
               <span className="font-medium">{shelter.address}</span>
             </div>
-            
+
             <div className="flex justify-between">
               <span className="text-gray-600">Odległość:</span>
               <span className="font-medium">{formatDistance(shelter.distance_km)}</span>
             </div>
-            
+
             <div className="flex justify-between">
               <span className="text-gray-600">Czas dojścia:</span>
               <span className="font-medium">{formatETA(shelter.eta_seconds)} pieszo</span>
             </div>
-            
+
             <div className="flex justify-between">
               <span className="text-gray-600">Status:</span>
               <span className={`font-semibold ${shelter.is_open_now ? 'text-green-600' : 'text-red-600'}`}>
@@ -394,7 +394,7 @@ export default function MapContent({
         zoomControl={false}
       >
         <TileLayer
-          url={mapLayer === 'street' 
+          url={mapLayer === 'street'
             ? "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             : "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
           }
@@ -403,12 +403,12 @@ export default function MapContent({
             : '&copy; <a href="https://www.esri.com/">Esri</a>'
           }
         />
-        
+
         <MapCenterController center={mapCenter} shouldCenter={centerOnUser} />
-        
+
         {/* User location */}
         {userLocation && <UserLocationMarker location={userLocation} />}
-        
+
         {/* Search radius circles */}
         {userLocation && alertSearchRadius > 0 && (
           <Circle
@@ -423,7 +423,7 @@ export default function MapContent({
             }}
           />
         )}
-        
+
         {userLocation && shelterSearchRadius > 0 && (
           <Circle
             center={[userLocation.lat, userLocation.lon]}
@@ -437,18 +437,18 @@ export default function MapContent({
             }}
           />
         )}
-        
+
         {/* Alert markers */}
         {alerts.map(alert => (
           <AlertMarker key={alert.id} alert={alert} />
         ))}
-        
+
         {/* Shelter markers */}
         {shelters.map(shelter => (
           <ShelterMarker key={shelter.id} shelter={shelter} />
         ))}
       </MapContainer>
-      
+
       <MapControls
         userLocation={userLocation}
         onCenterUser={handleCenterUser}
