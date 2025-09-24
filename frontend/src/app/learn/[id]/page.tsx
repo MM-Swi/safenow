@@ -3,7 +3,7 @@
 import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
-import { EmergencyModeToggle } from '@/components/EmergencyModeToggle';
+
 import { learningContent } from '@/data/emergencies';
 import { ArrowLeft, BookOpen, Lightbulb, CheckCircle, AlertTriangle, Shield } from 'lucide-react';
 import { useState } from 'react';
@@ -44,10 +44,6 @@ export default function LearnDetailPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <EmergencyModeToggle 
-        isEmergencyMode={isEmergencyMode} 
-        onToggle={handleEmergencyToggle} 
-      />
       
       <div className="container mx-auto px-4 py-8">
         {/* Header */}

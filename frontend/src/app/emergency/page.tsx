@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { EmergencyCard } from '@/components/EmergencyCard';
-import { EmergencyModeToggle } from '@/components/EmergencyModeToggle';
+
 import { ShelterSearchControls } from '@/components/ShelterSearchControls';
 import { AlertSearchControls } from '@/components/AlertSearchControls';
 import { Button } from '@/components/ui/Button';
@@ -125,10 +125,7 @@ export default function EmergencyPage() {
   return (
     <div className="min-h-screen bg-red-50">
       <Navigation />
-      <EmergencyModeToggle
-        isEmergencyMode={true}
-        onToggle={handleEmergencyToggle}
-      />
+
 
       <div className="container mx-auto px-4 pt-24 pb-8">
         {/* Header */}

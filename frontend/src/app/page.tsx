@@ -1,23 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+
 import { useRouter } from 'next/navigation';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
-import { EmergencyModeToggle } from '@/components/EmergencyModeToggle';
+
 import { EmergencyDashboard } from '@/components/EmergencyDashboard';
 import { Shield, BookOpen, Phone, Activity } from 'lucide-react';
 
 export default function Home() {
-  const [isEmergencyMode, setIsEmergencyMode] = useState(false);
   const router = useRouter();
-
-  const handleEmergencyToggle = (isEmergency: boolean) => {
-    setIsEmergencyMode(isEmergency);
-    if (isEmergency) {
-      router.push('/emergency');
-    }
-  };
 
 
 
@@ -29,10 +21,7 @@ export default function Home() {
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-indigo-400/20 to-pink-600/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '2s'}} />
       </div>
       
-      <EmergencyModeToggle 
-        isEmergencyMode={isEmergencyMode} 
-        onToggle={handleEmergencyToggle} 
-      />
+
       
       <div className="relative z-10 container mx-auto px-4 pt-28 pb-8">
         {/* Header */}

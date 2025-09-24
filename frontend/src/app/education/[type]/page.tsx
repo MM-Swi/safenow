@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
-import { EmergencyModeToggle } from '@/components/EmergencyModeToggle';
+
 import { useEmergencyEducation, useSafetyInstructions } from '@/hooks/useApi';
 import { HazardType } from '@/types/api';
 import { ArrowLeft, BookOpen, Lightbulb, CheckCircle, AlertTriangle, Shield, Phone, Loader2 } from 'lucide-react';
@@ -126,10 +126,7 @@ export default function EmergencyDetailPage() {
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-indigo-400/20 to-pink-600/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '2s'}} />
       </div>
       
-      <EmergencyModeToggle 
-        isEmergencyMode={isEmergencyMode} 
-        onToggle={handleEmergencyToggle} 
-      />
+
       
       <div className="relative z-10 container mx-auto px-4 py-8">
         {/* Header */}
