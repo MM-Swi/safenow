@@ -52,44 +52,46 @@ export function AlertSearchControls({
   };
 
   return (
-    <Card className="border-orange-300 bg-gradient-to-r from-orange-50 to-amber-50 shadow-lg">
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-orange-900 text-lg font-bold mb-3">
-          <AlertTriangle className="w-6 h-6 text-orange-600" />
+    <Card className="border-orange-200 bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 shadow-xl rounded-2xl overflow-hidden">
+      <CardHeader className="pb-6 px-6 pt-6">
+        <CardTitle className="flex items-center gap-3 text-orange-900 text-xl font-bold mb-4">
+          <div className="p-2 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl shadow-lg">
+            <AlertTriangle className="w-6 h-6 text-white" />
+          </div>
           🔍 Zasięg wyszukiwania alertów
         </CardTitle>
 
-        <div className="flex items-center justify-between mb-3">
-          <div className="text-sm font-semibold text-orange-800 bg-orange-100 px-3 py-1.5 rounded-full">
-            {currentSearchRadius === 0 ? '🎯 Bezpośrednie' : `📍 ${currentSearchRadius}km`} • {alertCount} alertów
-            {isLoading && <span className="ml-1 animate-pulse">⟳</span>}
+        <div className="flex items-center justify-between mb-4">
+          <div className="text-sm font-bold text-orange-900 bg-gradient-to-r from-orange-200 to-amber-200 px-4 py-2.5 rounded-xl shadow-sm border border-orange-300">
+            {currentSearchRadius === 0 ? '🎯 Bezpośrednie' : `📍 ${currentSearchRadius}km`} • <span className="text-orange-700">{alertCount} alertów</span>
+            {isLoading && <span className="ml-2 animate-spin">⟳</span>}
           </div>
           <Button
             variant="outline"
             size="sm"
             onClick={() => setIsExpanded(!isExpanded)}
-            className="border-orange-400 text-orange-800 hover:bg-orange-200 font-semibold ml-2"
+            className="border-2 border-orange-400 text-orange-800 hover:bg-orange-200 hover:border-orange-500 font-semibold ml-3 px-4 py-2 rounded-xl shadow-sm transition-all duration-200"
           >
-            <Settings className="w-4 h-4 mr-1" />
+            <Settings className="w-4 h-4 mr-2" />
             <span className="hidden sm:inline">Ustawienia</span>
           </Button>
         </div>
 
-        <div className="text-sm text-orange-700">
-          <div className="font-medium">{getRadiusDescription(currentSearchRadius)}</div>
-          <div className="text-xs">{getSearchMode(currentSearchRadius)}</div>
+        <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-orange-200">
+          <div className="text-base font-semibold text-orange-900 mb-1">{getRadiusDescription(currentSearchRadius)}</div>
+          <div className="text-sm text-orange-700 font-medium">{getSearchMode(currentSearchRadius)}</div>
         </div>
       </CardHeader>
 
       {isExpanded && (
-        <CardContent className="pt-0 space-y-4">
+        <CardContent className="pt-0 px-6 pb-6 space-y-6">
           {/* Radius Slider */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-sm font-medium text-orange-900">
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-5 border border-orange-200 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <label className="text-base font-semibold text-orange-900">
                 Zasięg wyszukiwania
               </label>
-              <span className="text-sm text-orange-700">
+              <span className="text-base font-bold text-orange-800 bg-orange-100 px-3 py-1 rounded-lg">
                 {tempRadius === 0 ? 'Bezpośrednie' : `${tempRadius}km`}
               </span>
             </div>
@@ -100,10 +102,10 @@ export function AlertSearchControls({
               max={500}
               min={0}
               step={5}
-              className="mb-2"
+              className="mb-4"
             />
 
-            <div className="flex justify-between text-xs text-orange-600">
+            <div className="flex justify-between text-sm font-medium text-orange-600">
               <span>Bezpośrednie</span>
               <span>100km</span>
               <span>250km</span>
@@ -112,88 +114,121 @@ export function AlertSearchControls({
           </div>
 
           {/* Radius Description */}
-          <div className="bg-white rounded-lg p-3 border border-orange-200">
-            <div className="text-sm">
-              <div className="font-medium text-orange-900 mb-1">
-                {getRadiusDescription(tempRadius)}
-              </div>
-              <div className="text-orange-700 text-xs">
-                {getSearchMode(tempRadius)}
-              </div>
+          <div className="bg-gradient-to-r from-white to-orange-50 rounded-2xl p-5 border border-orange-200 shadow-sm">
+            <div className="text-base font-bold text-orange-900 mb-2">
+              {getRadiusDescription(tempRadius)}
+            </div>
+            <div className="text-sm text-orange-700 font-medium">
+              {getSearchMode(tempRadius)}
             </div>
           </div>
 
           {/* Quick Presets */}
-          <div>
-            <div className="text-sm font-medium text-orange-900 mb-2">
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-5 border border-orange-200 shadow-sm">
+            <div className="text-base font-semibold text-orange-900 mb-4">
               Szybkie ustawienia
             </div>
-            <div className="grid grid-cols-2 gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setTempRadius(0)}
-                className={`text-xs ${tempRadius === 0 ? 'bg-orange-100 border-orange-400' : ''}`}
-              >
-                Bezpośrednie
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setTempRadius(25)}
-                className={`text-xs ${tempRadius === 25 ? 'bg-orange-100 border-orange-400' : ''}`}
-              >
-                25km - Lokalne
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setTempRadius(75)}
-                className={`text-xs ${tempRadius === 75 ? 'bg-orange-100 border-orange-400' : ''}`}
-              >
-                75km - Domyślne
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setTempRadius(150)}
-                className={`text-xs ${tempRadius === 150 ? 'bg-orange-100 border-orange-400' : ''}`}
-              >
-                150km - Szeroka okolicy
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setTempRadius(300)}
-                className={`text-xs ${tempRadius === 300 ? 'bg-orange-100 border-orange-400' : ''}`}
-              >
-                300km - Międzyregionalne
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setTempRadius(500)}
-                className={`text-xs ${tempRadius === 500 ? 'bg-orange-100 border-orange-400' : ''}`}
-              >
-                500km - Maksymalne
-              </Button>
+            <div className="space-y-3">
+              {/* Row 1 */}
+              <div className="grid grid-cols-2 gap-3">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setTempRadius(0)}
+                  className={`text-xs font-medium py-3 px-2 rounded-xl transition-all duration-200 ${
+                    tempRadius === 0 
+                      ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white border-orange-500 shadow-md' 
+                      : 'border-orange-300 text-orange-700 hover:bg-orange-50 hover:border-orange-400'
+                  }`}
+                >
+                  Bezpośrednie
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setTempRadius(25)}
+                  className={`text-xs font-medium py-3 px-2 rounded-xl transition-all duration-200 ${
+                    tempRadius === 25 
+                      ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white border-orange-500 shadow-md' 
+                      : 'border-orange-300 text-orange-700 hover:bg-orange-50 hover:border-orange-400'
+                  }`}
+                >
+                  25km - Lokalne
+                </Button>
+              </div>
+              
+              {/* Row 2 */}
+              <div className="grid grid-cols-2 gap-3">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setTempRadius(75)}
+                  className={`text-xs font-medium py-3 px-2 rounded-xl transition-all duration-200 ${
+                    tempRadius === 75 
+                      ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white border-orange-500 shadow-md' 
+                      : 'border-orange-300 text-orange-700 hover:bg-orange-50 hover:border-orange-400'
+                  }`}
+                >
+                  75km - Domyślne
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setTempRadius(150)}
+                  className={`text-xs font-medium py-3 px-2 rounded-xl transition-all duration-200 ${
+                    tempRadius === 150 
+                      ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white border-orange-500 shadow-md' 
+                      : 'border-orange-300 text-orange-700 hover:bg-orange-50 hover:border-orange-400'
+                  }`}
+                >
+                  150km - Szeroka
+                </Button>
+              </div>
+              
+              {/* Row 3 */}
+              <div className="grid grid-cols-2 gap-3">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setTempRadius(300)}
+                  className={`text-xs font-medium py-3 px-2 rounded-xl transition-all duration-200 ${
+                    tempRadius === 300 
+                      ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white border-orange-500 shadow-md' 
+                      : 'border-orange-300 text-orange-700 hover:bg-orange-50 hover:border-orange-400'
+                  }`}
+                >
+                  300km - Kraj
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setTempRadius(500)}
+                  className={`text-xs font-medium py-3 px-2 rounded-xl transition-all duration-200 ${
+                    tempRadius === 500 
+                      ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white border-orange-500 shadow-md' 
+                      : 'border-orange-300 text-orange-700 hover:bg-orange-50 hover:border-orange-400'
+                  }`}
+                >
+                  500km - Max
+                </Button>
+              </div>
             </div>
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-2 pt-2">
+          <div className="flex gap-4">
             <Button
               onClick={handleApplyRadius}
-              className="flex-1 bg-orange-600 hover:bg-orange-700"
+              className="flex-1 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white font-semibold py-3 rounded-xl shadow-lg transition-all duration-200 transform hover:scale-105"
               disabled={tempRadius === currentSearchRadius || isLoading}
             >
-              <Search className="w-4 h-4 mr-2" />
+              <Search className="w-5 h-5 mr-2" />
               Zastosuj
             </Button>
             <Button
               onClick={handleReset}
               variant="outline"
-              className="border-orange-300 text-orange-700 hover:bg-orange-100"
+              className="border-2 border-orange-400 text-orange-700 hover:bg-orange-100 hover:border-orange-500 font-semibold py-3 px-6 rounded-xl shadow-sm transition-all duration-200"
               disabled={isLoading}
             >
               Reset
@@ -201,9 +236,12 @@ export function AlertSearchControls({
           </div>
 
           {/* Help Text */}
-          <div className="text-xs text-orange-600 bg-orange-100 p-2 rounded">
-            <strong>Bezpośrednie:</strong> Tylko alerty które bezpośrednio Cię dotyczą (jesteś w zasięgu alertu)<br/>
-            <strong>Zasięg wyszukiwania:</strong> Pokazuje także alerty w określonej odległości od Twojej lokalizacji
+          <div className="bg-gradient-to-r from-orange-100 to-amber-100 border border-orange-200 rounded-2xl p-4 shadow-sm">
+            <div className="text-sm text-orange-800 leading-relaxed">
+              <div className="font-semibold mb-1">💡 Jak to działa:</div>
+              <div className="mb-2"><strong>Bezpośrednie:</strong> Tylko alerty które bezpośrednio Cię dotyczą (jesteś w zasięgu alertu)</div>
+              <div><strong>Zasięg wyszukiwania:</strong> Pokazuje także alerty w określonej odległości od Twojej lokalizacji</div>
+            </div>
           </div>
         </CardContent>
       )}
