@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
-import Navigation from '@/components/Navigation';
 import type { UserUpdateRequest, UserPreferencesUpdateRequest, ChangePasswordRequest, Language } from '@/types/api';
 
 const ProfilePage: React.FC = () => {
@@ -161,9 +160,7 @@ const ProfilePage: React.FC = () => {
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-        <Navigation />
-        
-        <div className="pt-28 pb-12">
+        <div className="pt-8 pb-12">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden">
               {/* Header */}
