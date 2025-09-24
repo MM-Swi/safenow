@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { useAuth } from '@/hooks/useAuth';
+import React, { useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
 
 const Navigation: React.FC = () => {
   const pathname = usePathname();
@@ -16,25 +16,28 @@ const Navigation: React.FC = () => {
       await logout();
       setIsDropdownOpen(false);
     } catch (error) {
-      console.error('Logout failed:', error);
+      console.error("Logout failed:", error);
     }
   };
 
   const navigation = [
-    { name: 'Strona główna', href: '/' },
-    { name: 'Tryb awaryjny', href: '/emergency' },
-    { name: 'Edukacja', href: '/education' },
+    { name: "Strona główna", href: "/" },
+    { name: "Tryb awaryjny", href: "/emergency" },
+    { name: "Edukacja", href: "/education" },
   ];
 
   const isActive = (href: string) => {
-    if (href === '/') {
-      return pathname === '/';
+    if (href === "/") {
+      return pathname === "/";
     }
     return pathname.startsWith(href);
   };
 
   return (
-    <nav className="bg-white shadow-sm border-b border-gray-100 fixed top-0 left-0 right-0 z-50">
+    <nav
+      className="bg-white shadow-sm border-b border-gray-100 fixed top-0 left-0 right-0 z-50"
+      onClick={(e) => e.stopPropagation()}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex">
@@ -43,8 +46,18 @@ const Navigation: React.FC = () => {
               <Link href="/" className="group flex items-center space-x-3">
                 <div className="relative">
                   <div className="p-2 bg-blue-600 rounded-lg shadow-sm group-hover:bg-blue-700 transition-colors duration-200">
-                    <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    <svg
+                      className="w-6 h-6 text-white"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                      />
                     </svg>
                   </div>
                 </div>
@@ -60,10 +73,14 @@ const Navigation: React.FC = () => {
                 <Link
                   key={item.name}
                   href={item.href}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    console.log(`Navigating to: ${item.href}`);
+                  }}
                   className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors duration-200 ${
                     isActive(item.href)
-                      ? 'bg-blue-50 text-blue-700 border-b-2 border-blue-600'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                      ? "bg-blue-50 text-blue-700"
+                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
                   }`}
                 >
                   {item.name}
@@ -92,12 +109,20 @@ const Navigation: React.FC = () => {
                       <div className="text-sm font-medium text-gray-900">
                         {user.first_name || user.username}
                       </div>
-                      <div className="text-xs text-gray-500">
-                        {user.email}
-                      </div>
+                      <div className="text-xs text-gray-500">{user.email}</div>
                     </div>
-                    <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    <svg
+                      className="h-4 w-4 text-gray-400"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
                     </svg>
                   </div>
                 </button>
@@ -113,8 +138,18 @@ const Navigation: React.FC = () => {
                         className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
                         onClick={() => setIsDropdownOpen(false)}
                       >
-                        <svg className="w-4 h-4 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+                        <svg
+                          className="w-4 h-4 mr-3 text-gray-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"
+                          />
                         </svg>
                         Panel użytkownika
                       </Link>
@@ -123,8 +158,18 @@ const Navigation: React.FC = () => {
                         className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
                         onClick={() => setIsDropdownOpen(false)}
                       >
-                        <svg className="w-4 h-4 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        <svg
+                          className="w-4 h-4 mr-3 text-gray-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                          />
                         </svg>
                         Mój profil
                       </Link>
@@ -133,8 +178,18 @@ const Navigation: React.FC = () => {
                         onClick={handleLogout}
                         className="flex items-center w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200"
                       >
-                        <svg className="w-4 h-4 mr-3 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        <svg
+                          className="w-4 h-4 mr-3 text-red-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                          />
                         </svg>
                         Wyloguj się
                       </button>
@@ -195,7 +250,7 @@ const Navigation: React.FC = () => {
 
       {/* Mobile menu */}
       {isMobileMenuOpen && (
-        <div className="sm:hidden bg-white border-t border-gray-100">
+        <div className="sm:hidden bg-white border-t border-gray-100 relative z-40">
           <div className="px-2 pt-2 pb-3 space-y-1">
             {navigation.map((item) => (
               <Link
@@ -203,8 +258,8 @@ const Navigation: React.FC = () => {
                 href={item.href}
                 className={`block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 ${
                   isActive(item.href)
-                    ? 'bg-blue-50 text-blue-700'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    ? "bg-blue-50 text-blue-700"
+                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                 }`}
                 onClick={() => setIsMobileMenuOpen(false)}
               >
@@ -231,9 +286,7 @@ const Navigation: React.FC = () => {
                     <div className="text-base font-medium text-gray-900">
                       {user.first_name || user.username}
                     </div>
-                    <div className="text-sm text-gray-500">
-                      {user.email}
-                    </div>
+                    <div className="text-sm text-gray-500">{user.email}</div>
                   </div>
                 </div>
                 <div className="px-2 space-y-1">
@@ -284,14 +337,19 @@ const Navigation: React.FC = () => {
         </div>
       )}
 
-      {/* Dropdown backdrop for mobile */}
-      {(isDropdownOpen || isMobileMenuOpen) && (
+      {/* Mobile menu backdrop with proper z-index */}
+      {isMobileMenuOpen && (
         <div
-          className="fixed inset-0 z-40"
-          onClick={() => {
-            setIsDropdownOpen(false);
-            setIsMobileMenuOpen(false);
-          }}
+          className="fixed top-16 left-0 right-0 bottom-0 backdrop-blur-sm bg-white/10 z-30 sm:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* Desktop dropdown backdrop */}
+      {isDropdownOpen && (
+        <div
+          className="fixed inset-0 z-20 hidden sm:block"
+          onClick={() => setIsDropdownOpen(false)}
         />
       )}
     </nav>
