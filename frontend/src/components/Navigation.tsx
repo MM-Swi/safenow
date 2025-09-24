@@ -250,7 +250,7 @@ const Navigation: React.FC = () => {
 
       {/* Mobile menu */}
       {isMobileMenuOpen && (
-        <div className="sm:hidden bg-white border-t border-gray-100 relative z-40">
+        <div className="sm:hidden bg-white border-t border-gray-100 relative z-40 shadow-lg">
           <div className="px-2 pt-2 pb-3 space-y-1">
             {navigation.map((item) => (
               <Link
