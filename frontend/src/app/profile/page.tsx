@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { User, Settings, Lock } from 'lucide-react';
 import type { UserUpdateRequest, UserPreferencesUpdateRequest, ChangePasswordRequest, Language } from '@/types/api';
 
 const ProfilePage: React.FC = () => {
@@ -146,9 +147,9 @@ const ProfilePage: React.FC = () => {
   };
 
   const tabs = [
-    { id: 'profile', name: 'Profil', icon: '👤' },
-    { id: 'preferences', name: 'Preferencje', icon: '⚙️' },
-    { id: 'password', name: 'Hasło', icon: '🔒' },
+    { id: 'profile', name: 'Profil', icon: User },
+    { id: 'preferences', name: 'Preferencje', icon: Settings },
+    { id: 'password', name: 'Hasło', icon: Lock },
   ] as const;
 
   const languageOptions = [
@@ -187,7 +188,7 @@ const ProfilePage: React.FC = () => {
                       }`}
                     >
                       <div className="flex items-center space-x-2">
-                        <span>{tab.icon}</span>
+                        <tab.icon className="h-4 w-4" />
                         <span>{tab.name}</span>
                       </div>
                     </button>
