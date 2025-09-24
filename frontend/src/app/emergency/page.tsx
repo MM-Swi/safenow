@@ -12,6 +12,7 @@ import Navigation from '@/components/Navigation';
 import { useEmergencyData, useUpdateSafetyStatus } from '@/hooks/useApi';
 import { generateDeviceId } from '@/lib/utils/api';
 import { AlertTriangle, ArrowLeft, Phone, Shield, MapPin, Clock } from 'lucide-react';
+import InteractiveMap from '@/components/InteractiveMap';
 import { formatDistance, formatETA } from '@/lib/utils/api';
 
 export default function EmergencyPage() {
@@ -232,6 +233,33 @@ export default function EmergencyPage() {
             shelterCount={shelters.length}
             isLoading={isLoading}
           />
+        </div>
+
+        {/* Interactive Map */}
+        <div className="mb-6">
+          <Card className="border-gray-200 bg-white shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-gray-900">
+                <MapPin className="w-6 h-6 text-blue-600" />
+                🗺️ Mapa sytuacyjna
+              </CardTitle>
+              <p className="text-sm text-gray-600">
+                Interaktywna mapa pokazująca alerty i schrony w Twojej okolicy
+              </p>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="h-96 rounded-b-lg overflow-hidden">
+                <InteractiveMap
+                  alerts={alerts}
+                  shelters={shelters}
+                  userLocation={location}
+                  alertSearchRadius={alertSearchRadius}
+                  shelterSearchRadius={shelterRadius}
+                  isLoading={isLoading}
+                />
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Nearby Shelters */}

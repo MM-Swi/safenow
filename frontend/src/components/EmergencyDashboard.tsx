@@ -17,13 +17,15 @@ interface EmergencyDashboardProps {
   lon?: number;
   shelterRadius?: number;
   shelterLimit?: number;
+  alertSearchRadius?: number;
 }
 
 export function EmergencyDashboard({ 
   lat, 
   lon, 
   shelterRadius = 50, 
-  shelterLimit = 5 
+  shelterLimit = 5,
+  alertSearchRadius = 75 
 }: EmergencyDashboardProps) {
   const [location, setLocation] = useState<{ lat: number; lon: number } | null>(
     lat && lon ? { lat, lon } : null
@@ -34,7 +36,7 @@ export function EmergencyDashboard({
     location?.lat || 0,
     location?.lon || 0,
     !!location,
-    { shelterRadius, shelterLimit }
+    { shelterRadius, shelterLimit, alertSearchRadius }
   );
 
   const registerDeviceMutation = useRegisterDevice();

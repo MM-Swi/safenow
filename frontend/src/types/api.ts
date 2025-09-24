@@ -42,6 +42,8 @@ export interface Shelter {
   id: number;
   name: string;
   address: string;
+  lat: number;
+  lon: number;
   distance_km: number;
   eta_seconds: number;
   is_open_now: boolean;
