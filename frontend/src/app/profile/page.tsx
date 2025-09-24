@@ -262,7 +262,7 @@ const ProfilePage: React.FC = () => {
                         id="first_name"
                         value={profileData.first_name}
                         onChange={(e) => setProfileData(prev => ({ ...prev, first_name: e.target.value }))}
-                        className="mt-1 block w-full border-gray-300 rounded-xl shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all duration-300"
+                        className="mt-1 block w-full px-4 py-3 text-base border-2 border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white placeholder-gray-400"
                         disabled={isSubmitting}
                       />
                     </div>
@@ -276,7 +276,7 @@ const ProfilePage: React.FC = () => {
                         id="last_name"
                         value={profileData.last_name}
                         onChange={(e) => setProfileData(prev => ({ ...prev, last_name: e.target.value }))}
-                        className="mt-1 block w-full border-gray-300 rounded-xl shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all duration-300"
+                        className="mt-1 block w-full px-4 py-3 text-base border-2 border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white placeholder-gray-400"
                         disabled={isSubmitting}
                       />
                     </div>
@@ -291,7 +291,7 @@ const ProfilePage: React.FC = () => {
                       id="phone_number"
                       value={profileData.phone_number}
                       onChange={(e) => setProfileData(prev => ({ ...prev, phone_number: e.target.value }))}
-                      className="mt-1 block w-full border-gray-300 rounded-xl shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all duration-300"
+                      className="mt-1 block w-full px-4 py-3 text-base border-2 border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white placeholder-gray-400"
                       placeholder="+48 123 456 789"
                       disabled={isSubmitting}
                     />
@@ -320,7 +320,7 @@ const ProfilePage: React.FC = () => {
                       id="preferred_language"
                       value={preferencesData.preferred_language}
                       onChange={(e) => setPreferencesData(prev => ({ ...prev, preferred_language: e.target.value as Language }))}
-                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                      className="mt-1 block w-full px-4 py-3 text-base border-2 border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
                       disabled={isSubmitting}
                     >
                       {languageOptions.map((option) => (
@@ -406,7 +406,7 @@ const ProfilePage: React.FC = () => {
                         max="100"
                         value={preferencesData.alert_radius}
                         onChange={(e) => setPreferencesData(prev => ({ ...prev, alert_radius: parseInt(e.target.value) || 10 }))}
-                        className="mt-1 block w-full border-gray-300 rounded-xl shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all duration-300"
+                        className="mt-1 block w-full px-4 py-3 text-base border-2 border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white placeholder-gray-400"
                         disabled={isSubmitting}
                       />
                     </div>
@@ -436,8 +436,8 @@ const ProfilePage: React.FC = () => {
                       id="old_password"
                       value={passwordData.old_password}
                       onChange={(e) => setPasswordData(prev => ({ ...prev, old_password: e.target.value }))}
-                      className={`mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
-                        passwordErrors.old_password ? 'border-red-300' : ''
+                      className={`mt-1 block w-full px-4 py-3 text-base border-2 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white placeholder-gray-400 ${
+                        passwordErrors.old_password ? 'border-red-300 bg-red-50' : 'border-gray-200'
                       }`}
                       disabled={isSubmitting}
                     />
@@ -455,8 +455,8 @@ const ProfilePage: React.FC = () => {
                       id="new_password"
                       value={passwordData.new_password}
                       onChange={(e) => setPasswordData(prev => ({ ...prev, new_password: e.target.value }))}
-                      className={`mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
-                        passwordErrors.new_password ? 'border-red-300' : ''
+                      className={`mt-1 block w-full px-4 py-3 text-base border-2 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white placeholder-gray-400 ${
+                        passwordErrors.new_password ? 'border-red-300 bg-red-50' : 'border-gray-200'
                       }`}
                       disabled={isSubmitting}
                     />
@@ -474,8 +474,8 @@ const ProfilePage: React.FC = () => {
                       id="new_password2"
                       value={passwordData.new_password2}
                       onChange={(e) => setPasswordData(prev => ({ ...prev, new_password2: e.target.value }))}
-                      className={`mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
-                        passwordErrors.new_password2 ? 'border-red-300' : ''
+                      className={`mt-1 block w-full px-4 py-3 text-base border-2 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white placeholder-gray-400 ${
+                        passwordErrors.new_password2 ? 'border-red-300 bg-red-50' : 'border-gray-200'
                       }`}
                       disabled={isSubmitting}
                     />
