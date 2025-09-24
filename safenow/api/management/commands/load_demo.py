@@ -356,7 +356,7 @@ class Command(BaseCommand):
                 'Zagrożenie tsunami po trzęsieniu ziemi. Udaj się na wyżyny.',
                 'Fala tsunami zbliża się do wybrzeża. Opuść strefę nadmorską.',
             ],
-            'CHEMICAL_WEAPON': [
+            'CHEMICAL WEAPON': [
                 'Podejrzenie użycia broni chemicznej. Załóż maskę ochronną.',
                 'Wykryto substancje chemiczne w powietrzu. Unikaj wdychania.',
                 'Atak chemiczny w rejonie centrum. Schronienie w szczelnym pomieszczeniu.',
@@ -371,7 +371,7 @@ class Command(BaseCommand):
                 'Zagrożenie nuklearne - pozostań w pomieszczeniu z zamkniętymi oknami.',
                 'Wykryto podwyższone promieniowanie. Unikaj spożywania wody z kranu.',
             ],
-            'UNMARKED_SOLDIERS': [
+            'UNMARKED SOLDIERS': [
                 'Nieoznaczeni żołnierze w rejonie granicy. Unikaj tego obszaru.',
                 'Podejrzane jednostki wojskowe bez identyfikacji.',
                 'Nieznane siły zbrojne w okolicy. Pozostań w domu.',
@@ -381,17 +381,17 @@ class Command(BaseCommand):
                 'Wzrost zakażeń chorobą zakaźną. Noś maskę ochronną.',
                 'Alert pandemiczny - ograniczaj kontakty z innymi osobami.',
             ],
-            'TERRORIST_ATTACK': [
+            'TERRORIST ATTACK': [
                 'Podejrzenie ataku terrorystycznego. Unikaj miejsc publicznych.',
                 'Zagrożenie terrorystyczne w centrum miasta.',
                 'Alert antyterrorystyczny - zgłaszaj podejrzane zachowania.',
             ],
-            'MASS_POISONING': [
+            'MASS POISONING': [
                 'Masowe zatrucie w restauracji. Nie spożywaj jedzenia z tego rejonu.',
                 'Podejrzenie zatrucia wody pitnej. Używaj tylko wody butelkowanej.',
                 'Zatrucie gazem w budynku mieszkalnym. Ewakuacja w toku.',
             ],
-            'CYBER_ATTACK': [
+            'CYBER ATTACK': [
                 'Cyberatak na infrastrukturę krytyczną. Możliwe zakłócenia w dostawach.',
                 'Atak hakerski na systemy miejskie. Unikaj płatności elektronicznych.',
                 'Zagrożenie cybernetyczne - nie korzystaj z publicznych sieci Wi-Fi.',
@@ -414,14 +414,14 @@ class Command(BaseCommand):
             'SHOOTING',
             'STORM',
             'TSUNAMI',
-            'CHEMICAL_WEAPON',
+            'CHEMICAL WEAPON',
             'BIOHAZARD',
             'NUCLEAR',
-            'UNMARKED_SOLDIERS',
+            'UNMARKED SOLDIERS',
             'PANDEMIC',
-            'TERRORIST_ATTACK',
-            'MASS_POISONING',
-            'CYBER_ATTACK',
+            'TERRORIST ATTACK',
+            'MASS POISONING',
+            'CYBER ATTACK',
             'EARTHQUAKE',
         ]
 

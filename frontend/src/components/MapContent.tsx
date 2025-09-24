@@ -122,6 +122,9 @@ function AlertMarker({ alert }: { alert: Alert }) {
   };
 
   const getHazardSymbol = (hazardType: string) => {
+    // Normalize hazard type to handle both space and underscore formats
+    const normalizedType = hazardType.replace(/ /g, '_');
+    
     const symbolMap: Record<string, string> = {
       'AIR_RAID': 'A',
       'DRONE': 'D',
@@ -142,7 +145,7 @@ function AlertMarker({ alert }: { alert: Alert }) {
       'CYBER_ATTACK': 'Y',
       'EARTHQUAKE': 'Q'
     };
-    return symbolMap[hazardType] || '!';
+    return symbolMap[normalizedType] || '!';
   };
 
   const alertIcon = useMemo(() => {
@@ -172,6 +175,9 @@ function AlertMarker({ alert }: { alert: Alert }) {
   };
 
   const getHazardLabel = (hazardType: string) => {
+    // Normalize hazard type to handle both space and underscore formats
+    const normalizedType = hazardType.replace(/ /g, '_');
+    
     const labels = {
       'AIR_RAID': 'Alert lotniczy',
       'DRONE': 'Zagrożenie dronami',
@@ -192,7 +198,7 @@ function AlertMarker({ alert }: { alert: Alert }) {
       'CYBER_ATTACK': 'Atak cybernetyczny',
       'EARTHQUAKE': 'Trzęsienie ziemi'
     };
-    return labels[hazardType as keyof typeof labels] || hazardType;
+    return labels[normalizedType as keyof typeof labels] || hazardType;
   };
 
   // Safety check for coordinates and icon

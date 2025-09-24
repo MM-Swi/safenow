@@ -2,6 +2,16 @@ import type { HazardType, Severity } from '@/types/api';
 
 // Utility functions for API data processing
 
+// Normalize hazard type from backend (with spaces) to frontend format (with underscores)
+export const normalizeHazardType = (hazardType: HazardType): string => {
+  return hazardType.replace(/ /g, '_');
+};
+
+// Convert frontend underscore format back to backend space format
+export const denormalizeHazardType = (hazardType: string): HazardType => {
+  return hazardType.replace(/_/g, ' ') as HazardType;
+};
+
 // Format ETA seconds to human readable time
 export const formatETA = (seconds: number): string => {
   if (seconds < 60) {
