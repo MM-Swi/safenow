@@ -54,26 +54,25 @@ export function AlertSearchControls({
   return (
     <Card className="border-orange-300 bg-gradient-to-r from-orange-50 to-amber-50 shadow-lg">
       <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2 text-orange-900 text-lg font-bold">
-            <AlertTriangle className="w-6 h-6 text-orange-600" />
-            🔍 Zasięg wyszukiwania alertów
-          </CardTitle>
+        <CardTitle className="flex items-center gap-2 text-orange-900 text-lg font-bold mb-3">
+          <AlertTriangle className="w-6 h-6 text-orange-600" />
+          🔍 Zasięg wyszukiwania alertów
+        </CardTitle>
 
-          <div className="flex items-center gap-2">
-            <div className="text-sm font-semibold text-orange-800 bg-orange-100 px-3 py-1 rounded-full">
-              {currentSearchRadius === 0 ? '🎯 Bezpośrednie' : `📍 ${currentSearchRadius}km`} • {alertCount} alertów
-              {isLoading && <span className="ml-1 animate-pulse">⟳</span>}
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsExpanded(!isExpanded)}
-              className="border-orange-400 text-orange-800 hover:bg-orange-200 font-semibold"
-            >
-              <Settings className="w-4 h-4" />
-            </Button>
+        <div className="flex items-center justify-between mb-3">
+          <div className="text-sm font-semibold text-orange-800 bg-orange-100 px-3 py-1.5 rounded-full">
+            {currentSearchRadius === 0 ? '🎯 Bezpośrednie' : `📍 ${currentSearchRadius}km`} • {alertCount} alertów
+            {isLoading && <span className="ml-1 animate-pulse">⟳</span>}
           </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="border-orange-400 text-orange-800 hover:bg-orange-200 font-semibold ml-2"
+          >
+            <Settings className="w-4 h-4 mr-1" />
+            <span className="hidden sm:inline">Ustawienia</span>
+          </Button>
         </div>
 
         <div className="text-sm text-orange-700">
