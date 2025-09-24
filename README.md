@@ -19,12 +19,12 @@ python manage.py runserver  # http://localhost:8000
 ```bash
 cd frontend
 npm install
-npm run dev  # http://localhost:3002
+npm run dev  # http://localhost:3000
 ```
 
 ## Gotowe!
 
-- **Frontend**: http://localhost:3002
+- **Frontend**: http://localhost:3000
 - **Backend API**: http://localhost:8000/api/health/
 - **Admin Panel**: http://localhost:8000/admin/ (django admin)
 
