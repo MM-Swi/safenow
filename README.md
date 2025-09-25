@@ -12,7 +12,13 @@ pip install -r requirements.txt
 python manage.py migrate
 python manage.py load_demo  # Ładuje przykładowe dane
 python manage.py runserver  # http://localhost:8000
-```
+
+## 🔐 Demo Credentials
+
+| Role | Username | Password |
+|------|----------|----------|
+| **User** | `user@safenow.com` | `user` |
+| **Admin** | `admin@safenow.com` | `admin` |
 
 ## Frontend (Next.js)
 
